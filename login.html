@@ -537,77 +537,141 @@
 
     <!-- JAVASCRIPT -->
 
-    <script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        // Display the current year
+<script>
+/* ==========================================
+   TES DIGITAL HUB — SUPABASE AUTHENTICATION
+========================================== */
 
-        document.getElementById("year").textContent =
-            new Date().getFullYear();
+// STEP 1: ENTER YOUR SUPABASE PROJECT URL
+const SUPABASE_URL = "https://jgzvycawkkfdvdimdjat.supabase.co/rest/v1/";
 
+// STEP 2: ENTER YOUR SUPABASE PUBLISHABLE KEY
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
 
-        // Show or hide the password
-
-        const passwordField =
-            document.getElementById("password");
-
-        const togglePassword =
-            document.getElementById("togglePassword");
-
-        togglePassword.addEventListener("click", function () {
-
-            if (passwordField.type === "password") {
-
-                passwordField.type = "text";
-                togglePassword.textContent = "Hide";
-
-            } else {
-
-                passwordField.type = "password";
-                togglePassword.textContent = "Show";
-
-            }
-
-        });
+// Connect to Supabase
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
 
 
-        // Login prototype - no authentication yet
-
-        const loginForm =
-            document.getElementById("loginForm");
-
-        const message =
-            document.getElementById("message");
-
-        loginForm.addEventListener("submit", function (event) {
-
-            event.preventDefault();
-
-            message.textContent =
-                "The TES login interface is ready, but secure authentication " +
-                "has not yet been connected. No sign-in has taken place.";
-
-            message.classList.add("visible");
-
-        });
+// Set the current year
+document.getElementById("year").textContent =
+    new Date().getFullYear();
 
 
-        // Password recovery placeholder
+// Show or hide the password
+const passwordField = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
 
-        document.getElementById("forgotPassword")
-            .addEventListener("click", function (event) {
+togglePassword.addEventListener("click", function () {
 
-                event.preventDefault();
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        togglePassword.textContent = "Hide";
+    } else {
+        passwordField.type = "password";
+        togglePassword.textContent = "Show";
+    }
 
-                message.textContent =
-                    "Password recovery will be available once the TES " +
-                    "authentication service has been configured.";
+});
 
-                message.classList.add("visible");
 
+// Display messages on the login page
+const message = document.getElementById("message");
+
+function showMessage(text, success = false) {
+
+    message.textContent = text;
+    message.classList.add("visible");
+
+    if (success) {
+        message.style.color = "#27e6a0";
+    } else {
+        message.style.color = "#ffda79";
+    }
+
+}
+
+
+// Sign in with Supabase
+const loginForm = document.getElementById("loginForm");
+const signInButton = loginForm.querySelector(
+    'button[type="submit"]'
+);
+
+loginForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const email = document
+        .getElementById("username")
+        .value.trim();
+
+    const password = passwordField.value;
+
+    message.classList.remove("visible");
+
+    signInButton.disabled = true;
+    signInButton.textContent = "SIGNING IN...";
+
+    try {
+
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
             });
 
-    </script>
+        if (error) {
+            throw error;
+        }
 
+        if (!data.session) {
+            throw new Error(
+                "No authenticated session was returned."
+            );
+        }
+
+        showMessage(
+            "Sign-in successful. Opening your TES Dashboard...",
+            true
+        );
+
+        window.location.href = "dashboard.html";
+
+    } catch (error) {
+
+        console.error("TES login error:", error);
+
+        showMessage(
+            "Sign-in failed. Check your email and password, " +
+            "or confirm that your account is enabled in Supabase."
+        );
+
+        signInButton.disabled = false;
+        signInButton.textContent = "SIGN IN";
+
+    }
+
+});
+
+
+// Password recovery placeholder
+document.getElementById("forgotPassword")
+    .addEventListener("click", function (event) {
+
+        event.preventDefault();
+
+        showMessage(
+            "Password recovery will be configured in the next step."
+        );
+
+    });
+
+</script>
 </body>
 
 </html>
