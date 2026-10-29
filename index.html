@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TES Digital Hub | The Entity Solutions</title>
+
+    <meta name="description"
+          content="The Entity Solutions Digital Hub - a central platform for business applications, administration and digital services.">
+
+    <style>
+        /* =====================================
+           TES DIGITAL HUB - MAIN STYLES
+        ===================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #080b12;
+            --panel: #101827;
+            --turquoise: #27e6e6;
+            --turquoise-dark: #00bfc5;
+            --white: #f5f8ff;
+            --muted: #a7b2c5;
+            --border: rgba(39, 230, 230, 0.25);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(
+                    circle at 50% 35%,
+                    rgba(0, 153, 255, 0.20),
+                    transparent 45%
+                ),
+                var(--background);
+
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* =====================================
+           HEADER
+        ===================================== */
+
+        header {
+            background: rgba(7, 11, 20, 0.96);
+            border-bottom: 1px solid var(--border);
+            padding: 22px 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-container {
+            max-width: 1250px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .logo {
+            color: var(--turquoise);
+            font-size: 27px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            display: block;
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 2px;
+            font-weight: normal;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--white);
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--turquoise);
+        }
+
+        .nav-login {
+            border: 1px solid var(--turquoise);
+            color: var(--turquoise);
+            padding: 9px 19px;
+            border-radius: 7px;
+        }
+
+        .nav-login:hover {
+            background: var(--turquoise);
+            color: #071018;
+        }
+
+        /* =====================================
+           HERO SECTION
+        ===================================== */
+
+        .hero {
+            max-width: 1250px;
+            margin: auto;
+            padding: 110px 25px 100px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            color: var(--white);
+            font-size: 13px;
+            letter-spacing: 4px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            color: var(--turquoise);
+            font-size: clamp(38px, 6vw, 68px);
+            line-height: 1.15;
+            margin-bottom: 25px;
+            text-shadow: 0 0 35px rgba(39, 230, 230, 0.20);
+        }
+
+        .hero h1 span {
+            display: block;
+            color: var(--white);
+            font-size: clamp(24px, 3vw, 35px);
+            margin-top: 12px;
+        }
+
+        .hero-description {
+            color: var(--muted);
+            max-width: 720px;
+            margin: 0 auto 35px;
+            font-size: 17px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 13px 27px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid var(--turquoise);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background: var(--turquoise);
+            color: #071018;
+        }
+
+        .button-primary:hover {
+            background: #8fffff;
+            transform: translateY(-2px);
+        }
+
+        .button-outline {
+            background: transparent;
+            color: var(--turquoise);
+        }
+
+        .button-outline:hover {
+            background: rgba(39, 230, 230, 0.10);
+            transform: translateY(-2px);
+        }
+
+        /* =====================================
+           QUICK ACCESS
+        ===================================== */
+
+        .quick-access {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 20px 25px 85px;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 38px;
+        }
+
+        .section-heading h2 {
+            color: var(--white);
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .application-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .application-card {
+            background: rgba(16, 24, 39, 0.85);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 28px 24px;
+            transition: 0.3s;
+        }
+
+        .application-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--turquoise);
+            box-shadow: 0 12px 35px rgba(0, 191, 197, 0.10);
+        }
+
+        .application-icon {
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(39, 230, 230, 0.10);
+            border: 1px solid var(--border);
+            color: var(--turquoise);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .application-card h3 {
+            color: var(--white);
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .application-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .card-link {
+            color: var(--turquoise);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .card-link:hover {
+            text-decoration: underline;
+        }
+
+        .coming-soon {
+            display: inline-block;
+            background: rgba(255, 193, 7, 0.10);
+            color: #ffd66b;
+            border: 1px solid rgba(255, 193, 7, 0.25);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* =====================================
+           ABOUT THE HUB
+        ===================================== */
+
+        .about {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(16, 24, 39, 0.45);
+            padding: 75px 25px;
+            text-align: center;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .about h2 {
+            color: var(--turquoise);
+            font-size: 30px;
+            margin-bottom: 18px;
+        }
+
+        .about p {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* =====================================
+           FOOTER
+        ===================================== */
+
+        footer {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        footer strong {
+            color: var(--turquoise);
+        }
+
+        /* =====================================
+           MOBILE RESPONSIVENESS
+        ===================================== */
+
+        @media (max-width: 850px) {
+
+            .header-container {
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            nav {
+                justify-content: center;
+                gap: 16px;
+            }
+
+            .application-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero {
+                padding-top: 80px;
+            }
+        }
+
+        @media (max-width: 560px) {
+
+            header {
+                padding: 18px 15px;
+            }
+
+            nav {
+                gap: 12px;
+            }
+
+            nav a {
+                font-size: 12px;
+            }
+
+            .hero {
+                padding: 70px 20px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .application-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading h2 {
+                font-size: 26px;
+            }
+
+            .application-card {
+                padding: 24px 20px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================
+         HEADER AND NAVIGATION
+    ====================================== -->
+
+    <header>
+
+        <div class="header-container">
+
+            <a href="index.html" class="logo">
+                TES DIGITAL HUB
+                <span>THE ENTITY SOLUTIONS</span>
+            </a>
+
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="#applications">Applications</a>
+                <a href="#about">About</a>
+                <a href="login.html" class="nav-login">Sign In</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         HERO SECTION
+    ====================================== -->
+
+    <main>
+
+        <section class="hero">
+
+            <p class="eyebrow">ONE PLATFORM. MULTIPLE SOLUTIONS.</p>
+
+            <h1>
+                TES DIGITAL HUB
+                <span>Powering Business Growth</span>
+            </h1>
+
+            <p class="hero-description">
+                Welcome to The Entity Solutions Digital Hub.
+                Your central access point for business applications,
+                digital services, administration and intelligent
+                business solutions.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#applications"
+                   class="button button-primary">
+                    Explore Applications
+                </a>
+
+                <a href="login.html"
+                   class="button button-outline">
+                    Sign In to TES
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             APPLICATIONS
+        ====================================== -->
+
+        <section class="quick-access" id="applications">
+
+            <div class="section-heading">
+
+                <h2>Our Digital Platform</h2>
+
+                <p>
+                    Access the tools and applications that power
+                    your business operations.
+                </p>
+
+            </div>
+
+
+            <div class="application-grid">
+
+
+                <!-- ADMIN PORTAL -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">⚙️</div>
+
+                    <h3>TES Admin Portal</h3>
+
+                    <p>
+                        Manage platform settings, authorised users,
+                        client records and application access.
+                    </p>
+
+                    <a href="admin.html" class="card-link">
+                        Open Admin Portal →
+                    </a>
+
+                </article>
+
+
+                <!-- BUSINESS MANAGER -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">▦</div>
+
+                    <h3>TES Business Manager</h3>
+
+                    <p>
+                        Organise business activities, clients,
+                        tasks and operational information.
+                    </p>
+
+                    <span class="coming-soon">PLANNED</span>
+
+                </article>
+
+
+                <!-- WORKFORCE PRO -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">♙</div>
+
+                    <h3>WorkForce Pro</h3>
+
+                    <p>
+                        A planned multi-company workforce management
+                        application for businesses and contractors.
+                    </p>
+
+                    <span class="coming-soon">PLANNED</span>
+
+                </article>
+
+
+                <!-- LEARNING HUB -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">▤</div>
+
+                    <h3>TES Learning Hub</h3>
+
+                    <p>
+                        A future platform for online courses,
+                        assessments and learner progress.
+                    </p>
+
+                    <span class="coming-soon">PLANNED</span>
+
+                </article>
+
+
+                <!-- ANALYTICS -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">▥</div>
+
+                    <h3>TES Analytics Studio</h3>
+
+                    <p>
+                        Turn business data into meaningful
+                        reports, dashboards and performance insights.
+                    </p>
+
+                    <span class="coming-soon">PLANNED</span>
+
+                </article>
+
+
+                <!-- CLIENT PORTAL -->
+
+                <article class="application-card">
+
+                    <div class="application-icon">♧</div>
+
+                    <h3>TES Client Portal</h3>
+
+                    <p>
+                        A planned secure space for clients to
+                        access services, documents and updates.
+                    </p>
+
+                    <span class="coming-soon">PLANNED</span>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             ABOUT
+        ====================================== -->
+
+        <section class="about" id="about">
+
+            <div class="about-content">
+
+                <h2>One Connected TES Ecosystem</h2>
+
+                <p>
+                    The TES Digital Hub is being developed as the
+                    central platform for The Entity Solutions'
+                    digital products and services.
+                </p>
+
+                <p>
+                    Our goal is to provide a consistent experience
+                    across applications while supporting secure
+                    access, efficient administration and future growth.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer>
+
+        <p>
+            © <span id="year"></span>
+            <strong>The Entity Solutions</strong>.
+            All rights reserved.
+        </p>
+
+        <p>TES Digital Hub | Stage 1</p>
+
+    </footer>
+
+
+    <!-- =====================================
+         BASIC JAVASCRIPT
+    ====================================== -->
+
+    <script>
+        document.getElementById("year").textContent =
+            new Date().getFullYear();
+    </script>
+
+</body>
+
+</html>
