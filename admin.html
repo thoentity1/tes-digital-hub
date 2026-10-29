@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07111f">
 
-<title>TES Admin Portal | The Entity Solutions</title>
+<title>Admin Portal | The Entity Solutions</title>
 
 <style>
 :root {
@@ -13,25 +13,32 @@
     --panel: #0d1b2c;
     --panel2: #102338;
     --teal: #19d3d0;
-    --teal-dark: #0da6b2;
     --text: #eef7fb;
     --muted: #9bb0c1;
     --gold: #e5bd6b;
-    --border: rgba(137,180,202,.18);
+    --border: rgba(137,180,202,.2);
 }
 
 * {
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
+    min-height: 100vh;
     background:
-        radial-gradient(circle at 80% 0%, rgba(25,211,208,.09), transparent 30%),
+        radial-gradient(
+            ellipse at 75% 0%,
+            rgba(25,211,208,.12),
+            transparent 40%
+        ),
         var(--bg);
     color: var(--text);
     font-family: "Segoe UI", Arial, sans-serif;
-    min-height: 100vh;
 }
 
 a {
@@ -40,20 +47,21 @@ a {
 }
 
 button {
-    font-family: inherit;
+    font: inherit;
     cursor: pointer;
 }
 
 /* HEADER */
 
-.topbar {
+.header {
+    min-height: 82px;
+    padding: 16px 35px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 35px;
-    background: rgba(5,13,24,.95);
-    border-bottom: 1px solid var(--border);
     gap: 20px;
+    background: rgba(5,13,24,.96);
+    border-bottom: 1px solid var(--border);
 }
 
 .brand {
@@ -62,7 +70,7 @@ button {
     gap: 13px;
 }
 
-.brand-logo {
+.logo {
     width: 48px;
     height: 48px;
     display: grid;
@@ -70,80 +78,80 @@ button {
     border: 1px solid var(--teal);
     border-radius: 12px;
     color: var(--teal);
-    font-weight: 900;
     font-size: 17px;
+    font-weight: 900;
 }
 
-.brand-name {
+.brand-title {
+    font-size: 15px;
     font-weight: 800;
     letter-spacing: 1px;
-    font-size: 15px;
 }
 
-.brand-sub {
+.brand-subtitle {
     display: block;
+    margin-top: 5px;
     color: var(--muted);
     font-size: 10px;
     letter-spacing: 2px;
-    margin-top: 5px;
 }
 
-.header-right {
+.header-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .status {
+    padding: 8px 12px;
     color: var(--teal);
     background: rgba(25,211,208,.08);
     border: 1px solid rgba(25,211,208,.25);
     border-radius: 20px;
-    padding: 8px 12px;
     font-size: 12px;
 }
 
-.btn {
-    background: var(--panel2);
+.button {
+    display: inline-block;
+    padding: 11px 16px;
     border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 15px;
     border-radius: 9px;
+    background: var(--panel2);
+    color: var(--text);
     font-size: 12px;
+    font-weight: 600;
 }
 
-.btn:hover {
+.button:hover {
     border-color: var(--teal);
 }
 
-.btn-primary {
+.button-primary {
     background: var(--teal);
-    color: #06202a;
     border-color: var(--teal);
-    font-weight: bold;
+    color: #06202a;
 }
 
-/* LAYOUT */
+/* PAGE LAYOUT */
 
 .layout {
     display: grid;
     grid-template-columns: 245px minmax(0,1fr);
-    min-height: calc(100vh - 85px);
+    min-height: calc(100vh - 82px);
 }
 
 .sidebar {
     padding: 25px 16px;
+    background: rgba(7,17,31,.7);
     border-right: 1px solid var(--border);
-    background: rgba(7,17,31,.65);
 }
 
 .nav-heading {
+    margin: 10px 12px 13px;
     color: #7191a8;
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 800;
     letter-spacing: 2px;
-    padding: 0 12px;
-    margin: 10px 0 13px;
 }
 
 .nav {
@@ -153,18 +161,19 @@ button {
 }
 
 .nav a {
+    display: block;
     padding: 13px 12px;
+    border: 1px solid transparent;
     border-radius: 9px;
     color: #b7c9d5;
     font-size: 13px;
-    border: 1px solid transparent;
 }
 
 .nav a:hover,
 .nav a.active {
     color: var(--teal);
     background: rgba(25,211,208,.08);
-    border-color: rgba(25,211,208,.15);
+    border-color: rgba(25,211,208,.2);
 }
 
 .sidebar-info {
@@ -177,23 +186,23 @@ button {
     line-height: 1.7;
 }
 
-/* MAIN */
+/* MAIN CONTENT */
 
 main {
-    padding: 35px;
-    min-width: 0;
-    max-width: 1500px;
     width: 100%;
+    max-width: 1500px;
+    min-width: 0;
     margin: 0 auto;
+    padding: 35px;
 }
 
 .eyebrow {
+    margin-bottom: 12px;
     color: var(--teal);
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 800;
     letter-spacing: 3px;
     text-transform: uppercase;
-    margin-bottom: 12px;
 }
 
 .welcome {
@@ -205,8 +214,8 @@ main {
 }
 
 h1 {
-    font-size: clamp(28px,4vw,42px);
     margin: 0 0 12px;
+    font-size: clamp(28px,4vw,42px);
     letter-spacing: -1px;
 }
 
@@ -215,35 +224,35 @@ h1 span {
 }
 
 .lead {
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.7;
     max-width: 650px;
     margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
 }
 
 .stage {
-    color: var(--gold);
-    background: rgba(229,189,107,.06);
-    border: 1px solid rgba(229,189,107,.25);
     padding: 10px 13px;
+    border: 1px solid rgba(229,189,107,.25);
     border-radius: 10px;
+    background: rgba(229,189,107,.06);
+    color: var(--gold);
     font-size: 11px;
     white-space: nowrap;
 }
 
 .notice {
-    padding: 14px 16px;
+    margin-bottom: 25px;
+    padding: 15px 17px;
     border: 1px solid rgba(229,189,107,.25);
-    background: rgba(229,189,107,.06);
     border-radius: 10px;
+    background: rgba(229,189,107,.06);
     color: #e8d5ad;
     font-size: 12px;
-    line-height: 1.7;
-    margin-bottom: 25px;
+    line-height: 1.8;
 }
 
-/* STATISTICS */
+/* SUMMARY CARDS */
 
 .stats {
     display: grid;
@@ -256,45 +265,46 @@ h1 span {
     padding: 21px;
     border: 1px solid var(--border);
     border-radius: 16px;
-    background: linear-gradient(145deg,var(--panel2),var(--panel));
+    background: linear-gradient(
+        145deg,
+        var(--panel2),
+        var(--panel)
+    );
 }
 
 .stat-label {
+    margin-bottom: 15px;
     color: var(--muted);
     font-size: 12px;
-    margin-bottom: 16px;
 }
 
 .stat-value {
-    font-size: 28px;
+    color: var(--teal);
+    font-size: 27px;
     font-weight: 800;
-    letter-spacing: -1px;
 }
 
 .stat-foot {
+    margin-top: 10px;
     color: #7f9bad;
     font-size: 11px;
-    margin-top: 10px;
 }
 
-/* MODULES */
+/* ADMINISTRATION MODULES */
 
 .section-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin: 30px 0 17px;
 }
 
 h2 {
-    font-size: 20px;
     margin: 0;
+    font-size: 20px;
 }
 
 .section-caption {
+    margin-top: 7px;
     color: var(--muted);
     font-size: 12px;
-    margin-top: 7px;
 }
 
 .modules {
@@ -304,34 +314,37 @@ h2 {
 }
 
 .card {
-    background: linear-gradient(145deg,#102338,#0a1929);
+    padding: 23px;
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 23px;
+    background: linear-gradient(
+        145deg,
+        #102338,
+        #0a1929
+    );
 }
 
 .module {
     display: flex;
-    gap: 16px;
     align-items: flex-start;
+    gap: 16px;
     min-height: 165px;
     transition: .2s;
 }
 
 .module:hover {
-    border-color: rgba(25,211,208,.4);
     transform: translateY(-2px);
+    border-color: rgba(25,211,208,.4);
 }
 
 .module-icon {
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
     display: grid;
+    flex: 0 0 46px;
+    height: 46px;
     place-items: center;
+    border: 1px solid rgba(25,211,208,.2);
     border-radius: 12px;
     background: rgba(25,211,208,.09);
-    border: 1px solid rgba(25,211,208,.2);
     color: var(--teal);
     font-size: 20px;
 }
@@ -342,16 +355,16 @@ h2 {
 }
 
 .module p {
+    margin: 0 0 17px;
     color: var(--muted);
     font-size: 12px;
-    line-height: 1.7;
-    margin: 0 0 17px;
+    line-height: 1.8;
 }
 
 .module-link {
     color: var(--teal);
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 800;
 }
 
 /* LOWER PANELS */
@@ -378,11 +391,11 @@ h2 {
 }
 
 .tag {
-    font-size: 10px;
-    color: var(--gold);
+    padding: 5px 8px;
     border: 1px solid rgba(229,189,107,.25);
     border-radius: 20px;
-    padding: 5px 8px;
+    color: var(--gold);
+    font-size: 10px;
     white-space: nowrap;
 }
 
@@ -391,10 +404,751 @@ h2 {
 }
 
 footer {
-    color: #71889a;
-    font-size: 11px;
-    padding: 30px 0 8px;
     display: flex;
     justify-content: space-between;
     gap: 15px;
+    padding: 30px 0 8px;
+    color: #71889a;
+    font-size: 11px;
 }
+
+/* LOADING AND ERROR MESSAGES */
+
+.message-box {
+    max-width: 650px;
+    margin: 70px auto;
+    padding: 30px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--panel);
+    line-height: 1.8;
+}
+
+.message-box h1 {
+    font-size: 26px;
+}
+
+.message-box p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.message-box .button {
+    margin-top: 10px;
+}
+
+.error-text {
+    color: #ffaaaa !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1050px) {
+    .layout {
+        grid-template-columns: 210px minmax(0,1fr);
+    }
+
+    main {
+        padding: 25px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:760px) {
+    .header {
+        padding: 15px;
+    }
+
+    .status {
+        display: none;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        padding: 12px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+    }
+
+    .nav-heading,
+    .sidebar-info {
+        display: none;
+    }
+
+    .nav {
+        display: flex;
+        min-width: max-content;
+        margin: 0;
+    }
+
+    .nav a {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    main {
+        padding: 22px 15px;
+    }
+
+    .welcome {
+        display: block;
+    }
+
+    .stage {
+        display: inline-block;
+        margin-top: 16px;
+    }
+
+    .modules,
+    .bottom-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .module {
+        min-height: auto;
+    }
+}
+
+@media(max-width:420px) {
+    .stats {
+        gap: 9px;
+    }
+
+    .stat {
+        padding: 14px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .brand-title {
+        font-size: 12px;
+    }
+
+    .brand-subtitle {
+        font-size: 8px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <a href="https://theentitysolutions.com/" class="brand">
+
+        <div class="logo">TES</div>
+
+        <div>
+            <div class="brand-title">THE ENTITY SOLUTIONS</div>
+
+            <span class="brand-subtitle">
+                DIGITAL BUSINESS · SCALE & GROW
+            </span>
+        </div>
+
+    </a>
+
+    <div class="header-actions">
+
+        <span class="status" id="sessionStatus">
+            Initialising...
+        </span>
+
+        <button class="button" id="signOutButton" type="button">
+            Sign Out
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- This message remains visible if JavaScript fails. -->
+
+<section id="loadingMessage" class="message-box">
+
+    <div class="eyebrow">TES Digital Hub</div>
+
+    <h1>Preparing your <span style="color:var(--teal)">workspace</span></h1>
+
+    <p id="loadingText">
+        Checking your sign-in session. Please wait...
+    </p>
+
+</section>
+
+
+<!-- Authentication errors are displayed here, not as a blank screen. -->
+
+<section id="authMessage" class="message-box hidden">
+
+    <div class="eyebrow">Secure access</div>
+
+    <h1 id="authTitle">Sign-in required</h1>
+
+    <p id="authText">
+        Please sign in to access the administration workspace.
+    </p>
+
+    <p id="errorDetails" class="error-text"></p>
+
+    <a href="login.html" class="button button-primary">
+        Return to Sign In
+    </a>
+
+    <button
+        type="button"
+        class="button"
+        onclick="location.reload()">
+        Try Again
+    </button>
+
+</section>
+
+
+<!-- The dashboard is shown only after a session is verified. -->
+
+<div class="layout hidden" id="portal">
+
+    <aside class="sidebar">
+
+        <div class="nav-heading">WORKSPACE</div>
+
+        <nav class="nav">
+
+            <a class="active" href="#overview">▦ &nbsp; Overview</a>
+
+            <a href="#users">♙ &nbsp; User Management</a>
+
+            <a href="#clients">▣ &nbsp; Client Management</a>
+
+            <a href="#applications">◈ &nbsp; Applications</a>
+
+            <a href="#settings">⚙️ &nbsp; System Settings</a>
+
+        </nav>
+
+        <div class="nav-heading">PLATFORM</div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html">⌂ &nbsp; Digital Hub Home</a>
+
+            <a href="https://theentitysolutions.com/">
+                ↗️ &nbsp; Company Website
+            </a>
+
+        </nav>
+
+        <div class="sidebar-info">
+            <strong style="color:white">TES Digital Hub</strong>
+            <br>
+            One central workspace for The Entity Solutions' digital
+            operations and applications.
+        </div>
+
+    </aside>
+
+
+    <main id="overview">
+
+        <section class="welcome">
+
+            <div>
+
+                <div class="eyebrow">
+                    Administration Workspace
+                </div>
+
+                <h1>
+                    Admin <span>Centre</span>
+                </h1>
+
+                <p class="lead">
+                    Manage your digital platform, users, clients and
+                    applications from one professional workspace.
+                </p>
+
+            </div>
+
+            <div class="stage">
+                STAGE 1 · FOUNDATION
+            </div>
+
+        </section>
+
+
+        <div class="notice">
+            <strong>Security notice:</strong>
+            Signing in verifies your session, but does not automatically
+            grant administrator privileges. Administrator permissions
+            and database security policies must be implemented before
+            this portal manages real records.
+        </div>
+
+
+        <section class="stats">
+
+            <article class="stat">
+                <div class="stat-label">Registered Users</div>
+                <div class="stat-value">—</div>
+                <div class="stat-foot">Database connection required</div>
+            </article>
+
+            <article class="stat">
+                <div class="stat-label">Active Clients</div>
+                <div class="stat-value">—</div>
+                <div class="stat-foot">Client database required</div>
+            </article>
+
+            <article class="stat">
+                <div class="stat-label">Platform Applications</div>
+                <div class="stat-value">6</div>
+                <div class="stat-foot">Planned TES applications</div>
+            </article>
+
+            <article class="stat">
+                <div class="stat-label">Authentication</div>
+                <div class="stat-value" id="authValue">Checking</div>
+                <div class="stat-foot" id="authFoot">
+                    Verifying session
+                </div>
+            </article>
+
+        </section>
+
+
+        <div class="section-heading">
+            <h2>Administration Modules</h2>
+            <div class="section-caption">
+                Your central administration workspace
+            </div>
+        </div>
+
+
+        <section class="modules">
+
+            <article class="card module" id="users">
+
+                <div class="module-icon">♙</div>
+
+                <div>
+                    <h3>User Management</h3>
+
+                    <p>
+                        Prepare account administration, role assignments
+                        and access reviews. Live user-management actions
+                        still need to be connected.
+                    </p>
+
+                    <a href="#settings" class="module-link">
+                        CONFIGURE ACCESS →
+                    </a>
+                </div>
+
+            </article>
+
+
+            <article class="card module" id="clients">
+
+                <div class="module-icon">▣</div>
+
+                <div>
+                    <h3>Client Management</h3>
+
+                    <p>
+                        Prepare a central workspace for client profiles,
+                        company information and service relationships.
+                    </p>
+
+                    <a href="#settings" class="module-link">
+                        SET UP CLIENT DATA →
+                    </a>
+                </div>
+
+            </article>
+
+
+            <article class="card module" id="applications">
+
+                <div class="module-icon">◈</div>
+
+                <div>
+                    <h3>Application Management</h3>
+
+                    <p>
+                        Review the TES application portfolio and track
+                        each application's development status.
+                    </p>
+
+                    <a href="#applicationList" class="module-link">
+                        VIEW APPLICATIONS ↓
+                    </a>
+                </div>
+
+            </article>
+
+
+            <article class="card module" id="settings">
+
+                <div class="module-icon">⚙️</div>
+
+                <div>
+                    <h3>System Settings</h3>
+
+                    <p>
+                        Prepare platform preferences, security
+                        configuration and administrative options.
+                    </p>
+
+                    <a href="#security" class="module-link">
+                        REVIEW SECURITY →
+                    </a>
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <section class="bottom-grid">
+
+            <article class="card" id="applicationList">
+
+                <h2>Application Portfolio</h2>
+
+                <div class="section-caption">
+                    Current planned modules
+                </div>
+
+                <div class="list-row">
+                    <span>TES Admin Portal</span>
+                    <span class="tag">Foundation</span>
+                </div>
+
+                <div class="list-row">
+                    <span>Business Manager</span>
+                    <span class="tag">Planned</span>
+                </div>
+
+                <div class="list-row">
+                    <span>WorkForce Pro</span>
+                    <span class="tag">Planned</span>
+                </div>
+
+                <div class="list-row">
+                    <span>Client Services</span>
+                    <span class="tag">Planned</span>
+                </div>
+
+                <div class="list-row">
+                    <span>Training & Learning</span>
+                    <span class="tag">Planned</span>
+                </div>
+
+                <div class="list-row">
+                    <span>Reporting & Analytics</span>
+                    <span class="tag">Planned</span>
+                </div>
+
+            </article>
+
+
+            <article class="card" id="security">
+
+                <h2>Security & System Status</h2>
+
+                <div class="section-caption">
+                    Session verification
+                </div>
+
+                <div class="list-row">
+                    <span>Supabase Session</span>
+                    <span id="sessionDetail" class="muted">
+                        Checking...
+                    </span>
+                </div>
+
+                <div class="list-row">
+                    <span>Administrator Role</span>
+                    <span class="tag">Not verified</span>
+                </div>
+
+                <div class="list-row">
+                    <span>Database Modules</span>
+                    <span class="tag">Not connected</span>
+                </div>
+
+                <p class="muted" style="font-size:12px;line-height:1.8">
+                    Administrator roles and Supabase Row Level Security
+                    policies must be configured before management actions
+                    are enabled. Never place a secret key in this file.
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <footer>
+
+            <span>
+                © <span id="year"></span>
+                The Entity Solutions. All rights reserved.
+            </span>
+
+            <span>TES Digital Hub · Administration</span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+document.getElementById("year").textContent =
+    new Date().getFullYear();
+
+/*
+  IMPORTANT CONFIGURATION
+
+  Use the exact Project URL and publishable key from login.html.
+  Never use a Supabase secret/service-role key in browser code.
+*/
+
+const SUPABASE_URL =
+    "https://jgzvycawkkfdvdimdjat.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+
+const LOGIN_PAGE = "login.html";
+
+
+function showError(title, message, details = "") {
+
+    document.getElementById("loadingMessage")
+        .classList.add("hidden");
+
+    document.getElementById("portal")
+        .classList.add("hidden");
+
+    document.getElementById("authMessage")
+        .classList.remove("hidden");
+
+    document.getElementById("authTitle").textContent = title;
+
+    document.getElementById("authText").textContent = message;
+
+    document.getElementById("errorDetails").textContent = details;
+
+    document.getElementById("sessionStatus").textContent = "Attention needed";
+}
+
+
+function showPortal() {
+
+    document.getElementById("loadingMessage")
+        .classList.add("hidden");
+
+    document.getElementById("authMessage")
+        .classList.add("hidden");
+
+    document.getElementById("portal")
+        .classList.remove("hidden");
+
+    document.getElementById("sessionStatus")
+        .textContent = "Session verified";
+
+    document.getElementById("authValue")
+        .textContent = "Connected";
+
+    document.getElementById("authFoot")
+        .textContent = "Signed-in session found";
+
+    document.getElementById("sessionDetail")
+        .textContent = "Authenticated";
+}
+
+
+async function initialisePortal() {
+
+    const loadingText =
+        document.getElementById("loadingText");
+
+    try {
+
+        if (
+            SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR") ||
+            !SUPABASE_PUBLISHABLE_KEY
+        ) {
+
+            showError(
+                "Configuration required",
+                "The Supabase publishable key has not been added to admin.html.",
+                "Copy the same publishable key used by login.html."
+            );
+
+            return;
+        }
+
+
+        loadingText.textContent =
+            "Connecting to Supabase and verifying your session...";
+
+
+        /*
+          Load Supabase explicitly. This also gives us a visible error
+          if the browser cannot load the library.
+        */
+
+        if (!window.supabase) {
+
+            await new Promise((resolve, reject) => {
+
+                const script = document.createElement("script");
+
+                script.src =
+                    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+                script.onload = resolve;
+
+                script.onerror = () => reject(
+                    new Error("Could not load the Supabase library.")
+                );
+
+                document.head.appendChild(script);
+
+            });
+
+        }
+
+
+        if (!window.supabase) {
+            throw new Error("Supabase library is unavailable.");
+        }
+
+
+        const client = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY,
+            {
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true
+                }
+            }
+        );
+
+
+        const result = await client.auth.getSession();
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        if (!result.data.session) {
+
+            showError(
+                "Sign-in required",
+                "No active Supabase session was found. Please sign in first.",
+                "You will be redirected to the login page."
+            );
+
+            setTimeout(() => {
+                window.location.replace(LOGIN_PAGE);
+            }, 1800);
+
+            return;
+        }
+
+
+        /*
+          A valid session does not prove that the user is an
+          administrator. Administrator permissions must be checked
+          separately before real administration features are enabled.
+        */
+
+        showPortal();
+
+
+        document.getElementById("signOutButton")
+            .addEventListener("click", async function () {
+
+                this.disabled = true;
+
+                this.textContent = "Signing out...";
+
+                try {
+
+                    const { error } = await client.auth.signOut();
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    window.location.replace(LOGIN_PAGE);
+
+                } catch (error) {
+
+                    this.disabled = false;
+
+                    this.textContent = "Sign Out";
+
+                    showError(
+                        "Sign-out failed",
+                        "Your session could not be ended successfully.",
+                        error.message
+                    );
+
+                }
+
+            });
+
+
+        client.auth.onAuthStateChange((event, session) => {
+
+            if (event === "SIGNED_OUT" || !session) {
+                window.location.replace(LOGIN_PAGE);
+            }
+
+        });
+
+
+    } catch (error) {
+
+        console.error("TES Admin Portal error:", error);
+
+        showError(
+            "Unable to open the Admin Portal",
+            "The portal could not complete its authentication check.",
+            error.message || "Check the Supabase configuration and try again."
+        );
+
+    }
+
+}
+
+
+initialisePortal();
+</script>
+
+</body>
+</html>
