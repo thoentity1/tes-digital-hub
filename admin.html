@@ -1,0 +1,435 @@
+[13:10, 29/10/2026] none: <!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TES Dashboard | Digital Hub</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b12;
+    --panel: #101827;
+    --turquoise: #27e6e6;
+    --white: #f5f8ff;
+    --muted: #a7b2c5;
+    --border: rgba(39,230,230,0.22);
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+header {
+    background: #0b101b;
+    border-bottom: 1px solid var(--border);
+    padding: 18px 5%;
+}
+
+.header-inner {
+    max-width: 1400px;
+    margin: auto;
+    display: flex;
+    justify-content: space-betw…
+[13:18, 29/10/2026] none: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TES Admin Portal</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b12;
+    --panel: #101827;
+    --turquoise: #27e6e6;
+    --white: #f5f8ff;
+    --muted: #a7b2c5;
+    --border: rgba(39,230,230,0.25);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    line-height: 1.6;
+}
+
+header {
+    background: #0b101b;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 5%;
+}
+
+.header-inner {
+    max-width: 1400px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    color: var(--turquoise);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo small {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+header a {
+    color: var(--turquoise);
+    text-decoration: none;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    min-height: calc(100vh - 80px);
+}
+
+.sidebar {
+    background: #0c121e;
+    border-right: 1px solid var(--border);
+    padding: 25px 18px;
+}
+
+.sidebar h3 {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin: 12px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 6px;
+    border-radius: 7px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    color: var(--turquoise);
+    background: rgba(39,230,230,0.10);
+}
+
+main {
+    padding: 35px;
+    min-width: 0;
+}
+
+.heading {
+    margin-bottom: 30px;
+}
+
+.heading h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.heading h1 span {
+    color: var(--turquoise);
+}
+
+.heading p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.notice {
+    padding: 15px 18px;
+    border: 1px solid rgba(255,193,7,0.35);
+    background: rgba(255,193,7,0.07);
+    color: #ffda79;
+    border-radius: 9px;
+    font-size: 13px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 21px;
+    margin-bottom: 20px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.admin-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    transition: 0.25s;
+}
+
+.admin-card:hover {
+    border-color: var(--turquoise);
+    transform: translateY(-3px);
+}
+
+.icon {
+    font-size: 27px;
+    margin-bottom: 12px;
+}
+
+.admin-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.admin-card p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.admin-card a {
+    color: var(--turquoise);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.status {
+    display: inline-block;
+    color: #ffda79;
+    background: rgba(255,193,7,0.10);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.system-info {
+    margin-top: 30px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.system-info p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+footer {
+    padding: 25px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@media (max-width: 800px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar a {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    main {
+        padding: 22px 15px;
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .heading h1 {
+        font-size: 25px;
+    }
+
+    .header-inner {
+        flex-wrap: wrap;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">
+            TES ADMIN PORTAL
+            <small>THE ENTITY SOLUTIONS</small>
+        </div>
+
+        <a href="dashboard.html">← Back to Dashboard</a>
+    </div>
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <h3>ADMINISTRATION</h3>
+
+        <a href="admin.html" class="active">
+            ⚙️ Admin Overview
+        </a>
+
+        <a href="users.html">
+            ◉ User Management
+        </a>
+
+        <a href="clients.html">
+            ♙ Client Management
+        </a>
+
+        <a href="applications.html">
+            ▣ Applications
+        </a>
+
+        <a href="settings.html">
+            ⚙️ System Settings
+        </a>
+
+        <h3>PLATFORM</h3>
+
+        <a href="index.html">
+            ⌂ Digital Hub Home
+        </a>
+
+        <a href="dashboard.html">
+            ▦ Dashboard
+        </a>
+    </aside>
+
+    <main>
+
+        <section class="heading">
+            <h1>Administration <span>Centre</span></h1>
+
+            <p>
+                Manage the TES Digital Hub and its planned applications.
+            </p>
+        </section>
+
+        <div class="notice">
+            DEVELOPMENT MODE: Authentication, database connectivity
+            and administrator permissions have not yet been implemented.
+            This page is an interface prototype, not a secured admin system.
+        </div>
+
+        <h2 class="section-title">Administration Modules</h2>
+
+        <section class="admin-grid">
+
+            <article class="admin-card">
+                <div class="icon">◉</div>
+                <h3>User Management</h3>
+                <p>
+                    Manage user accounts, roles and access permissions
+                    once secure authentication is connected.
+                </p>
+                <a href="users.html">OPEN USER MANAGEMENT →</a>
+            </article>
+
+            <article class="admin-card">
+                <div class="icon">♙</div>
+                <h3>Client Management</h3>
+                <p>
+                    Plan and manage client profiles, company details
+                    and service relationships.
+                </p>
+                <a href="clients.html">OPEN CLIENT MANAGEMENT →</a>
+            </article>
+
+            <article class="admin-card">
+                <div class="icon">▣</div>
+                <h3>Application Management</h3>
+                <p>
+                    Review the TES applications and their development
+                    status from one central location.
+                </p>
+                <a href="applications.html">VIEW APPLICATIONS →</a>
+            </article>
+
+            <article class="admin-card">
+                <div class="icon">⚙️</div>
+                <h3>System Settings</h3>
+                <p>
+                    Prepare platform preferences, configuration
+                    and administrative options.
+                </p>
+                <a href="settings.html">OPEN SETTINGS →</a>
+            </article>
+
+        </section>
+
+        <section class="system-info">
+            <h2 class="section-title">Platform Information</h2>
+
+            <p><strong>Platform:</strong> TES Digital Hub</p>
+
+            <p><strong>Organisation:</strong> The Entity Solutions</p>
+
+            <p><strong>Development stage:</strong> Stage 1</p>
+
+            <p><strong>Hosting:</strong> GitHub Pages</p>
+
+            <p><strong>Authentication:</strong> Not connected</p>
+
+            <p><strong>Database:</strong> Not connected</p>
+
+            <p>
+                <span class="status">PROTOTYPE</span>
+            </p>
+        </section>
+
+    </main>
+
+</div>
+
+<footer>
+    © <span id="year"></span>
+    The Entity Solutions | TES Administration
+</footer>
+
+<script>
+document.getElementById("year").textContent =
+    new Date().getFullYear();
+</script>
+
+</body>
+</html>
