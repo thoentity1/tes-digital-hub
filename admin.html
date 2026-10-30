@@ -1078,7 +1078,7 @@ async function initialisePortal() {
 
             return;
         }
-        // Verify administrator privileges
+        [08:58, 30/10/2026] none: // Verify administrator privileges
 
 const { data: profile, error: profileError } = await client
     .from("profiles")
@@ -1095,6 +1095,45 @@ if (profileError || !profile || profile.role !== "admin") {
     );
 
     return;
+}
+
+console.log("Administrator verified:", profile.email);
+[09:05, 30/10/2026] none: // Verify administrator privileges
+
+const currentUser = result.data.session.user;
+
+console.log("Logged in email:", currentUser.email);
+console.log("Logged in ID:", currentUser.id);
+
+const { data: profile, error: profileError } = await client
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+console.log("Profile returned:", profile);
+console.log("Profile error:", profileError);
+
+if (profileError) {
+    showError(
+        "Database Access Error",
+        "Could not retrieve your administrator profile.",
+        profileError.message
+    );
+    return;
+}
+
+if (!profile || profile.role !== "admin") {
+    showError(
+        "Access Denied",
+        "Your account does not have administrator privileges.",
+        "Email: " + currentUser.email +
+        " | Role: " + (profile?.role || "No profile found")
+    );
+    return;
+}
+
+console.log("Administrator verified:", profile.email);
 }
 
 console.log("Administrator verified:", profile.email);
