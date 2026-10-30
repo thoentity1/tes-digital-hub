@@ -1078,6 +1078,26 @@ async function initialisePortal() {
 
             return;
         }
+        // Verify administrator privileges
+
+const { data: profile, error: profileError } = await client
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .eq("id", result.data.session.user.id)
+    .single();
+
+if (profileError || !profile || profile.role !== "admin") {
+
+    showError(
+        "Access Denied",
+        "You do not have administrator privileges.",
+        "Please contact The Entity Solutions administrator."
+    );
+
+    return;
+}
+
+console.log("Administrator verified:", profile.email);
 
 
         /*
