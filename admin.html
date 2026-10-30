@@ -1098,29 +1098,6 @@ if (profileError || !profile || profile.role !== "admin") {
 }
 
 console.log("Administrator verified:", profile.email);
-// Verify administrator privileges
-
-const currentUser = result.data.session.user;
-
-console.log("Logged in email:", currentUser.email);
-console.log("Logged in ID:", currentUser.id);
-
-const { data: profile, error: profileError } = await client
-    .from("profiles")
-    .select("id, email, full_name, role")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-console.log("Profile returned:", profile);
-console.log("Profile error:", profileError);
-
-if (profileError) {
-    showError(
-        "Database Access Error",
-        "Could not retrieve your administrator profile.",
-        profileError.message
-    );
-    return;
 }
 
 if (!profile || profile.role !== "admin") {
