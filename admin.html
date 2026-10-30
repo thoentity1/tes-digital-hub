@@ -920,15 +920,24 @@ footer {
 </div>
 
 
+
 <script>
+"use strict";
+
+// ============================================================
+// TES ADMIN PORTAL
+// Supabase Authentication and Administrator Verification
+// ============================================================
+
 document.getElementById("year").textContent =
     new Date().getFullYear();
 
 /*
-  IMPORTANT CONFIGURATION
+    SUPABASE CONFIGURATION
 
-  Use the exact Project URL and publishable key from login.html.
-  Never use a Supabase secret/service-role key in browser code.
+    Use the exact Project URL and publishable key from login.html.
+
+    Never use a Supabase secret/service-role key in browser code.
 */
 
 const SUPABASE_URL =
@@ -939,6 +948,13 @@ const SUPABASE_PUBLISHABLE_KEY =
 
 const LOGIN_PAGE = "login.html";
 
+let supabaseClient = null;
+let authListenerRegistered = false;
+
+
+// ============================================================
+// DISPLAY AUTHENTICATION ERRORS
+// ============================================================
 
 function showError(title, message, details = "") {
 
@@ -951,15 +967,24 @@ function showError(title, message, details = "") {
     document.getElementById("authMessage")
         .classList.remove("hidden");
 
-    document.getElementById("authTitle").textContent = title;
+    document.getElementById("authTitle")
+        .textContent = title;
 
-    document.getElementById("authText").textContent = message;
+    document.getElementById("authText")
+        .textContent = message;
 
-    document.getElementById("errorDetails").textContent = details;
+    document.getElementById("errorDetails")
+        .textContent = details;
 
-    document.getElementById("sessionStatus").textContent = "Attention needed";
+    document.getElementById("sessionStatus")
+        .textContent = "Attention needed";
+
 }
 
+
+// ============================================================
+// DISPLAY ADMIN PORTAL
+// ============================================================
 
 function showPortal() {
 
@@ -979,12 +1004,93 @@ function showPortal() {
         .textContent = "Connected";
 
     document.getElementById("authFoot")
-        .textContent = "Signed-in session found";
+        .textContent = "Administrator session verified";
 
     document.getElementById("sessionDetail")
         .textContent = "Authenticated";
+
 }
 
+
+// ============================================================
+// LOAD SUPABASE LIBRARY
+// ============================================================
+
+async function loadSupabaseLibrary() {
+
+    if (window.supabase) {
+        return window.supabase;
+    }
+
+    await new Promise((resolve, reject) => {
+
+        const script = document.createElement("script");
+
+        script.src =
+            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4";
+
+        script.async = true;
+
+        script.onload = resolve;
+
+        script.onerror = () => reject(
+            new Error(
+                "Could not load the Supabase library."
+            )
+        );
+
+        document.head.appendChild(script);
+
+    });
+
+    if (!window.supabase) {
+
+        throw new Error(
+            "Supabase library is unavailable."
+        );
+
+    }
+
+    return window.supabase;
+
+}
+
+
+// ============================================================
+// AUTHENTICATION STATE LISTENER
+// ============================================================
+
+function registerAuthListener(client) {
+
+    if (authListenerRegistered) {
+        return;
+    }
+
+    client.auth.onAuthStateChange(
+        (event, session) => {
+
+            if (
+                event === "SIGNED_OUT" ||
+                !session
+            ) {
+
+                window.location.replace(
+                    LOGIN_PAGE
+                );
+
+            }
+
+        }
+    );
+
+    authListenerRegistered = true;
+
+}
+
+
+// ============================================================
+// INITIALISE ADMIN PORTAL
+// ============================================================
 
 async function initialisePortal() {
 
@@ -993,189 +1099,263 @@ async function initialisePortal() {
 
     try {
 
+        // ----------------------------------------------------
+        // CHECK SUPABASE CONFIGURATION
+        // ----------------------------------------------------
+
         if (
-            SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR") ||
-            !SUPABASE_PUBLISHABLE_KEY
+            !SUPABASE_URL ||
+            !SUPABASE_PUBLISHABLE_KEY ||
+            SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO")
         ) {
 
             showError(
                 "Configuration required",
-                "The Supabase publishable key has not been added to admin.html.",
-                "Copy the same publishable key used by login.html."
+                "The Supabase configuration has not been added to admin.html.",
+                "Use the same Project URL and publishable key as login.html."
             );
 
             return;
+
         }
 
+
+        // ----------------------------------------------------
+        // LOAD SUPABASE
+        // ----------------------------------------------------
 
         loadingText.textContent =
             "Connecting to Supabase and verifying your session...";
 
-
-        /*
-          Load Supabase explicitly. This also gives us a visible error
-          if the browser cannot load the library.
-        */
-
-        if (!window.supabase) {
-
-            await new Promise((resolve, reject) => {
-
-                const script = document.createElement("script");
-
-                script.src =
-                    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-                script.onload = resolve;
-
-                script.onerror = () => reject(
-                    new Error("Could not load the Supabase library.")
-                );
-
-                document.head.appendChild(script);
-
-            });
-
-        }
+        const supabaseLibrary =
+            await loadSupabaseLibrary();
 
 
-        if (!window.supabase) {
-            throw new Error("Supabase library is unavailable.");
-        }
+        // ----------------------------------------------------
+        // CREATE SUPABASE CLIENT
+        // ----------------------------------------------------
 
-
-        const client = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY,
-            {
-                auth: {
-                    persistSession: true,
-                    autoRefreshToken: true,
-                    detectSessionInUrl: true
+        supabaseClient =
+            supabaseLibrary.createClient(
+                SUPABASE_URL,
+                SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
                 }
-            }
-        );
+            );
 
 
-        const result = await client.auth.getSession();
+        // ----------------------------------------------------
+        // CHECK SESSION
+        // ----------------------------------------------------
 
-        if (result.error) {
-            throw result.error;
+        const {
+            data: { session },
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+
+        if (sessionError) {
+
+            throw sessionError;
+
         }
 
 
-        if (!result.data.session) {
+        // ----------------------------------------------------
+        // NO SESSION FOUND
+        // ----------------------------------------------------
+
+        if (!session) {
 
             showError(
                 "Sign-in required",
                 "No active Supabase session was found. Please sign in first.",
-                "You will be redirected to the login page."
+                "Redirecting you to the sign-in page."
             );
 
-            setTimeout(() => {
-                window.location.replace(LOGIN_PAGE);
+            window.setTimeout(() => {
+
+                window.location.replace(
+                    LOGIN_PAGE
+                );
+
             }, 1800);
 
             return;
+
         }
-     // Verify administrator privileges
-
-const { data: profile, error: profileError } = await client
-    .from("profiles")
-    .select("id, email, full_name, role")
-    .eq("id", result.data.session.user.id)
-    .single();
-
-if (profileError || !profile || profile.role !== "admin") {
-
-    showError(
-        "Access Denied",
-        "You do not have administrator privileges.",
-        "Please contact The Entity Solutions administrator."
-    );
-
-    return;
-}
-
-console.log("Administrator verified:", profile.email);
-}
-
-if (!profile || profile.role !== "admin") {
-    showError(
-        "Access Denied",
-        "Your account does not have administrator privileges.",
-        "Email: " + currentUser.email +
-        " | Role: " + (profile?.role || "No profile found")
-    );
-    return;
-}
-
-console.log("Administrator verified:", profile.email);
-}
-
-console.log("Administrator verified:", profile.email);
 
 
-        /*
-          A valid session does not prove that the user is an
-          administrator. Administrator permissions must be checked
-          separately before real administration features are enabled.
-        */
+        // ----------------------------------------------------
+        // VERIFY AUTHENTICATED USER
+        // ----------------------------------------------------
+
+        loadingText.textContent =
+            "Verifying your account and administrator permissions...";
+
+        const {
+            data: { user },
+            error: userError
+        } = await supabaseClient.auth.getUser();
+
+
+        if (userError || !user) {
+
+            showError(
+                "Sign-in required",
+                "Your session could not be verified. Please sign in again.",
+                userError?.message ||
+                    "No authenticated user was returned."
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // VERIFY ADMINISTRATOR PROFILE
+        // ----------------------------------------------------
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("id, email, full_name, role")
+            .eq("id", user.id)
+            .single();
+
+
+        // ----------------------------------------------------
+        // DENY ACCESS IF NOT AN ADMINISTRATOR
+        // ----------------------------------------------------
+
+        if (
+            profileError ||
+            !profile ||
+            profile.role !== "admin"
+        ) {
+
+            showError(
+                "Access Denied",
+                "You do not have administrator privileges.",
+                profileError?.message ||
+                    "Please contact The Entity Solutions administrator."
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // ADMINISTRATOR VERIFIED
+        // ----------------------------------------------------
+
+        console.info(
+            "Administrator verified:",
+            profile.email || user.email || user.id
+        );
+
+
+        // ----------------------------------------------------
+        // REGISTER AUTH STATE LISTENER
+        // ----------------------------------------------------
+
+        registerAuthListener(
+            supabaseClient
+        );
+
+
+        // ----------------------------------------------------
+        // DISPLAY ADMIN PORTAL
+        // ----------------------------------------------------
 
         showPortal();
 
 
-        document.getElementById("signOutButton")
-            .addEventListener("click", async function () {
+        // ====================================================
+        // SIGN OUT
+        // ====================================================
+
+        const signOutButton =
+            document.getElementById("signOutButton");
+
+
+        signOutButton.addEventListener(
+            "click",
+            async function () {
 
                 this.disabled = true;
 
-                this.textContent = "Signing out...";
+                this.textContent =
+                    "Signing out...";
 
                 try {
 
-                    const { error } = await client.auth.signOut();
+                    const {
+                        error: signOutError
+                    } = await supabaseClient.auth.signOut();
 
-                    if (error) {
-                        throw error;
+
+                    if (signOutError) {
+
+                        throw signOutError;
+
                     }
 
-                    window.location.replace(LOGIN_PAGE);
+
+                    // Redirect after successful sign-out
+
+                    window.location.replace(
+                        LOGIN_PAGE
+                    );
+
 
                 } catch (error) {
 
                     this.disabled = false;
 
-                    this.textContent = "Sign Out";
+                    this.textContent =
+                        "Sign Out";
+
 
                     showError(
                         "Sign-out failed",
                         "Your session could not be ended successfully.",
-                        error.message
+                        error?.message ||
+                            "Please try again."
                     );
 
                 }
 
-            });
-
-
-        client.auth.onAuthStateChange((event, session) => {
-
-            if (event === "SIGNED_OUT" || !session) {
-                window.location.replace(LOGIN_PAGE);
             }
-
-        });
+        );
 
 
     } catch (error) {
 
-        console.error("TES Admin Portal error:", error);
+        // ----------------------------------------------------
+        // GENERAL ERROR HANDLING
+        // ----------------------------------------------------
+
+        console.error(
+            "TES Admin Portal error:",
+            error
+        );
+
 
         showError(
             "Unable to open the Admin Portal",
             "The portal could not complete its authentication check.",
-            error.message || "Check the Supabase configuration and try again."
+            error?.message ||
+                "Check the Supabase configuration and try again."
         );
 
     }
@@ -1183,8 +1363,14 @@ console.log("Administrator verified:", profile.email);
 }
 
 
+// ============================================================
+// START ADMIN PORTAL
+// ============================================================
+
 initialisePortal();
+
 </script>
+
 
 </body>
 </html>
