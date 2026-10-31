@@ -1432,7 +1432,107 @@ async function initialisePortal() {
 initialisePortal();
 
 </script>
+// =====================================
+// TES USER MANAGEMENT
+// =====================================
 
+let allUsers = [];
+
+async function loadUsers() {
+
+    const tbody = document.getElementById("userTableBody");
+    const message = document.getElementById("userMessage");
+
+    message.textContent = "Loading users...";
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("profiles")
+            .select("id, email, full_name, role")
+            .order("full_name", { ascending: true });
+
+        if (error) throw error;
+
+        allUsers = data || [];
+
+        displayUsers(allUsers);
+
+        message.textContent =
+            allUsers.length + " user(s) found.";
+
+    } catch (error) {
+
+        console.error("User loading error:", error);
+
+        message.textContent =
+            "Unable to load users: " + error.message;
+
+    }
+}
+
+
+function displayUsers(users) {
+
+    const tbody = document.getElementById("userTableBody");
+
+    tbody.replaceChildren();
+
+    if (!users.length) {
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 3;
+        cell.textContent = "No users found.";
+
+        row.appendChild(cell);
+        tbody.appendChild(row);
+
+        return;
+    }
+
+    users.forEach(user => {
+
+        const row = document.createElement("tr");
+
+        [user.full_name, user.email, user.role].forEach(value => {
+
+            const cell = document.createElement("td");
+
+            cell.style.padding = "14px";
+            cell.textContent = value || "-";
+
+            row.appendChild(cell);
+
+        });
+
+        tbody.appendChild(row);
+
+    });
+}
+
+
+// Search users
+document.getElementById("userSearch")
+    .addEventListener("input", function () {
+
+        const search = this.value.toLowerCase();
+
+        const filtered = allUsers.filter(user =>
+            (user.full_name || "").toLowerCase().includes(search) ||
+            (user.email || "").toLowerCase().includes(search) ||
+            (user.role || "").toLowerCase().includes(search)
+        );
+
+        displayUsers(filtered);
+
+    });
+
+
+// Refresh users
+document.getElementById("refreshUsers")
+    .addEventListener("click", loadUsers);
 
 </body>
 </html>
