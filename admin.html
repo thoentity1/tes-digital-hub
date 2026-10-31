@@ -823,7 +823,69 @@ footer {
             </article>
 
         </section>
+        <!-- USER MANAGEMENT MODULE -->
 
+<section id="userManagement" class="card"
+         style="margin-top:30px;">
+
+    <div class="section-heading">
+        <div class="eyebrow">ADMINISTRATION</div>
+        <h2>User Management</h2>
+        <div class="section-caption">
+            Manage TES Digital Hub users and access permissions.
+        </div>
+    </div>
+
+    <div style="display:flex;gap:12px;
+                flex-wrap:wrap;margin:20px 0;">
+
+        <input
+            type="search"
+            id="userSearch"
+            placeholder="Search users..."
+            style="padding:12px;flex:1;min-width:200px;
+                   border-radius:8px;border:1px solid #345;
+                   background:#102338;color:white;">
+
+        <button class="button button-primary"
+                id="refreshUsers">
+            Refresh Users
+        </button>
+
+    </div>
+
+    <div id="userMessage" class="section-caption">
+        User directory is ready.
+    </div>
+
+    <div style="overflow-x:auto;margin-top:20px;">
+
+        <table style="width:100%;border-collapse:collapse;
+                      text-align:left;font-size:13px;">
+
+            <thead>
+                <tr style="color:#19d3d0;">
+                    <th style="padding:14px;">Full Name</th>
+                    <th style="padding:14px;">Email</th>
+                    <th style="padding:14px;">Role</th>
+                </tr>
+            </thead>
+
+            <tbody id="userTableBody">
+                <tr>
+                    <td colspan="3" style="padding:15px;">
+                        Loading users...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<!-- END USER MANAGEMENT -->
 
         <section class="bottom-grid">
 
