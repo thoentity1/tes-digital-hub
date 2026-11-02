@@ -1480,11 +1480,31 @@ async function loadUsers() {
 
     try {
 
-        const { data, error } = await supabaseClient
-            .from("profiles")
-            .select("id, email, full_name, role")
-            .order("full_name", { ascending: true });
+        const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
 
+if (sessionError) throw sessionError;
+
+const accessToken = sessionData.session?.access_token;
+
+if (!accessToken) {
+    throw new Error("Admin session expired. Please sign in again.");
+}
+
+const { data, error } =
+    await supabaseClient.functions.invoke("create-user", {
+        body: {
+            full_name: name,
+            email: email,
+            role: role
+        },
+        headers: {
+            Authorization: "Bearer " + accessToken
+        }
+    });
+
+if (error) throw error;
+if (data && data.error) throw new Error(data.error);
         if (error) throw error;
 
         allUsers = data || [];
