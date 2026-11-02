@@ -1491,23 +1491,14 @@ if (!accessToken) {
     throw new Error("Admin session expired. Please sign in again.");
 }
 
-const { data, error } =
-    await supabaseClient.functions.invoke("create-user", {
-        body: {
-            full_name: name,
-            email: email,
-            role: role
-        },
-        headers: {
-            Authorization: "Bearer " + accessToken
-        }
-    });
+const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, email, full_name, role")
+    .order("created_at", { ascending: false });
 
 if (error) throw error;
-if (data && data.error) throw new Error(data.error);
-        if (error) throw error;
 
-        allUsers = data || [];
+allUsers = data || [];
 
         displayUsers(allUsers);
 
