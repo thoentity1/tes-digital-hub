@@ -1605,15 +1605,10 @@ const { data, error } =
             role: role
         },
         headers: {
-            Authorization: 'Bearer ${accessToken}
-        }'
+            Authorization: `Bearer ${accessToken}
+        }`
     });
-          body: {
-            full_name: name,
-            email: email,
-            role: role
-          }
-        });
+         
 
       if (error) throw error;
       if (data && data.error) throw new Error(data.error);
