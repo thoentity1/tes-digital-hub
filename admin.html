@@ -858,6 +858,41 @@ footer {
         User directory is ready.
     </div>
 
+    <!-- CREATE USER FORM -->
+<div style="margin:20px 0;padding:20px;background:#0d1b2c;
+            border:1px solid #345;border-radius:10px;">
+
+  <h3 style="color:#19d3d0;">Create New User</h3>
+
+  <div style="display:grid;gap:12px;max-width:500px;">
+
+    <input id="newUserName" type="text"
+      placeholder="Full Name"
+      style="padding:12px;border-radius:8px;">
+
+    <input id="newUserEmail" type="email"
+      placeholder="Email Address"
+      style="padding:12px;border-radius:8px;">
+
+    <select id="newUserRole"
+      style="padding:12px;border-radius:8px;">
+      <option value="">Select User Role</option>
+      <option value="manager">Manager</option>
+      <option value="staff">Staff</option>
+      <option value="client">Client</option>
+    </select>
+
+    <button type="button" id="createUserBtn"
+      class="button button-primary">
+      Create User & Send Invitation
+    </button>
+
+    <div id="createUserMessage"
+      style="color:#19d3d0;"></div>
+
+  </div>
+</div>
+<!-- END CREATE USER FORM -->
     <div style="overflow-x:auto;margin-top:20px;">
 
         <table style="width:100%;border-collapse:collapse;
