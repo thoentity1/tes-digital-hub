@@ -1566,9 +1566,57 @@ document.getElementById("userSearch")
 // Refresh users
 document.getElementById("refreshUsers")
     .addEventListener("click", loadUsers);
+    // CREATE USER - SEND INVITATION
+document.getElementById("createUserBtn")
+  .addEventListener("click", async function () {
+
+    const name = document.getElementById("newUserName").value.trim();
+    const email = document.getElementById("newUserEmail").value.trim();
+    const role = document.getElementById("newUserRole").value;
+    const message = document.getElementById("createUserMessage");
+    const button = this;
+
+    if (!name || !email || !role) {
+      message.textContent = "Please complete all fields.";
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Sending invitation...";
+    message.textContent = "";
+
+    try {
+      const { data, error } =
+        await supabaseClient.functions.invoke("create-user", {
+          body: {
+            full_name: name,
+            email: email,
+            role: role
+          }
+        });
+
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+
+      message.textContent = "Invitation sent successfully!";
+
+      document.getElementById("newUserName").value = "";
+      document.getElementById("newUserEmail").value = "";
+      document.getElementById("newUserRole").value = "";
+
+      await loadUsers();
+
+    } catch (error) {
+      console.error("Create user error:", error);
+      message.textContent = "Error: " + error.message;
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Create User & Send Invitation";
+    }
+});
 </script>
 
 
-</script>
 </body>
 </html>
