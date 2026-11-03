@@ -1,0 +1,586 @@
+[14:20, 03/11/2026] none: -- ==========================================
+-- TES DIGITAL HUB: WORKFORCE PRO
+-- ==========================================
+
+-- 1. Departments
+CREATE TABLE IF NOT EXISTS public.wp_departments (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id uuid REFERENCES public.clients(id) ON DELETE SET NULL,
+    department_name text NOT NULL,
+    description text,
+    created_at timestamptz DEFAULT now()
+);
+
+-- 2. Employees
+CREATE TABLE IF NOT EXISTS public.wp_employees (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id uuid REFERENCES public.clients(id) ON DELETE SET NULL,
+    department_id uuid REFERENCES public.wp_departments(id) ON DELETE SET NULL,
+    employee_number text UNIQUE,
+    first_name text NOT NULL,
+    last_name text NOT…
+[14:25, 03/11/2026] none: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Workforce Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --bg:#07111f;
+    --panel:#101f30;
+    --accent:#18c7b5;
+    --text:#eef7f7;
+    --muted:#9aabbc;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+}
+
+header {
+    padding:22px 5%;
+    background:#0d1b2b;
+    border-bottom:1px solid #20384b;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+header h2 { margin:0; color:var(--accent); }
+
+button {
+    background:var(--accent);
+    color:#06131d;
+    border:0;
+    padding:11px 17px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover { opacity:.85; }
+
+.container {
+    max-width:1200px;
+    margin:30px auto;
+    padding:0 20px;
+}
+
+.cards {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.card,.panel {
+    background:var(--panel);
+    padding:22px;
+    border-radius:10px;
+    border:1px solid #20384b;
+}
+
+.card h3 {
+    color:var(--muted);
+    font-size:14px;
+}
+
+.card strong {
+    font-size:28px;
+    color:var(--accent);
+}
+
+.panel { margin-bottom:25px; }
+
+h3 { margin-top:0; }
+
+.form-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+input,select,textarea {
+    width:100%;
+    padding:12px;
+    background:#071522;
+    border:1px solid #30485b;
+    color:white;
+    border-radius:6px;
+    margin-top:6px;
+}
+
+label {
+    font-size:13px;
+    color:var(--muted);
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:750px;
+}
+
+th,td {
+    padding:13px;
+    text-align:left;
+    border-bottom:1px solid #263b4e;
+    font-size:14px;
+}
+
+th { color:var(--accent); }
+
+.table-wrap { overflow-x:auto; }
+
+.status {
+    color:#18c7b5;
+    font-weight:bold;
+}
+
+.danger {
+    background:#b83b50;
+    color:white;
+}
+
+.message {
+    margin-top:12px;
+    color:var(--accent);
+}
+
+.top-actions {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>TES | Workforce Pro</h2>
+    <div class="top-actions">
+        <button onclick="location.href='dashboard.html'">
+            Back to Dashboard
+        </button>
+        <button onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card">
+            <h3>Total Employees</h3>
+            <strong id="totalEmployees">0</strong>
+        </div>
+
+        <div class="card">
+            <h3>Active Employees</h3>
+            <strong id="activeEmployees">0</strong>
+        </div>
+
+        <div class="card">
+            <h3>Departments</h3>
+            <strong id="totalDepartments">0</strong>
+        </div>
+    </div>
+
+    <section class="panel">
+        <h3>Register Employee</h3>
+
+        <form id="employeeForm">
+            <div class="form-grid">
+
+                <div>
+                    <label>Employee Number</label>
+                    <input id="employeeNumber" required>
+                </div>
+
+                <div>
+                    <label>First Name</label>
+                    <input id="firstName" required>
+                </div>
+
+                <div>
+                    <label>Last Name</label>
+                    <input id="lastName" required>
+                </div>
+
+                <div>
+                    <label>Email</label>
+                    <input id="email" type="email">
+                </div>
+
+                <div>
+                    <label>Phone</label>
+                    <input id="phone">
+                </div>
+
+                <div>
+                    <label>Job Title</label>
+                    <input id="jobTitle">
+                </div>
+
+                <div>
+                    <label>Department</label>
+                    <select id="department">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Employment Type</label>
+                    <select id="employmentType">
+                        <option>Permanent</option>
+                        <option>Contract</option>
+                        <option>Temporary</option>
+                        <option>Part-time</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Date Hired</label>
+                    <input id="dateHired" type="date">
+                </div>
+
+            </div>
+
+            <br>
+            <button type="submit">Save Employee</button>
+            <div id="employeeMessage" class="message"></div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h3>Department Management</h3>
+
+        <div class="form-grid">
+            <div>
+                <label>Department Name</label>
+                <input id="departmentName"
+                       placeholder="e.g. Finance">
+            </div>
+
+            <div>
+                <label>Description</label>
+                <input id="departmentDescription"
+                       placeholder="Department description">
+            </div>
+        </div>
+
+        <br>
+        <button onclick="addDepartment()">Add Department</button>
+        <div id="departmentMessage" class="message"></div>
+    </section>
+
+    <section class="panel">
+        <h3>Employee Directory</h3>
+
+        <input id="searchEmployee"
+               placeholder="Search employees..."
+               oninput="renderEmployees()">
+
+        <br><br>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee No.</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Job Title</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="employeeTable">
+                    <tr>
+                        <td colspan="7">Loading employees...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+<script>
+/*
+IMPORTANT:
+Copy the exact SUPABASE_URL and SUPABASE_KEY
+from your working clients.html file.
+*/
+
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLIC_KEY";
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let employees = [];
+let departments = [];
+
+async function initialise() {
+
+    const { data: { session }, error } =
+        await db.auth.getSession();
+
+    if (error || !session) {
+        location.href = "login.html";
+        return;
+    }
+
+    const { data: profile, error: profileError } =
+        await db.from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+    if (profileError || profile?.role !== "admin") {
+        alert("Administrator access required.");
+        location.href = "dashboard.html";
+        return;
+    }
+
+    await loadDepartments();
+    await loadEmployees();
+}
+
+async function loadDepartments() {
+
+    const { data, error } = await db
+        .from("wp_departments")
+        .select("*")
+        .order("department_name");
+
+    if (error) {
+        alert("Could not load departments: " + error.message);
+        return;
+    }
+
+    departments = data || [];
+
+    document.getElementById("totalDepartments")
+        .textContent = departments.length;
+
+    const select = document.getElementById("department");
+
+    select.innerHTML =
+        '<option value="">Select Department</option>';
+
+    departments.forEach(dept => {
+        select.innerHTML += `
+            <option value="${dept.id}">
+                ${escapeHTML(dept.department_name)}
+            </option>`;
+    });
+}
+
+async function addDepartment() {
+
+    const name = document
+        .getElementById("departmentName").value.trim();
+
+    const description = document
+        .getElementById("departmentDescription").value.trim();
+
+    if (!name) {
+        alert("Enter a department name.");
+        return;
+    }
+
+    const { error } = await db
+        .from("wp_departments")
+        .insert({
+            department_name: name,
+            description: description
+        });
+
+    if (error) {
+        document.getElementById("departmentMessage")
+            .textContent = error.message;
+        return;
+    }
+
+    document.getElementById("departmentName").value = "";
+    document.getElementById("departmentDescription").value = "";
+
+    document.getElementById("departmentMessage")
+        .textContent = "Department added successfully.";
+
+    await loadDepartments();
+}
+
+document.getElementById("employeeForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const { data: { user } } = await db.auth.getUser();
+
+    const employee = {
+        employee_number:
+            document.getElementById("employeeNumber").value.trim(),
+
+        first_name:
+            document.getElementById("firstName").value.trim(),
+
+        last_name:
+            document.getElementById("lastName").value.trim(),
+
+        email:
+            document.getElementById("email").value.trim() || null,
+
+        phone:
+            document.getElementById("phone").value.trim() || null,
+
+        job_title:
+            document.getElementById("jobTitle").value.trim() || null,
+
+        department_id:
+            document.getElementById("department").value || null,
+
+        employment_type:
+            document.getElementById("employmentType").value,
+
+        date_hired:
+            document.getElementById("dateHired").value || null,
+
+        created_by: user.id
+    };
+
+    const { error } = await db
+        .from("wp_employees")
+        .insert(employee);
+
+    if (error) {
+        document.getElementById("employeeMessage")
+            .textContent = error.message;
+        return;
+    }
+
+    document.getElementById("employeeForm").reset();
+
+    document.getElementById("employeeMessage")
+        .textContent = "Employee registered successfully.";
+
+    await loadEmployees();
+});
+
+async function loadEmployees() {
+
+    const { data, error } = await db
+        .from("wp_employees")
+        .select("*, wp_departments(department_name)")
+        .order("created_at", { ascending:false });
+
+    if (error) {
+        document.getElementById("employeeTable").innerHTML =
+            <tr><td colspan="7">${escapeHTML(error.message)}</td></tr>;
+        return;
+    }
+
+    employees = data || [];
+
+    document.getElementById("totalEmployees")
+        .textContent = employees.length;
+
+    document.getElementById("activeEmployees")
+        .textContent = employees.filter(
+            e => e.employment_status === "Active"
+        ).length;
+
+    renderEmployees();
+}
+
+function renderEmployees() {
+
+    const search = document
+        .getElementById("searchEmployee")
+        .value.toLowerCase();
+
+    const filtered = employees.filter(e =>
+        ${e.first_name} ${e.last_name} ${e.email || ""} ${e.employee_number}
+        .toLowerCase().includes(search)
+    );
+
+    const table = document.getElementById("employeeTable");
+
+    if (!filtered.length) {
+        table.innerHTML =
+            '<tr><td colspan="7">No employees found.</td></tr>';
+        return;
+    }
+
+    table.innerHTML = filtered.map(e => `
+        <tr>
+            <td>${escapeHTML(e.employee_number)}</td>
+            <td>${escapeHTML(e.first_name)} ${escapeHTML(e.last_name)}</td>
+            <td>${escapeHTML(e.email || "")}</td>
+            <td>${escapeHTML(e.job_title || "")}</td>
+            <td>${escapeHTML(e.wp_departments?.department_name || "")}</td>
+            <td class="status">${escapeHTML(e.employment_status)}</td>
+            <td>
+                <button class="danger"
+                    onclick="deleteEmployee('${e.id}')">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    `).join("");
+}
+
+async function deleteEmployee(id) {
+
+    if (!confirm("Delete this employee record?")) return;
+
+    const { error } = await db
+        .from("wp_employees")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await loadEmployees();
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+async function logout() {
+    await db.auth.signOut();
+    location.href = "login.html";
+}
+
+initialise();
+</script>
+
+</body>
+</html>
