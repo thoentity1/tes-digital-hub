@@ -659,8 +659,36 @@ loginForm.addEventListener("submit", async function (event) {
 });
 
 
-// Password recovery placeholder
+// PASSWORD RECOVERY
 document.getElementById("forgotPassword")
+.addEventListener("click", async function(event) {
+
+    event.preventDefault();
+
+    const emailInput = document.querySelector(
+        'input[type="email"], input[name="email"], #email, #username'
+    );
+
+    const email = emailInput?.value.trim();
+
+    if (!email) {
+        alert("Please enter your email address first.");
+        return;
+    }
+
+    const { data, error } =
+        await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo:
+            "https://thoentity1.github.io/tes-digital-hub/set-password.html"
+        });
+
+    if (error) {
+        alert("Password recovery failed: " + error.message);
+        return;
+    }
+
+    alert("Password recovery email sent. Please check your inbox.");
+});
     .addEventListener("click", function (event) {
 
         event.preventDefault();
