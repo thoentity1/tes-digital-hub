@@ -1,705 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sign In | TES Digital Hub</title>
-
-    <style>
-        /* ==================================
-           TES LOGIN PAGE
-        ================================== */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --background: #080b12;
-            --panel: #101827;
-            --turquoise: #27e6e6;
-            --white: #f5f8ff;
-            --muted: #a7b2c5;
-            --border: rgba(39, 230, 230, 0.30);
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            color: var(--white);
-
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(0, 153, 255, 0.22),
-                    transparent 55%
-                ),
-                var(--background);
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        /* HEADER */
-
-        header {
-            padding: 22px 6%;
-            background: rgba(7, 11, 20, 0.96);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .header-container {
-            max-width: 1250px;
-            margin: auto;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            color: var(--turquoise);
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .logo small {
-            display: block;
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: 2px;
-            font-weight: normal;
-        }
-
-        .home-link {
-            color: var(--white);
-            font-size: 14px;
-        }
-
-        .home-link:hover {
-            color: var(--turquoise);
-        }
-
-        /* MAIN LOGIN AREA */
-
-        main {
-            flex: 1;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 45px 20px;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 430px;
-        }
-
-        .brand {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .brand-mark {
-            color: var(--turquoise);
-            font-size: 39px;
-            font-weight: bold;
-            letter-spacing: 8px;
-
-            text-shadow:
-                0 0 30px rgba(39, 230, 230, 0.25);
-        }
-
-        .brand-name {
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: 3px;
-            margin-top: 8px;
-        }
-
-        .brand h1 {
-            font-size: 27px;
-            margin-top: 25px;
-            margin-bottom: 8px;
-        }
-
-        .brand p {
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* LOGIN CARD */
-
-        .login-card {
-            background: rgba(16, 24, 39, 0.95);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-
-            padding: 30px;
-
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, 0.25);
-        }
-
-        .login-card h2 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-
-        .card-description {
-            color: var(--muted);
-            font-size: 13px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 19px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 9px;
-        }
-
-        input {
-            width: 100%;
-            height: 46px;
-
-            background: #080d16;
-            border: 1px solid #354256;
-            border-radius: 8px;
-
-            color: var(--white);
-            font-size: 14px;
-
-            padding: 0 13px;
-            outline: none;
-        }
-
-        input::placeholder {
-            color: #738097;
-        }
-
-        input:focus {
-            border-color: var(--turquoise);
-
-            box-shadow:
-                0 0 0 3px rgba(39, 230, 230, 0.08);
-        }
-
-        /* PASSWORD */
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper input {
-            padding-right: 75px;
-        }
-
-        .show-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-
-            background: none;
-            border: none;
-
-            color: var(--turquoise);
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        /* FORM OPTIONS */
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 10px;
-            margin-bottom: 23px;
-
-            font-size: 12px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            color: var(--muted);
-        }
-
-        .remember input {
-            width: 14px;
-            height: 14px;
-            accent-color: var(--turquoise);
-        }
-
-        .forgot-link {
-            color: var(--turquoise);
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-
-        /* SIGN IN BUTTON */
-
-        .sign-in-button {
-            width: 100%;
-            min-height: 47px;
-
-            background: var(--turquoise);
-            color: #071018;
-
-            border: none;
-            border-radius: 8px;
-
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-
-            cursor: pointer;
-            transition: 0.25s;
-        }
-
-        .sign-in-button:hover {
-            background: #8fffff;
-            transform: translateY(-2px);
-        }
-
-        .message {
-            display: none;
-            margin-top: 17px;
-            padding: 12px;
-
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 7px;
-
-            background: rgba(255, 193, 7, 0.07);
-            color: #ffda79;
-
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
-        .message.visible {
-            display: block;
-        }
-
-        /* SECURITY NOTICE */
-
-        .security-note {
-            text-align: center;
-            margin-top: 22px;
-
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.7;
-        }
-
-        .security-note strong {
-            color: var(--turquoise);
-        }
-
-        /* FOOTER */
-
-        footer {
-            padding: 24px 15px;
-            text-align: center;
-
-            border-top: 1px solid var(--border);
-
-            color: var(--muted);
-            font-size: 11px;
-        }
-
-        footer strong {
-            color: var(--turquoise);
-        }
-
-        /* MOBILE */
-
-        @media (max-width: 480px) {
-
-            header {
-                padding: 18px;
-            }
-
-            .logo {
-                font-size: 20px;
-            }
-
-            main {
-                padding: 35px 15px;
-            }
-
-            .login-card {
-                padding: 23px 19px;
-            }
-
-            .brand h1 {
-                font-size: 24px;
-            }
-
-            .form-options {
-                align-items: flex-start;
-            }
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b12">
+<title>Sign In | TES Digital Hub</title>
+
+<style>
+:root {
+  --bg:#080b12;
+  --panel:#101827;
+  --teal:#27e6e6;
+  --white:#f5f8ff;
+  --muted:#a7b2c5;
+  --border:rgba(39,230,230,.30);
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--white);
+  background:radial-gradient(circle at center,rgba(0,153,255,.22),transparent 55%),var(--bg);
+}
+header {
+  padding:20px 6%;
+  background:rgba(7,11,20,.96);
+  border-bottom:1px solid var(--border);
+}
+.header-inner {
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+a { color:var(--teal); text-decoration:none; }
+.logo { font-size:22px; font-weight:bold; color:var(--teal); }
+.logo small {
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:2px;
+  font-weight:normal;
+  margin-top:5px;
+}
+.home-link { color:var(--white); font-size:13px; }
+main {
+  flex:1;
+  display:grid;
+  place-items:center;
+  padding:40px 16px;
+}
+.wrap { width:100%; max-width:430px; }
+.brand { text-align:center; margin-bottom:26px; }
+.brand-mark {
+  font-size:40px;
+  font-weight:bold;
+  letter-spacing:8px;
+  color:var(--teal);
+}
+.brand-name {
+  font-size:10px;
+  letter-spacing:3px;
+  color:var(--muted);
+  margin-top:7px;
+}
+h1 { font-size:27px; margin:25px 0 8px; }
+.subtitle,.description { color:var(--muted); font-size:13px; }
+.card {
+  background:rgba(16,24,39,.96);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:28px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+h2 { font-size:20px; margin:0 0 8px; }
+.description { margin:0 0 24px; }
+.field { margin:0 0 18px; }
+label { display:block; font-size:13px; margin-bottom:8px; }
+input[type="text"],input[type="password"] {
+  width:100%;
+  height:46px;
+  padding:0 13px;
+  border:1px solid #354256;
+  border-radius:8px;
+  background:#080d16;
+  color:var(--white);
+  font-size:14px;
+  outline:none;
+}
+input:focus {
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(39,230,230,.08);
+}
+.password-wrap { position:relative; }
+.password-wrap input { padding-right:70px; }
+.show {
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  border:0;
+  background:none;
+  color:var(--teal);
+  cursor:pointer;
+}
+.options {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin:4px 0 22px;
+  font-size:12px;
+}
+.remember {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--muted);
+}
+.remember input { accent-color:var(--teal); }
+.forgot {
+  color:var(--teal);
+  background:none;
+  border:0;
+  padding:0;
+  cursor:pointer;
+  font-size:12px;
+}
+.submit {
+  width:100%;
+  height:47px;
+  border:0;
+  border-radius:8px;
+  background:var(--teal);
+  color:#071018;
+  font-weight:bold;
+  letter-spacing:1px;
+  cursor:pointer;
+}
+.submit:disabled { opacity:.65; cursor:wait; }
+.message {
+  display:none;
+  margin-top:16px;
+  padding:12px;
+  border-radius:7px;
+  font-size:12px;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.message.show { display:block; }
+.message.error {
+  border:1px solid rgba(255,193,7,.3);
+  background:rgba(255,193,7,.07);
+  color:#ffda79;
+}
+.message.success {
+  border:1px solid rgba(39,230,160,.3);
+  background:rgba(39,230,160,.07);
+  color:#70efb8;
+}
+.note {
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.7;
+  margin-top:20px;
+}
+footer {
+  text-align:center;
+  padding:22px 12px;
+  border-top:1px solid var(--border);
+  font-size:11px;
+  color:var(--muted);
+}
+@media(max-width:480px) {
+  .card { padding:23px 19px; }
+  .header-inner { align-items:flex-start; }
+  .logo { font-size:19px; }
+}
+</style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-
-    <header>
-
-        <div class="header-container">
-
-            <a href="index.html" class="logo">
-                TES DIGITAL HUB
-                <small>THE ENTITY SOLUTIONS</small>
-            </a>
-
-            <a href="index.html" class="home-link">
-                ← Back to Home
-            </a>
-
-        </div>
-
-    </header>
-
-
-    <!-- LOGIN -->
-
-    <main>
-
-        <div class="login-container">
-
-            <section class="brand">
-
-                <div class="brand-mark">TES</div>
-
-                <div class="brand-name">
-                    THE ENTITY SOLUTIONS
-                </div>
-
-                <h1>Welcome Back</h1>
-
-                <p>Sign in to your digital workspace.</p>
-
-            </section>
-
-
-            <section class="login-card">
-
-                <h2>Sign In</h2>
-
-                <p class="card-description">
-                    Enter your account details to continue.
-                </p>
-
-
-                <form id="loginForm">
-
-                    <div class="form-group">
-
-                        <label for="username">
-                            Username or Email
-                        </label>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username or email"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="password">
-                            Password
-                        </label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                autocomplete="current-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="show-password"
-                                id="togglePassword"
-                            >
-                                Show
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-options">
-
-                        <label class="remember">
-
-                            <input
-                                type="checkbox"
-                                id="remember"
-                            >
-
-                            Remember me
-
-                        </label>
-
-                        <a
-                            href="#"
-                            class="forgot-link"
-                            id="forgotPassword"
-                        >
-                            Forgot password?
-                        </a>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="sign-in-button"
-                    >
-                        SIGN IN
-                    </button>
-
-
-                    <div
-                        class="message"
-                        id="message"
-                        role="status"
-                        aria-live="polite"
-                    ></div>
-
-                </form>
-
-            </section>
-
-
-            <div class="security-note">
-
-                <strong>TES DIGITAL HUB</strong><br>
-
-                Secure authentication will be connected
-                during the next development step.
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- FOOTER -->
-
-    <footer>
-
-        © <span id="year"></span>
-        <strong>The Entity Solutions</strong>.
-        All rights reserved.
-
-    </footer>
-
-
-    <!-- JAVASCRIPT -->
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-/* ==========================================
-   TES DIGITAL HUB — SUPABASE AUTHENTICATION
-========================================== */
-
-// STEP 1: ENTER YOUR SUPABASE PROJECT URL
-const SUPABASE_URL = "https://jgzvycawkkfdvdimdjat.supabase.co";
-
-// STEP 2: ENTER YOUR SUPABASE PUBLISHABLE KEY
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
-
-// Connect to Supabase
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
-
-
-// Set the current year
-document.getElementById("year").textContent =
-    new Date().getFullYear();
-
-
-// Show or hide the password
-const passwordField = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
-
-togglePassword.addEventListener("click", function () {
-
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        togglePassword.textContent = "Hide";
-    } else {
-        passwordField.type = "password";
-        togglePassword.textContent = "Show";
-    }
-
-});
-
-
-// Display messages on the login page
-const message = document.getElementById("message");
-
-function showMessage(text, success = false) {
-
-    message.textContent = text;
-    message.classList.add("visible");
-
-    if (success) {
-        message.style.color = "#27e6a0";
-    } else {
-        message.style.color = "#ffda79";
-    }
-
-}
-
-
-// Sign in with Supabase
-const loginForm = document.getElementById("loginForm");
-const signInButton = loginForm.querySelector(
-    'button[type="submit"]'
-);
-
-loginForm.addEventListener("submit", async function (event) {
-
-    event.preventDefault();
-
-    const email = document
-        .getElementById("username")
-        .value.trim();
-
-    const password = passwordField.value;
-
-    message.classList.remove("visible");
-
-    signInButton.disabled = true;
-    signInButton.textContent = "SIGNING IN...";
-
-    try {
-
-        const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-        if (error) {
-            throw error;
-        }
-
-        if (!data.session) {
-            throw new Error(
-                "No authenticated session was returned."
-            );
-        }
-
-        showMessage(
-            "Sign-in successful. Opening your TES Dashboard...",
-            true
-        );
-
-        window.location.href = "dashboard.html";
-
-    } catch (error) {
-
-        console.error("TES login error:", error);
-
-        showMessage(
-            "Sign-in failed. Check your email and password, " +
-            "or confirm that your account is enabled in Supabase."
-        );
-
-        signInButton.disabled = false;
-        signInButton.textContent = "SIGN IN";
-
-    }
-
-});
-
-
-// PASSWORD RECOVERY
-document.getElementById("forgotPassword")
-.addEventListener("click", async function(event) {
-
-    event.preventDefault();
-
-    const emailInput = document.querySelector(
-        'input[type="email"], input[name="email"], #email, #username'
-    );
-
-    const email = emailInput ? emailInput.value.trim() : "";
-
-    if (!email || !email.includes("@")) {
-        alert("Please enter a valid email address first.");
-        return;
-    }
-
-    try {
-
-        const { error } =
-            await supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo:
-                "https://thoentity1.github.io/tes-digital-hub/set-password.html"
-            });
-
-        if (error) throw error;
-
-        alert("Password recovery email sent. Please check your inbox.");
-
-    } catch (error) {
-
-        console.error("Password recovery error:", error);
-
-        alert("Password recovery failed: " + error.message);
-
-    }
-
-});
-    
-
-</script>
-</body>
-
-</html>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      TES DIGITAL HUB
+      <small>THE ENTITY SOLUTIONS</small>
+    </a>
+    <a class="home-link" href="index.html">← Back to Home</a>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<section class="brand">
+  <div class="brand-mark">TES</div>
+  <div class="brand-name">THE ENTITY SOLUTIONS</div>
+  <h1>Welcome Back</h1>
+  <p class="subtitle">Sign in to your digital workspace.</p>
+</section>
+
+<section class="card">
+  <h2>Sign In</h2>
+  <p class="description">Enter your account details to continue.</p>
+
+  <form id="loginForm">
+
+    <div class="field">
+      <label for="username">Email address</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Enter your email address"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        required>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="password-wrap">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required>
+        <button class="show" type="button" id="togglePassword">Show</button>
+      </div>
+    </div>
+
+    <div class="options">
+      <label class="remember">
+        <input type="checkbox" id="remember" checked>
+        Remember me
+      </label>
+
+      <button class="forgot" type="button
