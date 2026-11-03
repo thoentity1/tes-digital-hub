@@ -1,25 +1,4 @@
-[14:20, 03/11/2026] none: -- ==========================================
--- TES DIGITAL HUB: WORKFORCE PRO
--- ==========================================
-
--- 1. Departments
-CREATE TABLE IF NOT EXISTS public.wp_departments (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    client_id uuid REFERENCES public.clients(id) ON DELETE SET NULL,
-    department_name text NOT NULL,
-    description text,
-    created_at timestamptz DEFAULT now()
-);
-
--- 2. Employees
-CREATE TABLE IF NOT EXISTS public.wp_employees (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    client_id uuid REFERENCES public.clients(id) ON DELETE SET NULL,
-    department_id uuid REFERENCES public.wp_departments(id) ON DELETE SET NULL,
-    employee_number text UNIQUE,
-    first_name text NOT NULL,
-    last_name text NOT…
-[14:25, 03/11/2026] none: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
