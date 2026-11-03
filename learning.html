@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Learning Hub</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --bg: #081522;
+    --panel: #102536;
+    --panel2: #163247;
+    --accent: #20c9bd;
+    --text: #f1f5f9;
+    --muted: #9aafbd;
+    --border: #294455;
+    --danger: #e45d68;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background: #06101b;
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+header h1 {
+    margin: 0;
+    color: var(--accent);
+}
+
+header p {
+    color: var(--muted);
+    margin-bottom: 0;
+}
+
+main {
+    max-width: 1250px;
+    margin: auto;
+    padding: 25px;
+}
+
+.back {
+    color: var(--accent);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+button {
+    border: 0;
+    border-radius: 6px;
+    padding: 11px 16px;
+    background: var(--accent);
+    color: #06101b;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover { opacity: .85; }
+
+button.secondary {
+    background: var(--panel2);
+    color: white;
+    border: 1px solid var(--border);
+}
+
+button.danger {
+    background: var(--danger);
+    color: white;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(190px,1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat, .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.stat h3 {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.stat strong {
+    color: var(--accent);
+    font-size: 30px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 20px;
+}
+
+h2 {
+    color: var(--accent);
+    font-size: 19px;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin: 14px 0 6px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 11px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #071522;
+    color: white;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.message {
+    margin-top: 12px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.success { color: var(--accent); }
+.error { color: #ff7777; }
+
+.course-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+    gap: 15px;
+}
+
+.course {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 17px;
+}
+
+.course h3 {
+    color: var(--accent);
+    margin-top: 0;
+}
+
+.course p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.badge {
+    display: inline-block;
+    background: #164b46;
+    color: #68e3d6;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.course-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.course-actions button {
+    font-size: 11px;
+    padding: 9px;
+}
+
+.module-item {
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 7px;
+    margin: 10px 0;
+    background: #0b1c2a;
+}
+
+.module-item h4 {
+    color: var(--accent);
+    margin: 0 0 8px;
+}
+
+.module-item p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.lesson-item {
+    border-top: 1px solid var(--border);
+    padding: 10px 0;
+    font-size: 13px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-size: 13px;
+}
+
+th { color: var(--accent); }
+
+.muted { color: var(--muted); }
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+@media(max-width:850px) {
+    .grid { grid-template-columns: 1fr; }
+    main { padding: 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>TES | Learning Hub</h1>
+        <p>Training, courses and employee development</p>
+    </div>
+
+    <button class="secondary" id="logoutButton">Logout</button>
+</header>
+
+<main>
+
+<a class="back" href="dashboard.html">
+    ← Back to Main Dashboard
+</a>
+
+<div class="stats">
+    <div class="stat">
+        <h3>TOTAL COURSES</h3>
+        <strong id="totalCourses">0</strong>
+    </div>
+
+    <div class="stat">
+        <h3>PUBLISHED COURSES</h3>
+        <strong id="publishedCourses">0</strong>
+    </div>
+
+    <div class="stat">
+        <h3>TOTAL MODULES</h3>
+        <strong id="totalModules">0</strong>
+    </div>
+</div>
+
+<div class="grid">
+
+<section>
+
+<div class="card">
+    <h2>Create Course</h2>
+
+    <form id="courseForm">
+
+        <label>Course Title *</label>
+        <input id="courseTitle" required>
+
+        <label>Description</label>
+        <textarea id="courseDescription"></textarea>
+
+        <label>Category</label>
+        <select id="courseCategory">
+            <option value="Business">Business</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Finance">Finance</option>
+            <option value="Human Resources">Human Resources</option>
+            <option value="Compliance">Compliance</option>
+            <option value="Management">Management</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label>Difficulty</label>
+        <select id="courseDifficulty">
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+        </select>
+
+        <label>Duration (hours)</label>
+        <input id="courseDuration" type="number"
+               min="0" step="0.5" value="0">
+
+        <label>Course Status</label>
+        <select id="courseStatus">
+            <option value="Draft">Draft</option>
+            <option value="Published">Published</option>
+        </select>
+
+        <div class="form-buttons">
+            <button type="submit">Save Course</button>
+            <button type="reset" class="secondary">Clear</button>
+        </div>
+
+    </form>
+
+    <div id="courseMessage" class="message"></div>
+</div>
+
+<br>
+
+<div class="card">
+    <h2>Course Modules</h2>
+
+    <p class="muted" style="font-size:13px">
+        Select a course before adding modules.
+    </p>
+
+    <label>Select Course</label>
+    <select id="moduleCourse">
+        <option value="">Select a course</option>
+    </select>
+
+    <form id="moduleForm">
+
+        <label>Module Title *</label>
+        <input id="moduleTitle" required>
+
+        <label>Module Description</label>
+        <textarea id="moduleDescription"></textarea>
+
+        <label>Module Order</label>
+        <input id="moduleOrder" type="number" min="1" value="1">
+
+        <div class="form-buttons">
+            <button type="submit">Add Module</button>
+        </div>
+
+    </form>
+
+    <div id="moduleMessage" class="message"></div>
+</div>
+
+<br>
+
+<div class="card">
+    <h2>Lessons</h2>
+
+    <label>Select Module</label>
+    <select id="lessonModule">
+        <option value="">Select a module</option>
+    </select>
+
+    <form id="lessonForm">
+
+        <label>Lesson Title *</label>
+        <input id="lessonTitle" required>
+
+        <label>Lesson Content</label>
+        <textarea id="lessonContent"></textarea>
+
+        <label>Video URL</label>
+        <input id="lessonVideo" type="url"
+               placeholder="https://...">
+
+        <label>Learning Material URL</label>
+        <input id="lessonMaterial" type="url"
+               placeholder="https://...">
+
+        <label>Lesson Order</label>
+        <input id="lessonOrder" type="number" min="1" value="1">
+
+        <div class="form-buttons">
+            <button type="submit">Add Lesson</button>
+        </div>
+
+    </form>
+
+    <div id="lessonMessage" class="message"></div>
+</div>
+
+</section>
+
+<section>
+
+<div class="card">
+    <h2>Course Catalogue</h2>
+
+    <input id="courseSearch"
+           type="search"
+           placeholder="Search courses..."
+           style="margin-bottom:18px">
+
+    <div id="courseList" class="course-list">
+        <p class="muted">Loading courses...</p>
+    </div>
+</div>
+
+<br>
+
+<div class="card">
+    <h2>Course Structure</h2>
+
+    <div id="courseStructure">
+        <p class="muted">
+            Select a course to view its modules and lessons.
+        </p>
+    </div>
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+<footer>
+    © 2026 The Entity Solutions Pty Ltd | TES Digital Hub
+</footer>
+
+<script>
+"use strict";
+
+/* SUPABASE CONFIGURATION */
+
+const SUPABASE_URL =
+    "https://jgzvycawkkfdvdimdjat.supabase.co";
+
+const SUPABASE_KEY =
+    "PASTE_YOUR_EXISTING_PUBLIC_ANON_KEY";
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let currentUser = null;
+let courses = [];
+let modules = [];
+let lessons = [];
+let selectedCourseId = null;
+
+
+/* HELPERS */
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return map[char];
+    });
+}
+
+function message(id, text, type) {
+    const element = document.getElementById(id);
+    element.textContent = text;
+    element.className = "message " + type;
+}
+
+
+/* AUTHENTICATION */
+
+async function checkAccess() {
+
+    if (SUPABASE_KEY === "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw") {
+        alert("Please add your Supabase public anon key.");
+        return false;
+    }
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error || !data.session) {
+        window.location.href = "login.html";
+        return false;
+    }
+
+    currentUser = data.session.user;
+
+    const { data: profile, error: profileError } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", currentUser.id)
+        .single();
+
+    if (profileError || !profile || profile.role !== "admin") {
+        alert("Administrator access required.");
+        window.location.href = "dashboard.html";
+        return false;
+    }
+
+    return true;
+}
+
+
+/* CREATE COURSE */
+
+document.getElementById("courseForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const course = {
+        course_title: document.getElementById("courseTitle").value.trim(),
+        course_description: document.getElementById("courseDescription").value.trim(),
+        category: document.getElementById("courseCategory").value,
+        difficulty: document.getElementById("courseDifficulty").value,
+        duration_hours: Number(document.getElementById("courseDuration").value) || 0,
+        status: document.getElementById("courseStatus").value,
+        created_by: currentUser.id
+    };
+
+    const { error } = await db
+        .from("lh_courses")
+        .insert([course]);
+
+    if (error) {
+        message("courseMessage", error.message, "error");
+        return;
+    }
+
+    this.reset();
+
+    document.getElementById("courseDuration").value = 0;
+
+    message("courseMessage", "Course created successfully.", "success");
+
+    await loadCourses();
+});
+
+
+/* LOAD COURSES */
+
+async function loadCourses() {
+
+    const { data, error } = await db
+        .from("lh_courses")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        document.getElementById("courseList").textContent =
+            "Could not load courses: " + error.message;
+        return;
+    }
+
+    courses = data || [];
+
+    document.getElementById("totalCourses").textContent =
+        courses.length;
+
+    document.getElementById("publishedCourses").textContent =
+        courses.filter(c => c.status === "Published").length;
+
+    renderCourses();
+
+    const select = document.getElementById("moduleCourse");
+    const previous = select.value;
+
+    select.innerHTML = '<option value="">Select a course</option>';
+
+    courses.forEach(function(course) {
+        const option = document.createElement("option");
+        option.value = course.id;
+        option.textContent = course.course_title;
+        select.appendChild(option);
+    });
+
+    if (courses.some(c => c.id === previous)) {
+        select.value = previous;
+    }
+}
+
+
+/* DISPLAY COURSES */
+
+function renderCourses() {
+
+    const search = document.getElementById("courseSearch")
+        .value.trim().toLowerCase();
+
+    const filtered = courses.filter(function(course) {
+        return (
+            course.course_title.toLowerCase().includes(search) ||
+            String(course.category || "").toLowerCase().includes(search)
+        );
+    });
+
+    const container = document.getElementById("courseList");
+
+    if (!filtered.length) {
+        container.innerHTML =
+            '<p class="muted">No courses found.</p>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(function(course) {
+
+        return `
+            <div class="course">
+                <h3>${escapeHTML(course.course_title)}</h3>
+
+                <p>${escapeHTML(course.course_description || "No description added.")}</p>
+
+                <p>Category: ${escapeHTML(course.category || "-")}</p>
+                <p>Level: ${escapeHTML(course.difficulty || "-")}</p>
+                <p>Duration: ${escapeHTML(course.duration_hours)} hours</p>
+
+                <span class="badge">${escapeHTML(course.status)}</span>
+
+                <div class="course-actions">
+                    <button type="button"
+                        onclick="viewCourse('${course.id}')">
+                        View Structure
+                    </button>
+
+                    <button type="button"
+                        class="secondary"
+                        onclick="toggleCourseStatus('${course.id}')">
+                        Change Status
+                    </button>
+
+                    <button type="button"
+                        class="danger"
+                        onclick="deleteCourse('${course.id}')">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+    }).join("");
+}
+
+
+/* SEARCH */
+
+document.getElementById("courseSearch")
+.addEventListener("input", renderCourses);
+
+
+/* CHANGE COURSE STATUS */
+
+async function toggleCourseStatus(id) {
+
+    const course = courses.find(c => c.id === id);
+
+    if (!course) return;
+
+    const newStatus =
+        course.status === "Published" ? "Draft" : "Published";
+
+    const { error } = await db
+        .from("lh_courses")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+    if (error) {
+        alert("Could not update course: " + error.message);
+        return;
+    }
+
+    await loadCourses();
+}
+
+
+/* DELETE COURSE */
+
+async function deleteCourse(id) {
+
+    if (!confirm("Delete this course and its modules and lessons?")) {
+        return;
+    }
+
+    const { error } = await db
+        .from("lh_courses")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        alert("Could not delete course: " + error.message);
+        return;
+    }
+
+    if (selectedCourseId === id) {
+        selectedCourseId = null;
+        document.getElementById("courseStructure").innerHTML =
+            '<p class="muted">Select a course to view its structure.</p>';
+    }
+
+    await loadCourses();
+    await loadModules();
+}
+
+
+/* ADD MODULE */
+
+document.getElementById("moduleForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const courseId = document.getElementById("moduleCourse").value;
+
+    if (!courseId) {
+        message("moduleMessage", "Select a course first.", "error");
+        return;
+    }
+
+    const module = {
+        course_id: courseId,
+        module_title: document.getElementById("moduleTitle").value.trim(),
+        module_description: document.getElementById("moduleDescription").value.trim(),
+        module_order: Number(document.getElementById("moduleOrder").value) || 1
+    };
+
+    const { error } = await db
+        .from("lh_modules")
+        .insert([module]);
+
+    if (error) {
+        message("moduleMessage", error.message, "error");
+        return;
+    }
+
+    this.reset();
+    document.getElementById("moduleOrder").value = 1;
+
+    message("moduleMessage", "Module added successfully.", "success");
+
+    await loadModules();
+
+    if (selectedCourseId === courseId) {
+        await viewCourse(courseId);
+    }
+});
+
+
+/* LOAD MODULES */
+
+async function loadModules() {
+
+    const { data, error } = await db
+        .from("lh_modules")
+        .select("*")
+        .order("module_order");
+
+    if (error) {
+        message("moduleMessage", error.message, "error");
+        return;
+    }
+
+    modules = data || [];
+
+    document.getElementById("totalModules").textContent =
+        modules.length;
+
+    const select = document.getElementById("lessonModule");
+    const previous = select.value;
+
+    select.innerHTML = '<option value="">Select a module</option>';
+
+    modules.forEach(function(module) {
+
+        const course = courses.find(c => c.id === module.course_id);
+
+        const option = document.createElement("option");
+        option.value = module.id;
+        option.textContent =
+            (course ? course.course_title + " — " : "") +
+            module.module_title;
+
+        select.appendChild(option);
+    });
+
+    if (modules.some(m => m.id === previous)) {
+        select.value = previous;
+    }
+}
+
+
+/* ADD LESSON */
+
+document.getElementById("lessonForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const moduleId = document.getElementById("lessonModule").value;
+
+    if (!moduleId) {
+        message("lessonMessage", "Select a module first.", "error");
+        return;
+    }
+
+    const lesson = {
+        module_id: moduleId,
+        lesson_title: document.getElementById("lessonTitle").value.trim(),
+        lesson_content: document.getElementById("lessonContent").value.trim(),
+        video_url: document.getElementById("lessonVideo").value.trim() || null,
+        material_url: document.getElementById("lessonMaterial").value.trim() || null,
+        lesson_order: Number(document.getElementById("lessonOrder").value) || 1
+    };
+
+    const { error } = await db
+        .from("lh_lessons")
+        .insert([lesson]);
+
+    if (error) {
+        message("lessonMessage", error.message, "error");
+        return;
+    }
+
+    this.reset();
+    document.getElementById("lessonOrder").value = 1;
+
+    message("lessonMessage", "Lesson added successfully.", "success");
+
+    if (selectedCourseId) {
+        await viewCourse(selectedCourseId);
+    }
+});
+
+
+/* VIEW COURSE STRUCTURE */
+
+async function viewCourse(courseId) {
+
+    selectedCourseId = courseId;
+
+    const course = courses.find(c => c.id === courseId);
+
+    if (!course) return;
+
+    const container = document.getElementById("courseStructure");
+
+    container.innerHTML = '<p class="muted">Loading course structure...</p>';
+
+    const { data: moduleData, error: moduleError } = await db
+        .from("lh_modules")
+        .select("*")
+        .eq("course_id", courseId)
+        .order("module_order");
+
+    if (moduleError) {
+        container.textContent = moduleError.message;
+        return;
+    }
+
+    const courseModules = moduleData || [];
+
+    if (!courseModules.length) {
+        container.innerHTML =
+            '<p class="muted">No modules added to this course yet.</p>';
+        return;
+    }
+
+    let html = "";
+
+    for (const module of courseModules) {
+
+        const { data: lessonData, error: lessonError } = await db
+            .from("lh_lessons")
+            .select("*")
+            .eq("module_id", module.id)
+            .order("lesson_order");
+
+        if (lessonError) {
+            container.textContent = lessonError.message;
+            return;
+        }
+
+        const courseLessons = lessonData || [];
+
+        html += `
+            <div class="module-item">
+                <h4>${escapeHTML(module.module_order)}. ${escapeHTML(module.module_title)}</h4>
+
+                <p>${escapeHTML(module.module_description || "")}</p>
+
+                <strong>${courseLessons.length} lesson(s)</strong>
+        `;
+
+        courseLessons.forEach(function(lesson) {
+
+            html += `
+                <div class="lesson-item">
+                    <strong>${escapeHTML(lesson.lesson_order)}.
+                        ${escapeHTML(lesson.lesson_title)}</strong>
+                    <p class="muted">
+                        ${escapeHTML(lesson.lesson_content || "")}
+                    </p>
+            `;
+
+            if (lesson.video_url) {
+                html += `
+                    <p><a href="${escapeHTML(lesson.video_url)}"
+                        target="_blank" rel="noopener noreferrer"
+                        style="color:var(--accent)">
+                        Open Training Video
+                    </a></p>
+                `;
+            }
+
+            if (lesson.material_url) {
+                html += `
+                    <p><a href="${escapeHTML(lesson.material_url)}"
+                        target="_blank" rel="noopener noreferrer"
+                        style="color:var(--accent)">
+                        Open Learning Material
+                    </a></p>
+                `;
+            }
+
+            html += </div>;
+        });
+
+        html += </div>;
+    }
+
+    container.innerHTML = `
+        <h3>${escapeHTML(course.course_title)}</h3>
+        ${html}
+    `;
+}
+
+
+/* COURSE SELECTION */
+
+document.getElementById("moduleCourse")
+.addEventListener("change", async function() {
+
+    const courseId = this.value;
+
+    if (!courseId) return;
+
+    await viewCourse(courseId);
+});
+
+
+/* LOGOUT */
+
+document.getElementById("logoutButton")
+.addEventListener("click", async function() {
+
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    window.location.href = "login.html";
+});
+
+
+/* START */
+
+async function initialise() {
+
+    const allowed = await checkAccess();
+
+    if (!allowed) return;
+
+    await loadCourses();
+    await loadModules();
+}
+
+initialise();
+
+</script>
+
+</body>
+</html>
