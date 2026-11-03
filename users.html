@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Digital Hub | User Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --bg:#07111f;
+    --panel:#101e30;
+    --panel2:#15263a;
+    --teal:#20d5c0;
+    --text:#edf5f7;
+    --muted:#91a5b8;
+    --line:rgba(255,255,255,.09);
+    --gold:#d9b66f;
+    --red:#ef7777;
+}
+
+* {box-sizing:border-box}
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+}
+
+header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 30px;
+    background:#091626;
+    border-bottom:1px solid var(--line);
+}
+
+.brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo {
+    background:var(--teal);
+    color:#07111f;
+    font-weight:bold;
+    padding:12px;
+    border-radius:9px;
+}
+
+.brand h2 {
+    margin:0;
+    font-size:16px;
+    letter-spacing:1px;
+}
+
+.brand small {
+    color:var(--muted);
+    font-size:10px;
+}
+
+button,.button {
+    border:0;
+    border-radius:7px;
+    padding:11px 16px;
+    cursor:pointer;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.primary {
+    background:var(--teal);
+    color:#06131d;
+}
+
+.secondary {
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.layout {
+    display:grid;
+    grid-template-columns:230px 1fr;
+    min-height:calc(100vh - 70px);
+}
+
+aside {
+    background:#0b1929;
+    padding:25px 15px;
+    border-right:1px solid var(--line);
+}
+
+.nav-title {
+    color:var(--muted);
+    font-size:10px;
+    letter-spacing:2px;
+    padding:12px;
+}
+
+nav a {
+    display:block;
+    color:#b8c9d8;
+    text-decoration:none;
+    padding:13px;
+    border-radius:7px;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+nav a:hover,nav a.active {
+    background:rgba(32,213,192,.12);
+    color:var(--teal);
+}
+
+main {
+    padding:32px;
+    max-width:1400px;
+    width:100%;
+}
+
+.eyebrow {
+    color:var(--teal);
+    font-size:11px;
+    letter-spacing:2px;
+}
+
+h1 {
+    font-size:30px;
+    margin:10px 0;
+}
+
+.subtitle {
+    color:var(--muted);
+    margin-bottom:25px;
+}
+
+.stats {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.card {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+}
+
+.stat-label {
+    color:var(--muted);
+    font-size:13px;
+}
+
+.stat-value {
+    color:var(--teal);
+    font-size:30px;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+.toolbar {
+    display:flex;
+    gap:12px;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+input,select {
+    background:#0b1929;
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:12px;
+    outline:none;
+}
+
+input {
+    min-width:240px;
+    flex:1;
+}
+
+select {
+    min-width:110px;
+}
+
+.table-wrap {
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+
+th,td {
+    padding:15px 12px;
+    text-align:left;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+}
+
+th {
+    color:var(--muted);
+    font-weight:normal;
+}
+
+.role {
+    color:var(--teal);
+    font-weight:bold;
+}
+
+.small {
+    color:var(--muted);
+    font-size:11px;
+}
+
+#message {
+    padding:13px;
+    border-radius:7px;
+    margin-bottom:15px;
+    color:var(--gold);
+    font-size:13px;
+    display:none;
+    background:var(--panel);
+}
+
+#accessDenied {
+    display:none;
+    padding:30px;
+    margin:30px;
+    background:var(--panel);
+    border-radius:12px;
+}
+
+footer {
+    color:var(--muted);
+    font-size:11px;
+    padding:25px 0;
+    margin-top:35px;
+    border-top:1px solid var(--line);
+}
+
+@media(max-width:750px) {
+    .layout {grid-template-columns:1fr}
+    aside {border-right:0;border-bottom:1px solid var(--line)}
+    nav {display:flex;overflow-x:auto}
+    nav a {white-space:nowrap;font-size:12px}
+    main {padding:20px 14px}
+    .stats {grid-template-columns:1fr}
+    header {padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <div class="logo">TES</div>
+        <div>
+            <h2>THE ENTITY SOLUTIONS</h2>
+            <small>DIGITAL BUSINESS • SCALE & GROW</small>
+        </div>
+    </div>
+
+    <button class="secondary" id="logoutButton">Sign out</button>
+</header>
+
+<div class="layout">
+
+<aside>
+    <div class="nav-title">ADMINISTRATION</div>
+
+    <nav>
+        <a href="admin.html">▦ Admin Centre</a>
+        <a class="active" href="users.html">♙ User Management</a>
+        <a href="clients.html">▣ Client Management</a>
+        <a href="business-manager.html">◈ Business Manager</a>
+    </nav>
+
+    <div class="nav-title">PLATFORM</div>
+
+    <nav>
+        <a href="dashboard.html">⌂ Digital Hub Home</a>
+    </nav>
+</aside>
+
+<main>
+
+    <div class="eyebrow">TES DIGITAL HUB</div>
+    <h1>User Management</h1>
+
+    <p class="subtitle">
+        Manage registered users and their platform access.
+    </p>
+
+    <div id="message"></div>
+
+    <section class="stats">
+
+        <div class="card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="totalUsers">—</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Administrators</div>
+            <div class="stat-value" id="adminUsers">—</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Staff Members</div>
+            <div class="stat-value" id="staffUsers">—</div>
+        </div>
+
+    </section>
+
+    <div class="toolbar">
+        <input
+            type="search"
+            id="searchInput"
+            placeholder="Search by name or email..."
+        >
+
+        <button class="primary" id="refreshButton">
+            Refresh Users
+        </button>
+    </div>
+
+    <div class="card table-wrap">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+
+            <tbody id="userTable">
+                <tr>
+                    <td colspan="4">Loading users...</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <p class="small">
+        Available roles: Admin, Staff and Client.
+        Role changes require administrator database permissions.
+    </p>
+
+    <footer>
+        © <span id="year"></span> The Entity Solutions.
+        TES Digital Hub · User Management
+    </footer>
+
+</main>
+</div>
+
+<div id="accessDenied">
+    <h2>Access denied</h2>
+    <p>You must be an administrator to access User Management.</p>
+    <a href="admin.html" class="button primary">Return to Admin Centre</a>
+</div>
+
+<script>
+const SUPABASE_URL =
+"https://jgzvycawkkfdvdimdjat.supabase.co";
+
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let allUsers = [];
+
+document.getElementById("year").textContent =
+    new Date().getFullYear();
+
+function showMessage(message) {
+    const box = document.getElementById("message");
+    box.textContent = message;
+    box.style.display = "block";
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[c]);
+}
+
+async function initialise() {
+
+    const {data: sessionData, error: sessionError} =
+        await db.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const user = sessionData.session.user;
+
+    // Verify administrator role from profiles
+    const {data: profile, error: profileError} =
+        await db.from("profiles")
+        .select("id,email,full_name,role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (profileError) {
+        showMessage(
+            "Could not verify your administrator role: " +
+            profileError.message
+        );
+        return;
+    }
+
+    if (!profile || profile.role !== "admin") {
+        document.querySelector(".layout").style.display = "none";
+        document.getElementById("accessDenied").style.display = "block";
+        return;
+    }
+
+    await loadUsers();
+}
+
+async function loadUsers() {
+
+    showMessage("Loading registered users...");
+
+    const {data, error} = await db.from("profiles")
+        .select("id,email,full_name,role,created_at")
+        .order("created_at", {ascending:false});
+
+    if (error) {
+        showMessage(
+            "Unable to load users. Check profiles table permissions: " +
+            error.message
+        );
+        return;
+    }
+
+    allUsers = data || [];
+
+    document.getElementById("totalUsers").textContent =
+        allUsers.length;
+
+    document.getElementById("adminUsers").textContent =
+        allUsers.filter(u => u.role === "admin").length;
+
+    document.getElementById("staffUsers").textContent =
+        allUsers.filter(u => u.role === "staff").length;
+
+    renderUsers(allUsers);
+
+    document.getElementById("message").style.display = "none";
+}
+
+function renderUsers(users) {
+
+    const tbody = document.getElementById("userTable");
+
+    if (!users.length) {
+        tbody.innerHTML =
+            '<tr><td colspan="4">No users found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = users.map(user => {
+
+        const date = user.created_at
+            ? new Date(user.created_at).toLocaleDateString()
+            : "—";
+
+        return `
+        <tr>
+            <td>${escapeHTML(user.full_name || "Not provided")}</td>
+            <td>${escapeHTML(user.email || "—")}</td>
+            <td>
+                <select
+                    class="roleSelect"
+                    data-id="${escapeHTML(user.id)}"
+                    data-original="${escapeHTML(user.role || "client")}"
+                >
+                    <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+                    <option value="staff" ${user.role === "staff" ? "selected" : ""}>Staff</option>
+                    <option value="client" ${user.role === "client" ? "selected" : ""}>Client</option>
+                </select>
+            </td>
+            <td>${date}</td>
+        </tr>`;
+    }).join("");
+
+    document.querySelectorAll(".roleSelect")
+        .forEach(select => {
+            select.addEventListener("change", changeRole);
+        });
+}
+
+async function changeRole(event) {
+
+    const select = event.target;
+    const userId = select.dataset.id;
+    const oldRole = select.dataset.original;
+    const newRole = select.value;
+
+    if (oldRole === newRole) return;
+
+    if (userId === (await db.auth.getUser()).data.user.id) {
+        alert("You cannot change your own administrator role here.");
+        select.value = oldRole;
+        return;
+    }
+
+    const confirmed = confirm(
+        "Change this user's role from " +
+        oldRole + " to " + newRole + "?"
+    );
+
+    if (!confirmed) {
+        select.value = oldRole;
+        return;
+    }
+
+    select.disabled = true;
+
+    const {error} = await db.from("profiles")
+        .update({role:newRole})
+        .eq("id", userId);
+
+    if (error) {
+        alert("Role update failed: " + error.message);
+        select.value = oldRole;
+        select.disabled = false;
+        return;
+    }
+
+    select.dataset.original = newRole;
+
+    alert("User role updated successfully.");
+
+    await loadUsers();
+}
+
+document.getElementById("searchInput")
+.addEventListener("input", event => {
+
+    const term = event.target.value.toLowerCase();
+
+    const filtered = allUsers.filter(user =>
+        (user.full_name || "").toLowerCase().includes(term) ||
+        (user.email || "").toLowerCase().includes(term)
+    );
+
+    renderUsers(filtered);
+});
+
+document.getElementById("refreshButton")
+.addEventListener("click", loadUsers);
+
+document.getElementById("logoutButton")
+.addEventListener("click", async () => {
+
+    await db.auth.signOut();
+
+    window.location.href = "login.html";
+});
+
+initialise();
+</script>
+
+</body>
+</html>
