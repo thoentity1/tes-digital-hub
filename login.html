@@ -659,62 +659,44 @@ loginForm.addEventListener("submit", async function (event) {
 });
 
 
-// ======================================
-// TES DIGITAL HUB - PASSWORD RECOVERY
-// ======================================
+// PASSWORD RECOVERY
+document.getElementById("forgotPassword")
+.addEventListener("click", async function(event) {
 
-const forgotPasswordBtn =
-    document.getElementById("forgotPassword");
+    event.preventDefault();
 
-if (forgotPasswordBtn) {
+    const emailInput = document.querySelector(
+        'input[type="email"], input[name="email"], #email, #username'
+    );
 
-    forgotPasswordBtn.addEventListener("click", async function(event) {
+    const email = emailInput ? emailInput.value.trim() : "";
 
-        event.preventDefault();
+    if (!email || !email.includes("@")) {
+        alert("Please enter a valid email address first.");
+        return;
+    }
 
-        const emailInput =
-            document.getElementById("username") ||
-            document.getElementById("email");
+    try {
 
-        const email = emailInput?.value.trim();
+        const { error } =
+            await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo:
+                "https://thoentity1.github.io/tes-digital-hub/set-password.html"
+            });
 
-        if (!email || !email.includes("@")) {
-            alert("Please enter your email address first.");
-            return;
-        }
+        if (error) throw error;
 
-        try {
+        alert("Password recovery email sent. Please check your inbox.");
 
-            forgotPasswordBtn.disabled = true;
+    } catch (error) {
 
-            const { error } =
-                await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo:
-                    "https://thoentity1.github.io/tes-digital-hub/set-password.html"
-                });
+        console.error("Password recovery error:", error);
 
-            if (error) {
-                throw error;
-            }
+        alert("Password recovery failed: " + error.message);
 
-            alert("Password recovery email sent. Check your inbox.");
+    }
 
-        } catch (error) {
-
-            console.error("Password recovery:", error);
-
-            alert("Recovery failed: " + error.message);
-
-        } finally {
-
-            forgotPasswordBtn.disabled = false;
-
-        }
-
-    });
-
-}
-
+});
     });
 
 </script>
