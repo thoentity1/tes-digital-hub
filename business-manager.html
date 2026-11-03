@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Digital Hub | Business Manager</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --bg:#07111f;
+    --panel:#101e30;
+    --panel2:#15263a;
+    --teal:#20d5c0;
+    --text:#edf5f7;
+    --muted:#91a5b8;
+    --line:rgba(255,255,255,.09);
+    --gold:#d9b66f;
+    --red:#ef7777;
+}
+
+* {box-sizing:border-box}
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+}
+
+header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 30px;
+    border-bottom:1px solid var(--line);
+    background:#091626;
+}
+
+.brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo {
+    background:var(--teal);
+    color:#07111f;
+    font-weight:bold;
+    padding:12px;
+    border-radius:9px;
+}
+
+.brand h2 {
+    margin:0;
+    font-size:16px;
+    letter-spacing:1px;
+}
+
+.brand small {
+    color:var(--muted);
+    font-size:10px;
+}
+
+button,.button {
+    border:0;
+    border-radius:7px;
+    padding:11px 16px;
+    cursor:pointer;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.primary {
+    background:var(--teal);
+    color:#06131d;
+}
+
+.secondary {
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.layout {
+    display:grid;
+    grid-template-columns:235px 1fr;
+    min-height:calc(100vh - 70px);
+}
+
+aside {
+    background:#0b1929;
+    padding:25px 15px;
+    border-right:1px solid var(--line);
+}
+
+.nav-title {
+    color:var(--muted);
+    font-size:10px;
+    letter-spacing:2px;
+    padding:12px;
+}
+
+nav a {
+    display:block;
+    color:#b8c9d8;
+    text-decoration:none;
+    padding:13px;
+    border-radius:7px;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+nav a:hover,nav a.active {
+    background:rgba(32,213,192,.12);
+    color:var(--teal);
+}
+
+main {
+    padding:32px;
+    max-width:1500px;
+    width:100%;
+}
+
+.eyebrow {
+    color:var(--teal);
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+
+h1 {
+    font-size:30px;
+    margin:10px 0;
+}
+
+.subtitle {
+    color:var(--muted);
+    margin-bottom:30px;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:30px;
+}
+
+.card {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px;
+}
+
+.stat-label {
+    color:var(--muted);
+    font-size:13px;
+}
+
+.stat-value {
+    font-size:30px;
+    font-weight:bold;
+    margin:15px 0 5px;
+    color:var(--teal);
+}
+
+.stat-foot {
+    font-size:11px;
+    color:var(--muted);
+}
+
+.section-title {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:30px 0 15px;
+}
+
+.section-title h2 {
+    font-size:19px;
+    margin:0;
+}
+
+.modules {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.module {
+    min-height:175px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.module-icon {
+    font-size:27px;
+    color:var(--teal);
+}
+
+.module h3 {
+    margin:14px 0 8px;
+}
+
+.module p {
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+}
+
+.module a {
+    color:var(--teal);
+    text-decoration:none;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.table-wrap {
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+th,td {
+    padding:14px 12px;
+    text-align:left;
+    border-bottom:1px solid var(--line);
+}
+
+th {
+    color:var(--muted);
+    font-weight:normal;
+}
+
+td {
+    color:var(--text);
+}
+
+.status {
+    color:var(--teal);
+}
+
+.notice {
+    color:var(--muted);
+    font-size:13px;
+    padding:15px;
+    background:var(--panel);
+    border-radius:8px;
+    margin-bottom:20px;
+}
+
+#message {
+    color:var(--gold);
+    font-size:13px;
+    margin-bottom:15px;
+}
+
+footer {
+    margin-top:45px;
+    border-top:1px solid var(--line);
+    padding:20px 0;
+    color:var(--muted);
+    font-size:11px;
+}
+
+@media(max-width:950px) {
+    .grid {grid-template-columns:repeat(2,1fr)}
+    .modules {grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:650px) {
+    header {padding:15px}
+    .layout {grid-template-columns:1fr}
+    aside {border-right:0;border-bottom:1px solid var(--line)}
+    nav {display:flex;overflow-x:auto}
+    nav a {white-space:nowrap;font-size:12px}
+    main {padding:20px 14px}
+    .modules {grid-template-columns:1fr}
+    .grid {gap:10px}
+    .card {padding:16px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <div class="logo">TES</div>
+        <div>
+            <h2>THE ENTITY SOLUTIONS</h2>
+            <small>DIGITAL BUSINESS • SCALE & GROW</small>
+        </div>
+    </div>
+
+    <button class="secondary" id="logoutButton">Sign out</button>
+</header>
+
+<div class="layout">
+
+<aside>
+    <div class="nav-title">BUSINESS WORKSPACE</div>
+
+    <nav>
+        <a class="active" href="business-manager.html">▦ Overview</a>
+        <a href="clients.html">♙ Client Management</a>
+        <a href="#company">▣ Company Profile</a>
+        <a href="#services">◈ Products & Services</a>
+        <a href="#finance">＄ Invoices & Payments</a>
+        <a href="#reports">▤ Reports</a>
+    </nav>
+
+    <div class="nav-title">PLATFORM</div>
+
+    <nav>
+        <a href="dashboard.html">⌂ Digital Hub Home</a>
+        <a href="admin.html">⚙️ Admin Centre</a>
+    </nav>
+</aside>
+
+<main>
+
+    <div class="eyebrow">TES DIGITAL HUB</div>
+
+    <h1>Business Manager</h1>
+
+    <p class="subtitle">
+        Your central workspace for managing business operations.
+    </p>
+
+    <div id="message">Connecting to TES Digital Hub...</div>
+
+    <section class="grid">
+
+        <div class="card">
+            <div class="stat-label">Registered Clients</div>
+            <div class="stat-value" id="clientCount">—</div>
+            <div class="stat-foot">Client database</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Applications</div>
+            <div class="stat-value" id="applicationCount">—</div>
+            <div class="stat-foot">Platform applications</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Active Clients</div>
+            <div class="stat-value" id="activeCount">—</div>
+            <div class="stat-foot">Based on client status</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Account Status</div>
+            <div class="stat-value" style="font-size:20px" id="accountStatus">
+                Checking
+            </div>
+            <div class="stat-foot">Supabase authentication</div>
+        </div>
+
+    </section>
+
+    <div class="section-title">
+        <h2>Business Operations</h2>
+    </div>
+
+    <section class="modules">
+
+        <article class="card module">
+            <div>
+                <div class="module-icon">♙</div>
+                <h3>Client Management</h3>
+                <p>
+                    Register clients, maintain company details,
+                    manage client records and relationships.
+                </p>
+            </div>
+            <a href="clients.html">OPEN CLIENT MANAGEMENT →</a>
+        </article>
+
+        <article class="card module" id="company">
+            <div>
+                <div class="module-icon">▣</div>
+                <h3>Company Profile</h3>
+                <p>
+                    Manage your business identity, company
+                    information and registration details.
+                </p>
+            </div>
+            <a href="#company">COMPANY PROFILE →</a>
+        </article>
+
+        <article class="card module" id="services">
+            <div>
+                <div class="module-icon">◈</div>
+                <h3>Products & Services</h3>
+                <p>
+                    Manage your business offerings, services,
+                    product descriptions and pricing.
+                </p>
+            </div>
+            <a href="#services">MANAGE OFFERINGS →</a>
+        </article>
+
+        <article class="card module" id="finance">
+            <div>
+                <div class="module-icon">＄</div>
+                <h3>Invoices & Payments</h3>
+                <p>
+                    Manage customer invoices, payment records
+                    and outstanding balances.
+                </p>
+            </div>
+            <a href="#finance">FINANCIAL MANAGEMENT →</a>
+        </article>
+
+        <article class="card module" id="reports">
+            <div>
+                <div class="module-icon">▤</div>
+                <h3>Business Reports</h3>
+                <p>
+                    Review client activity, business performance
+                    and operational information.
+                </p>
+            </div>
+            <a href="#reports">VIEW REPORTS →</a>
+        </article>
+
+        <article class="card module">
+            <div>
+                <div class="module-icon">⚙️</div>
+                <h3>Business Settings</h3>
+                <p>
+                    Configure business preferences and
+                    administrative information.
+                </p>
+            </div>
+            <a href="admin.html">ADMINISTRATION →</a>
+        </article>
+
+    </section>
+
+    <div class="section-title">
+        <h2>Recent Clients</h2>
+        <a class="button primary" href="clients.html">View All Clients</a>
+    </div>
+
+    <div class="card table-wrap">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="clientTable">
+                <tr>
+                    <td colspan="4">Loading client records...</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="notice" style="margin-top:25px">
+        <strong>TES Business Manager</strong><br>
+        Additional modules such as invoicing, financial management,
+        products and services will be connected to their database
+        components as development progresses.
+    </div>
+
+    <footer>
+        © <span id="year"></span> The Entity Solutions.
+        TES Digital Hub · Business Manager
+    </footer>
+
+</main>
+</div>
+
+<script>
+const SUPABASE_URL =
+"https://jgzvycawkkfdvdimdjat.supabase.co";
+
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+document.getElementById("year").textContent =
+    new Date().getFullYear();
+
+async function initialise() {
+
+    const { data: sessionData, error: sessionError } =
+        await db.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const user = sessionData.session.user;
+
+    document.getElementById("accountStatus").textContent =
+        "Connected";
+
+    document.getElementById("message").textContent =
+        "Welcome to Business Manager, " +
+        (user.email || "Administrator");
+
+    await loadBusinessData();
+}
+
+async function loadBusinessData() {
+
+    // Load existing clients
+    const { data: clients, error: clientError } =
+        await db.from("clients")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+    if (clientError) {
+        document.getElementById("clientCount").textContent = "!";
+        document.getElementById("clientTable").innerHTML =
+            `<tr><td colspan="4">Could not load clients: ${
+                escapeHTML(clientError.message)
+            }</td></tr>`;
+    } else {
+
+        document.getElementById("clientCount").textContent =
+            clients.length;
+
+        const active = clients.filter(client =>
+            String(client.status || "").toLowerCase() === "active"
+        );
+
+        document.getElementById("activeCount").textContent =
+            active.length;
+
+        const tbody = document.getElementById("clientTable");
+
+        if (!clients.length) {
+            tbody.innerHTML =
+                '<tr><td colspan="4">No clients registered yet.</td></tr>';
+        } else {
+            tbody.innerHTML = clients.slice(0, 6).map(client => `
+                <tr>
+                    <td>${escapeHTML(client.company_name || "—")}</td>
+                    <td>${escapeHTML(client.contact_name || client.contact_person || "—")}</td>
+                    <td>${escapeHTML(client.email || "—")}</td>
+                    <td class="status">${escapeHTML(client.status || "—")}</td>
+                </tr>
+            `).join("");
+        }
+    }
+
+    // Load existing applications
+    const { data: apps, error: appError } =
+        await db.from("applications")
+        .select("*");
+
+    document.getElementById("applicationCount").textContent =
+        appError ? "—" : apps.length;
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+document.getElementById("logoutButton")
+.addEventListener("click", async () => {
+
+    await db.auth.signOut();
+
+    window.location.href = "login.html";
+});
+
+initialise();
+</script>
+
+</body>
+</html>
