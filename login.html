@@ -659,43 +659,61 @@ loginForm.addEventListener("submit", async function (event) {
 });
 
 
-// PASSWORD RECOVERY
-document.getElementById("forgotPassword")
-.addEventListener("click", async function(event) {
+// ======================================
+// TES DIGITAL HUB - PASSWORD RECOVERY
+// ======================================
 
-    event.preventDefault();
+const forgotPasswordBtn =
+    document.getElementById("forgotPassword");
 
-    const emailInput = document.querySelector(
-        'input[type="email"], input[name="email"], #email, #username'
-    );
+if (forgotPasswordBtn) {
 
-    const email = emailInput?.value.trim();
-
-    if (!email) {
-        alert("Please enter your email address first.");
-        return;
-    }
-
-    const { data, error } =
-        await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo:
-            "https://thoentity1.github.io/tes-digital-hub/set-password.html"
-        });
-
-    if (error) {
-        alert("Password recovery failed: " + error.message);
-        return;
-    }
-
-    alert("Password recovery email sent. Please check your inbox.");
-});
-    .addEventListener("click", function (event) {
+    forgotPasswordBtn.addEventListener("click", async function(event) {
 
         event.preventDefault();
 
-        showMessage(
-            "Password recovery will be configured in the next step."
-        );
+        const emailInput =
+            document.getElementById("username") ||
+            document.getElementById("email");
+
+        const email = emailInput?.value.trim();
+
+        if (!email || !email.includes("@")) {
+            alert("Please enter your email address first.");
+            return;
+        }
+
+        try {
+
+            forgotPasswordBtn.disabled = true;
+
+            const { error } =
+                await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo:
+                    "https://thoentity1.github.io/tes-digital-hub/set-password.html"
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            alert("Password recovery email sent. Check your inbox.");
+
+        } catch (error) {
+
+            console.error("Password recovery:", error);
+
+            alert("Recovery failed: " + error.message);
+
+        } finally {
+
+            forgotPasswordBtn.disabled = false;
+
+        }
+
+    });
+
+}
 
     });
 
