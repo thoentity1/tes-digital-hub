@@ -1,201 +1,783 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>TES Earthworks Pro</title>
+<title>TES Earthworks Pro | Digital Hub</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
+:root {
+    --navy: #0b1424;
+    --sidebar: #101e33;
+    --card: #172840;
+    --turquoise: #13c6bd;
+    --white: #ffffff;
+    --muted: #9aabc0;
+    --border: #263b54;
+}
+
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background: #0b1424;
-    color: white;
+    background: var(--navy);
+    color: var(--white);
 }
 
-header {
-    background: #101e33;
-    padding: 22px 30px;
-    border-bottom: 2px solid #13c6bd;
+/* LAYOUT */
+
+.layout {
+    display: flex;
+    min-height: 100vh;
 }
 
-header h1 {
-    margin: 0;
-    color: #13c6bd;
+/* SIDEBAR */
+
+.sidebar {
+    width: 255px;
+    background: var(--sidebar);
+    padding: 25px 15px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
 }
 
-header p {
-    color: #aab8c9;
+.brand {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 25px;
 }
 
-.container {
+.brand h2 {
+    color: var(--turquoise);
+    font-size: 21px;
+}
+
+.brand p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 7px;
+}
+
+.menu-title {
+    color: #71869e;
+    font-size: 11px;
+    margin: 20px 10px 10px;
+    text-transform: uppercase;
+}
+
+.nav-item {
+    display: block;
+    color: #c4d0df;
+    text-decoration: none;
+    padding: 13px 12px;
+    border-radius: 7px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: #203a52;
+    color: var(--turquoise);
+}
+
+.nav-item.active {
+    border-left: 3px solid var(--turquoise);
+}
+
+/* MAIN */
+
+.main {
+    margin-left: 255px;
+    width: calc(100% - 255px);
+}
+
+/* TOPBAR */
+
+.topbar {
+    height: 75px;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.topbar h3 {
+    font-size: 17px;
+}
+
+.user-info {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* CONTENT */
+
+.content {
     padding: 30px;
 }
 
-.cards {
+.welcome {
+    margin-bottom: 30px;
+}
+
+.welcome h1 {
+    font-size: 27px;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: var(--muted);
+}
+
+/* STATISTICS */
+
+.stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
 }
 
-.card {
-    background: #172840;
-    padding: 25px;
-    border-radius: 12px;
-    border-left: 4px solid #13c6bd;
+.stat-card {
+    background: var(--card);
+    padding: 23px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--turquoise);
 }
 
-.card h3 {
-    color: #aab8c9;
-    font-size: 14px;
+.stat-card p {
+    color: var(--muted);
+    font-size: 13px;
 }
 
-.card h2 {
-    font-size: 32px;
-    color: #13c6bd;
+.stat-card h2 {
+    color: var(--turquoise);
+    font-size: 30px;
+    margin-top: 15px;
 }
+
+/* SECTIONS */
 
 .section {
-    background: #172840;
+    background: var(--card);
     padding: 25px;
-    border-radius: 12px;
     margin-top: 25px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
 }
 
+.section h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.project-box {
+    background: #20364e;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.project-box h3 {
+    color: var(--turquoise);
+    margin-bottom: 10px;
+}
+
+.project-box p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* MODULES */
+
+.modules {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.module {
+    background: #20364e;
+    padding: 22px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.module:hover {
+    border-color: var(--turquoise);
+    transform: translateY(-3px);
+}
+
+.module h3 {
+    color: var(--turquoise);
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.module p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* BUTTONS */
+
 button {
-    background: #13c6bd;
-    color: #071525;
+    background: var(--turquoise);
+    color: var(--navy);
     border: none;
-    padding: 13px 20px;
+    padding: 11px 17px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    margin: 5px;
 }
 
 button:hover {
-    background: #0da59e;
+    opacity: 0.85;
 }
 
-footer {
-    text-align: center;
-    padding: 25px;
-    color: #8495aa;
+.logout {
+    background: #a83e4c;
+    color: white;
 }
+
+/* FOOTER */
+
+footer {
+    padding: 25px;
+    text-align: center;
+    color: #71869e;
+    font-size: 12px;
+}
+
+/* MOBILE */
+
+@media(max-width: 1000px) {
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modules {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media(max-width: 700px) {
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .layout {
+        display: block;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .modules {
+        grid-template-columns: 1fr;
+    }
+
+    .content {
+        padding: 18px;
+    }
+
+    .topbar {
+        padding: 15px;
+    }
+
+}
+
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>TES EARTHWORKS PRO</h1>
-    <p>Earthworks Quantification & Progress Management</p>
-</header>
+<div class="layout">
 
-<div class="container">
+<!-- SIDEBAR -->
 
-<h2>Project Dashboard</h2>
+<aside class="sidebar">
 
-<div class="cards">
+    <div class="brand">
+        <h2>THE ENTITY SOLUTIONS</h2>
+        <p>TES DIGITAL HUB</p>
+    </div>
 
-<div class="card">
-<h3>Total Projects</h3>
-<h2 id="projects">—</h2>
+    <div class="menu-title">Main Menu</div>
+
+    <a class="nav-item active" href="earthworks.html">
+        ◈ Dashboard
+    </a>
+
+    <div class="menu-title">Earthworks Management</div>
+
+    <a class="nav-item" href="earthworks.html">
+        ▣ Project Overview
+    </a>
+
+    <a class="nav-item" href="earthworks.html#quantities">
+        ▤ Quantity Management
+    </a>
+
+    <a class="nav-item" href="earthworks.html#chainages">
+        ◫ Chainage Tracking
+    </a>
+
+    <a class="nav-item" href="earthworks.html#progress">
+        ◉ Progress Monitoring
+    </a>
+
+    <div class="menu-title">Reporting</div>
+
+    <a class="nav-item" href="earthworks.html#reports">
+        ▧ Daily Site Reports
+    </a>
+
+    <a class="nav-item" href="earthworks.html#analytics">
+        ▥ Analytics
+    </a>
+
+    <a class="nav-item" href="earthworks.html#reports">
+        ▤ Reports
+    </a>
+
+    <div class="menu-title">System</div>
+
+    <a class="nav-item" href="dashboard.html">
+        TES Digital Hub
+    </a>
+
+    <a class="nav-item" href="admin.html">
+        Administration
+    </a>
+
+    <br>
+
+    <button class="logout" onclick="logout()">
+        Sign Out
+    </button>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main">
+
+    <div class="topbar">
+
+        <h3>TES Earthworks Pro</h3>
+
+        <div class="user-info">
+            <span id="userEmail">Loading user...</span>
+        </div>
+
+    </div>
+
+
+    <div class="content">
+
+        <div class="welcome">
+
+            <h1>Earthworks Dashboard</h1>
+
+            <p>
+                Welcome to TES Earthworks Pro.
+                Earthworks Quantification & Progress Management.
+            </p>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+                <p>Total Projects</p>
+                <h2 id="projects">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Activities</p>
+                <h2 id="activities">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Chainages</p>
+                <h2 id="chainages">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Design Quantity Records</p>
+                <h2 id="designRecords">—</h2>
+            </div>
+
+        </div>
+
+
+        <!-- PROJECT OVERVIEW -->
+
+        <div class="section">
+
+            <h2>Active Project Overview</h2>
+
+            <div class="project-box">
+
+                <h3 id="projectName">Loading project...</h3>
+
+                <p>
+                    Project: PVR Rural 1
+                </p>
+
+                <p>
+                    Earthworks Quantification and Construction
+                    Progress Management.
+                </p>
+
+                <p>
+                    Progress Records:
+                    <strong id="progressRecords">—</strong>
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- MODULES -->
+
+        <div class="section">
+
+            <h2>Earthworks Applications</h2>
+
+            <div class="modules">
+
+                <div class="module"
+                     onclick="openModule('projects')">
+
+                    <h3>Project Management</h3>
+
+                    <p>
+                        Manage projects, project information
+                        and project activities.
+                    </p>
+
+                </div>
+
+
+                <div class="module"
+                     onclick="openModule('quantities')">
+
+                    <h3>Quantity Management</h3>
+
+                    <p>
+                        View original engineering design
+                        quantities and calculations.
+                    </p>
+
+                </div>
+
+
+                <div class="module"
+                     onclick="openModule('chainages')">
+
+                    <h3>Chainage Tracking</h3>
+
+                    <p>
+                        Track chainages, left sections,
+                        right sections and full widths.
+                    </p>
+
+                </div>
+
+
+                <div class="module"
+                     onclick="openModule('progress')">
+
+                    <h3>Progress Monitoring</h3>
+
+                    <p>
+                        Capture completed work and
+                        monitor construction progress.
+                    </p>
+
+                </div>
+
+
+                <div class="module"
+                     onclick="openModule('reports')">
+
+                    <h3>Daily Site Reports</h3>
+
+                    <p>
+                        Record daily construction
+                        activities and site progress.
+                    </p>
+
+                </div>
+
+
+                <div class="module"
+                     onclick="openModule('analytics')">
+
+                    <h3>Analytics & Reports</h3>
+
+                    <p>
+                        Analyse quantities, outstanding
+                        work and project performance.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DATABASE STATUS -->
+
+        <div class="section">
+
+            <h2>Database Connection</h2>
+
+            <p id="connectionStatus">
+                Connecting to Supabase...
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <footer>
+
+        The Entity Solutions (Pty) Ltd<br>
+        TES Digital Hub | TES Earthworks Pro<br>
+        © 2026 All Rights Reserved
+
+    </footer>
+
+</main>
+
 </div>
 
-<div class="card">
-<h3>Activities</h3>
-<h2 id="activities">—</h2>
-</div>
 
-<div class="card">
-<h3>Total Chainages</h3>
-<h2 id="chainages">—</h2>
-</div>
-
-<div class="card">
-<h3>Overall Progress</h3>
-<h2 id="progress">—</h2>
-</div>
-
-</div>
-
-<div class="section">
-<h2>Project Management</h2>
-<button onclick="alert('Project Management coming next')">
-Manage Projects
-</button>
-</div>
-
-<div class="section">
-<h2>Earthworks Quantification</h2>
-<button onclick="alert('Quantity Management coming next')">
-View Quantities
-</button>
-<button onclick="alert('Chainage Management coming next')">
-Manage Chainages
-</button>
-</div>
-
-<div class="section">
-<h2>Construction Progress</h2>
-<button onclick="alert('Progress Capture coming next')">
-Capture Progress
-</button>
-<button onclick="alert('Reports coming next')">
-Progress Reports
-</button>
-</div>
-
-</div>
-
-<footer>
-The Entity Solutions (Pty) Ltd |
-TES Digital Hub | TES Earthworks Pro
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- SUPABASE -->
 
 <script>
 
-// REUSE THE EXISTING TES DIGITAL HUB CREDENTIALS
-const SUPABASE_URL = "sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+// EXISTING TES DIGITAL HUB SUPABASE CONFIGURATION
+
+const SUPABASE_URL = "YOUR_EXISTING_SUPABASE_URL";
+
+const SUPABASE_ANON_KEY = "YOUR_EXISTING_SUPABASE_ANON_KEY";
 
 const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
-// LOAD PROJECT COUNT
+
+// AUTHENTICATION
+
+async function checkAuthentication() {
+
+    const { data, error } =
+        await supabaseClient.auth.getSession();
+
+    if (error || !data.session) {
+
+        window.location.href = "login.html";
+
+        return false;
+
+    }
+
+    document.getElementById("userEmail").textContent =
+        data.session.user.email || "TES User";
+
+    return true;
+
+}
+
+
+// DATABASE COUNT
+
+async function getCount(table) {
+
+    const { count, error } = await supabaseClient
+        .from(table)
+        .select("*", {
+            count: "exact",
+            head: true
+        });
+
+    if (error) {
+
+        console.error(table, error);
+
+        return "Error";
+
+    }
+
+    return count ?? 0;
+
+}
+
+
+// LOAD DASHBOARD DATA
+
 async function loadDashboard() {
 
     try {
 
-        const { count, error } = await supabaseClient
-            .from('ep_projects')
-            .select('*', { count: 'exact', head: true });
+        const authenticated = await checkAuthentication();
 
-        if (error) throw error;
+        if (!authenticated) return;
 
-        document.getElementById('projects').textContent =
-            count ?? 0;
+        document.getElementById("connectionStatus").textContent =
+            "Connected to TES Digital Hub Supabase.";
 
-    } catch (error) {
+        const [
+            projects,
+            activities,
+            chainages,
+            designRecords,
+            progressRecords
+        ] = await Promise.all([
 
-        console.error("Dashboard error:", error);
+            getCount("ep_projects"),
 
-        document.getElementById('projects').textContent = "Error";
+            getCount("ep_activities"),
+
+            getCount("ep_chainages"),
+
+            getCount("ep_design_quantities"),
+
+            getCount("ep_progress_status")
+
+        ]);
+
+        document.getElementById("projects").textContent =
+            projects;
+
+        document.getElementById("activities").textContent =
+            activities;
+
+        document.getElementById("chainages").textContent =
+            chainages;
+
+        document.getElementById("designRecords").textContent =
+            designRecords;
+
+        document.getElementById("progressRecords").textContent =
+            progressRecords;
+
+        document.getElementById("projectName").textContent =
+            "PVR Rural 1";
 
     }
+
+    catch (error) {
+
+        console.error(error);
+
+        document.getElementById("connectionStatus").textContent =
+            "Unable to load dashboard data.";
+
+    }
+
 }
+
+
+// MODULE NAVIGATION
+
+function openModule(module) {
+
+    const pages = {
+
+        projects: "earthworks-projects.html",
+
+        quantities: "earthworks-quantities.html",
+
+        chainages: "earthworks-chainages.html",
+
+        progress: "earthworks-progress.html",
+
+        reports: "earthworks-reports.html",
+
+        analytics: "earthworks-analytics.html"
+
+    };
+
+    alert(
+        module.toUpperCase() +
+        " module will be activated in the next development phase."
+    );
+
+}
+
+
+// LOGOUT
+
+async function logout() {
+
+    const confirmLogout = confirm(
+        "Are you sure you want to sign out?"
+    );
+
+    if (!confirmLogout) return;
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+    if (error) {
+
+        alert("Unable to sign out.");
+
+        return;
+
+    }
+
+    window.location.href = "login.html";
+
+}
+
+
+// START APPLICATION
 
 loadDashboard();
 
 </script>
+
 </body>
 </html>
