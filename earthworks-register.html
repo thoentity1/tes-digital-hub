@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Earthworks Progress Register</title>
+
+<!-- Excel reader -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root {
+    --navy: #142d4e;
+    --blue: #1769aa;
+    --light: #f3f6fa;
+    --green: #16834a;
+    --orange: #e99b28;
+    --red: #cf4242;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--light);
+    color: #263445;
+}
+
+header {
+    background: var(--navy);
+    color: white;
+    padding: 24px;
+}
+
+header h1 { margin: 0 0 8px; }
+header p { margin: 0; color: #cbd8e8; }
+
+.container {
+    max-width: 1500px;
+    margin: auto;
+    padding: 22px;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+button, .upload {
+    border: 0;
+    border-radius: 6px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    background: var(--blue);
+}
+
+button:hover, .upload:hover {
+    opacity: .85;
+}
+
+.upload { background: var(--green); }
+
+input[type=file] { display: none; }
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ccd5df;
+    border-radius: 5px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 9px;
+    padding: 20px;
+    box-shadow: 0 2px 7px #0000000c;
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 13px;
+    color: #687789;
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 27px;
+    margin-top: 10px;
+}
+
+.filters {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 7px #0000000c;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+th {
+    background: var(--navy);
+    color: white;
+    padding: 13px 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #e6ebf0;
+}
+
+tr:hover { background: #f4f8fc; }
+
+td input[type=number] {
+    width: 95px;
+}
+
+td input[type=checkbox] {
+    width: 19px;
+    height: 19px;
+    cursor: pointer;
+}
+
+.progress {
+    width: 100%;
+    min-width: 85px;
+    height: 9px;
+    background: #e4e9ef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress div {
+    height: 100%;
+    background: var(--green);
+}
+
+.status {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.completed { color: var(--green); }
+.pending { color: var(--orange); }
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #778493;
+    font-size: 12px;
+}
+
+@media(max-width:600px) {
+    .container { padding: 12px; }
+    header { padding: 18px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>TES Earthworks Progress Register</h1>
+    <p>Earthworks Measurement, Completion and Progress Monitoring</p>
+</header>
+
+<div class="container">
+
+    <div class="toolbar">
+        <label class="upload">
+            Upload Excel Workbook
+            <input type="file" id="excelFile" accept=".xlsx,.xls">
+        </label>
+
+        <button onclick="addRow()">+ Add Activity</button>
+        <button onclick="exportCSV()">Export CSV</button>
+        <button onclick="resetProgress()">Reset Progress</button>
+    </div>
+
+    <div id="workbookInfo"></div>
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <h3>Total Activities</h3>
+            <strong id="totalActivities">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <h3>Completed Activities</h3>
+            <strong id="completedActivities">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <h3>Outstanding Activities</h3>
+            <strong id="outstandingActivities">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <h3>Overall Completion</h3>
+            <strong id="overallProgress">0%</strong>
+        </div>
+
+    </div>
+
+    <div class="filters">
+        <input id="search" placeholder="Search activity or chainage..."
+               oninput="renderTable()">
+
+        <select id="sideFilter" onchange="renderTable()">
+            <option value="">All Sides</option>
+            <option value="Left">Left</option>
+            <option value="Right">Right</option>
+            <option value="Full Width">Full Width</option>
+        </select>
+
+        <select id="statusFilter" onchange="renderTable()">
+            <option value="">All Statuses</option>
+            <option value="Complete">Complete</option>
+            <option value="Outstanding">Outstanding</option>
+        </select>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Activity</th>
+                    <th>Chainage</th>
+                    <th>Side</th>
+                    <th>Design Qty</th>
+                    <th>Completed Qty</th>
+                    <th>Outstanding Qty</th>
+                    <th>Completion</th>
+                    <th>Done</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="registerBody">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer>
+    TES Digital Hub | Earthworks Progress Register
+</footer>
+
+<script>
+
+let records = [];
+
+const STORAGE_KEY = "TES_EARTHWORKS_REGISTER_V1";
+
+// Load saved records
+function loadSaved() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            records = JSON.parse(saved);
+            renderTable();
+        }
+    } catch (error) {
+        console.error("Unable to load saved records", error);
+    }
+}
+
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    updateDashboard();
+}
+
+// Excel upload
+document.getElementById("excelFile").addEventListener("change", function(e) {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        try {
+            const workbook = XLSX.read(event.target.result, {
+                type: "array"
+            });
+
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            const rows = XLSX.utils.sheet_to_json(sheet, {
+                defval: ""
+            });
+
+            if (!rows.length) {
+                alert("The selected worksheet contains no records.");
+                return;
+            }
+
+            records = rows.map((row, index) => {
+
+                const get = (...names) => {
+                    const key = Object.keys(row).find(k =>
+                        names.some(n => k.toLowerCase().trim() === n.toLowerCase())
+                    );
+                    return key === undefined ? "" : row[key];
+                };
+
+                const design = Number(
+                    get("Design Qty", "Design Quantity", "Quantity") || 0
+                );
+
+                const completed = Number(
+                    get("Completed Qty", "Completed Quantity") || 0
+                );
+
+                return {
+                    id: Date.now() + index,
+                    activity: String(get("Activity", "Description", "Work Item") || "Earthworks"),
+                    chainage: String(get("Chainage", "CH") || ""),
+                    side: String(get("Side", "Position") || "Full Width"),
+                    design: design,
+                    completed: completed,
+                    done: completed >= design && design > 0
+                };
+            });
+
+            saveData();
+            renderTable();
+
+            document.getElementById("workbookInfo").textContent =
+                "Loaded " + records.length + " records from " + file.name;
+
+            alert("Excel workbook imported successfully.");
+
+        } catch (error) {
+            alert("Error reading Excel file: " + error.message);
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+
+function addRow() {
+
+    records.push({
+        id: Date.now(),
+        activity: "New Earthworks Activity",
+        chainage: "",
+        side: "Full Width",
+        design: 0,
+        completed: 0,
+        done: false
+    });
+
+    saveData();
+    renderTable();
+}
+
+function updateRecord(id, field, value) {
+
+    const record = records.find(r => r.id === id);
+    if (!record) return;
+
+    if (field === "completed" || field === "design") {
+        value = Math.max(0, Number(value) || 0);
+    }
+
+    record[field] = value;
+
+    if (field === "completed") {
+        record.done = record.design > 0 &&
+                      record.completed >= record.design;
+    }
+
+    if (field === "done") {
+        record.done = value;
+        if (value) {
+            record.completed = record.design;
+        }
+    }
+
+    saveData();
+    renderTable();
+}
+
+function renderTable() {
+
+    const body = document.getElementById("registerBody");
+
+    const search = document.getElementById("search").value.toLowerCase();
+    const side = document.getElementById("sideFilter").value;
+    const status = document.getElementById("statusFilter").value;
+
+    body.innerHTML = "";
+
+    const filtered = records.filter(r => {
+
+        const matchesSearch =
+            r.activity.toLowerCase().includes(search) ||
+            r.chainage.toLowerCase().includes(search);
+
+        const matchesSide = !side || r.side === side;
+
+        const matchesStatus = !status ||
+            (status === "Complete" && r.done) ||
+            (status === "Outstanding" && !r.done);
+
+        return matchesSearch && matchesSide && matchesStatus;
+    });
+
+    filtered.forEach(r => {
+
+        const outstanding = Math.max(0, r.design - r.completed);
+
+        const percentage = r.design > 0
+            ? Math.min(100, (r.completed / r.design) * 100)
+            : 0;
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>
+                <input value="${escapeHTML(r.activity)}"
+                    onchange="updateRecord(${r.id}, 'activity', this.value)">
+            </td>
+
+            <td>
+                <input value="${escapeHTML(r.chainage)}"
+                    onchange="updateRecord(${r.id}, 'chainage', this.value)">
+            </td>
+
+            <td>
+                <select onchange="updateRecord(${r.id}, 'side', this.value)">
+                    <option ${r.side === "Left" ? "selected" : ""}>Left</option>
+                    <option ${r.side === "Right" ? "selected" : ""}>Right</option>
+                    <option ${r.side === "Full Width" ? "selected" : ""}>Full Width</option>
+                </select>
+            </td>
+
+            <td>
+                <input type="number" min="0" step="any"
+                    value="${r.design}"
+                    onchange="updateRecord(${r.id}, 'design', this.value)">
+            </td>
+
+            <td>
+                <input type="number" min="0" step="any"
+                    value="${r.completed}"
+                    onchange="updateRecord(${r.id}, 'completed', this.value)">
+            </td>
+
+            <td>${outstanding.toFixed(2)}</td>
+
+            <td>
+                <div class="progress">
+                    <div style="width:${percentage}%"></div>
+                </div>
+                ${percentage.toFixed(1)}%
+            </td>
+
+            <td>
+                <input type="checkbox"
+                    ${r.done ? "checked" : ""}
+                    onchange="updateRecord(${r.id}, 'done', this.checked)">
+            </td>
+
+            <td class="status ${r.done ? "completed" : "pending"}">
+                ${r.done ? "COMPLETE" : "OUTSTANDING"}
+            </td>
+        `;
+
+        body.appendChild(tr);
+    });
+
+    updateDashboard();
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function updateDashboard() {
+
+    const total = records.length;
+    const completed = records.filter(r => r.done).length;
+    const outstanding = total - completed;
+
+    const progress = total > 0
+        ? (completed / total) * 100
+        : 0;
+
+    document.getElementById("totalActivities").textContent = total;
+    document.getElementById("completedActivities").textContent = completed;
+    document.getElementById("outstandingActivities").textContent = outstanding;
+    document.getElementById("overallProgress").textContent =
+        progress.toFixed(1) + "%";
+}
+
+function exportCSV() {
+
+    const headers = [
+        "Activity",
+        "Chainage",
+        "Side",
+        "Design Qty",
+        "Completed Qty",
+        "Outstanding Qty",
+        "Completion %",
+        "Done"
+    ];
+
+    const rows = records.map(r => [
+        r.activity,
+        r.chainage,
+        r.side,
+        r.design,
+        r.completed,
+        Math.max(0, r.design - r.completed),
+        r.design > 0
+            ? ((r.completed / r.design) * 100).toFixed(1)
+            : 0,
+        r.done ? "Yes" : "No"
+    ]);
+
+    const csv = [headers, ...rows]
+        .map(row => row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(","))
+        .join("\n");
+
+    const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "TES_Earthworks_Progress.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function resetProgress() {
+
+    if (!confirm("Delete all locally saved register records?")) return;
+
+    records = [];
+    localStorage.removeItem(STORAGE_KEY);
+
+    renderTable();
+}
+
+loadSaved();
+
+</script>
+
+</body>
+</html>
