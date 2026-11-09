@@ -1,185 +1,306 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TES Earthworks Progress Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TES Earthworks Pro | Progress Register</title>
 
-<!-- Excel reader -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
-    --navy: #142d4e;
-    --blue: #1769aa;
-    --light: #f3f6fa;
-    --green: #16834a;
-    --orange: #e99b28;
-    --red: #cf4242;
+    --bg: #071321;
+    --sidebar: #091a2b;
+    --panel: #102238;
+    --panel2: #18324b;
+    --line: #29435b;
+    --teal: #19c6c2;
+    --text: #edf5fb;
+    --muted: #9bb0c2;
+    --green: #25c58a;
+    --red: #ff7777;
 }
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
+    background: var(--bg);
+    color: var(--text);
     font-family: Arial, sans-serif;
-    background: var(--light);
-    color: #263445;
+    font-size: 14px;
 }
+
+/* HEADER */
 
 header {
-    background: var(--navy);
-    color: white;
-    padding: 24px;
-}
-
-header h1 { margin: 0 0 8px; }
-header p { margin: 0; color: #cbd8e8; }
-
-.container {
-    max-width: 1500px;
-    margin: auto;
-    padding: 22px;
-}
-
-.toolbar {
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 25px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 15px;
 }
 
-button, .upload {
-    border: 0;
-    border-radius: 6px;
+.brand {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.brand span {
+    color: var(--teal);
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* LAYOUT */
+
+.layout {
+    display: flex;
+    min-height: calc(100vh - 75px);
+}
+
+.sidebar {
+    width: 225px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--line);
+    padding: 20px 12px;
+    flex-shrink: 0;
+}
+
+.sidebar h4 {
+    color: var(--muted);
+    font-size: 11px;
+    padding-left: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 5px;
+    border-radius: 7px;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #17364c;
+    color: var(--teal);
+}
+
+.content {
+    flex: 1;
+    padding: 24px;
+    min-width: 0;
+}
+
+/* BUTTONS */
+
+button {
+    background: var(--teal);
+    color: #03232b;
+    border: none;
     padding: 11px 16px;
+    border-radius: 7px;
     cursor: pointer;
     font-weight: bold;
+}
+
+button.secondary {
+    background: #263e55;
     color: white;
-    background: var(--blue);
+    border: 1px solid var(--line);
 }
 
-button:hover, .upload:hover {
-    opacity: .85;
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
-.upload { background: var(--green); }
+/* INPUTS */
 
-input[type=file] { display: none; }
-
-input, select {
-    padding: 10px;
-    border: 1px solid #ccd5df;
-    border-radius: 5px;
+input,
+select {
+    background: #091a2b;
+    border: 1px solid var(--line);
+    color: white;
+    padding: 11px;
+    border-radius: 7px;
+    min-width: 150px;
 }
 
-.stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 22px;
+/* STATUS */
+
+.badge {
+    background: #1b4652;
+    color: #9ef4e8;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 11px;
 }
 
-.stat-card {
-    background: white;
-    border-radius: 9px;
-    padding: 20px;
-    box-shadow: 0 2px 7px #0000000c;
-}
-
-.stat-card h3 {
-    margin: 0;
-    font-size: 13px;
-    color: #687789;
-}
-
-.stat-card strong {
-    display: block;
-    font-size: 27px;
+.message {
+    color: var(--muted);
     margin-top: 10px;
+    font-size: 12px;
 }
 
-.filters {
-    background: white;
-    padding: 15px;
+/* NOTICE */
+
+.notice {
+    background: #332b16;
+    border: 1px solid #80672a;
+    color: #ffe4a1;
+    padding: 14px;
     border-radius: 8px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* CARDS */
+
+.toolbar,
+.filters,
+.stats {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
-.table-wrap {
-    overflow-x: auto;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 7px #0000000c;
+.stat {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 17px;
+    border-radius: 9px;
+    flex: 1;
+    min-width: 150px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1000px;
+.stat small {
+    color: var(--muted);
+    display: block;
+    margin-bottom: 9px;
 }
 
-th {
-    background: var(--navy);
-    color: white;
-    padding: 13px 10px;
-    text-align: left;
-    white-space: nowrap;
+.stat strong {
+    font-size: 22px;
 }
 
-td {
-    padding: 11px 10px;
-    border-bottom: 1px solid #e6ebf0;
-}
+/* TABLE */
 
-tr:hover { background: #f4f8fc; }
-
-td input[type=number] {
-    width: 95px;
-}
-
-td input[type=checkbox] {
-    width: 19px;
-    height: 19px;
-    cursor: pointer;
-}
-
-.progress {
-    width: 100%;
-    min-width: 85px;
-    height: 9px;
-    background: #e4e9ef;
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
     border-radius: 10px;
     overflow: hidden;
 }
 
-.progress div {
-    height: 100%;
-    background: var(--green);
+.panel-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.status {
-    font-weight: bold;
-    font-size: 12px;
+.table-wrap {
+    overflow: auto;
+    max-height: 65vh;
 }
 
-.completed { color: var(--green); }
-.pending { color: var(--orange); }
+table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    background: var(--panel2);
+    color: #bfeeed;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+tr:hover td {
+    background: #152e46;
+}
+
+.toggle {
+    width: 19px;
+    height: 19px;
+    accent-color: var(--teal);
+    cursor: pointer;
+}
+
+.empty {
+    text-align: center;
+    padding: 35px;
+    color: var(--muted);
+}
 
 footer {
-    text-align: center;
-    padding: 25px;
-    color: #778493;
+    color: var(--muted);
     font-size: 12px;
+    margin-top: 20px;
 }
 
-@media(max-width:600px) {
-    .container { padding: 12px; }
-    header { padding: 18px; }
+@media(max-width:800px) {
+    .sidebar {
+        width: 65px;
+    }
+
+    .sidebar h4 {
+        display: none;
+    }
+
+    .sidebar a {
+        font-size: 0;
+        text-align: center;
+    }
+
+    .content {
+        padding: 12px;
+    }
+}
+
+@media(max-width:550px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        padding: 8px;
+    }
+
+    .sidebar a {
+        font-size: 12px;
+        white-space: nowrap;
+    }
 }
 </style>
 </head>
@@ -187,407 +308,894 @@ footer {
 <body>
 
 <header>
-    <h1>TES Earthworks Progress Register</h1>
-    <p>Earthworks Measurement, Completion and Progress Monitoring</p>
+    <div>
+        <div class="brand">
+            THE ENTITY SOLUTIONS
+            <span>| TES DIGITAL HUB</span>
+        </div>
+
+        <div class="subtitle">
+            TES Earthworks Pro · PVR Surveyors · Rural 1
+        </div>
+    </div>
+
+    <span class="badge" id="connection">
+        Not connected
+    </span>
 </header>
 
-<div class="container">
+<div class="layout">
 
-    <div class="toolbar">
-        <label class="upload">
-            Upload Excel Workbook
-            <input type="file" id="excelFile" accept=".xlsx,.xls">
-        </label>
+    <!-- SIDEBAR -->
 
-        <button onclick="addRow()">+ Add Activity</button>
-        <button onclick="exportCSV()">Export CSV</button>
-        <button onclick="resetProgress()">Reset Progress</button>
-    </div>
+    <aside class="sidebar">
 
-    <div id="workbookInfo"></div>
+        <h4>Digital Hub</h4>
 
-    <div class="stats">
+        <a href="dashboard.html">Dashboard</a>
 
-        <div class="stat-card">
-            <h3>Total Activities</h3>
-            <strong id="totalActivities">0</strong>
+        <h4>Earthworks Pro</h4>
+
+        <a href="earthworks.html">Overview</a>
+
+        <a href="earthworks-quantities.html">
+            Quantities
+        </a>
+
+        <a href="earthworks-progress.html">
+            Progress Capture
+        </a>
+
+        <a href="earthworks-register.html" class="active">
+            Live Register
+        </a>
+
+        <h4>Account</h4>
+
+        <a href="admin.html">Administration</a>
+
+        <a href="login.html">Sign Out</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="content">
+
+        <h2>Earthworks Live Progress Register</h2>
+
+        <p style="color:var(--muted)">
+            Monitor and update completed earthworks by activity,
+            side and chainage.
+        </p>
+
+        <div class="notice">
+            <b>Live Supabase connection:</b>
+            This register uses the existing PVR Rural 1 design
+            quantities and progress records. Completion changes
+            update existing records. No duplicate records are created.
         </div>
 
-        <div class="stat-card">
-            <h3>Completed Activities</h3>
-            <strong id="completedActivities">0</strong>
+        <!-- ACTIONS -->
+
+        <div class="toolbar">
+
+            <button id="loadBtn">
+                Load / Refresh Register
+            </button>
+
+            <button class="secondary" id="exportBtn" disabled>
+                Export CSV
+            </button>
+
         </div>
 
-        <div class="stat-card">
-            <h3>Outstanding Activities</h3>
-            <strong id="outstandingActivities">0</strong>
+        <div class="message" id="message">
+            Sign in to TES Digital Hub before loading the register.
         </div>
 
-        <div class="stat-card">
-            <h3>Overall Completion</h3>
-            <strong id="overallProgress">0%</strong>
+        <!-- SUMMARY -->
+
+        <div class="stats">
+
+            <div class="stat">
+                <small>Project</small>
+                <strong style="font-size:17px">Rural 1</strong>
+            </div>
+
+            <div class="stat">
+                <small>Measurement Indicators</small>
+                <strong id="totalCount">—</strong>
+            </div>
+
+            <div class="stat">
+                <small>Completed Indicators</small>
+                <strong id="doneCount">—</strong>
+            </div>
+
+            <div class="stat">
+                <small>Quantity-weighted Progress</small>
+                <strong id="progressPct">—</strong>
+            </div>
+
         </div>
 
-    </div>
+        <!-- FILTERS -->
 
-    <div class="filters">
-        <input id="search" placeholder="Search activity or chainage..."
-               oninput="renderTable()">
+        <div class="filters">
 
-        <select id="sideFilter" onchange="renderTable()">
-            <option value="">All Sides</option>
-            <option value="Left">Left</option>
-            <option value="Right">Right</option>
-            <option value="Full Width">Full Width</option>
-        </select>
+            <input
+                id="search"
+                type="search"
+                placeholder="Search activity or chainage"
+                disabled
+            >
 
-        <select id="statusFilter" onchange="renderTable()">
-            <option value="">All Statuses</option>
-            <option value="Complete">Complete</option>
-            <option value="Outstanding">Outstanding</option>
-        </select>
-    </div>
+            <select id="activityFilter" disabled>
+                <option value="">All Activities</option>
+            </select>
 
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Activity</th>
-                    <th>Chainage</th>
-                    <th>Side</th>
-                    <th>Design Qty</th>
-                    <th>Completed Qty</th>
-                    <th>Outstanding Qty</th>
-                    <th>Completion</th>
-                    <th>Done</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+            <select id="sideFilter" disabled>
+                <option value="">All Sides</option>
+                <option value="Left">Left</option>
+                <option value="Right">Right</option>
+                <option value="Full Width">Full Width</option>
+            </select>
 
-            <tbody id="registerBody">
-            </tbody>
-        </table>
-    </div>
+            <select id="chainageFilter" disabled>
+                <option value="">All Chainages</option>
+            </select>
+
+        </div>
+
+        <!-- REGISTER -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <b>Earthworks Completion Register</b>
+
+                    <div
+                        class="subtitle"
+                        id="info"
+                    >
+                        Awaiting database connection.
+                    </div>
+                </div>
+
+                <div
+                    style="color:var(--muted)"
+                    id="shown"
+                ></div>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Activity</th>
+                            <th>Side</th>
+                            <th>Chainage</th>
+                            <th>Design Qty</th>
+                            <th>Completed</th>
+                            <th>Completed Qty</th>
+                            <th>Outstanding Qty</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="body">
+
+                        <tr>
+                            <td colspan="7" class="empty">
+                                Click Load / Refresh Register.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <footer>
+            The Entity Solutions (Pty) Ltd · TES Earthworks Pro
+            <br>
+            PVR Surveyors · Rural 1
+        </footer>
+
+    </main>
 
 </div>
 
-<footer>
-    TES Digital Hub | Earthworks Progress Register
-</footer>
-
 <script>
 
+// =====================================================
+// TES SUPABASE CONFIGURATION
+// =====================================================
+
+// Copy the values from your existing working login.html.
+// Use only your public anon/publishable key.
+// NEVER use the service_role or secret key.
+
+const SUPABASE_URL =
+    "sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
+
+const SUPABASE_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+
+const PROJECT_ID =
+    "8a4c2c30-4d51-4b29-9f18-5f7e3d2a1001";
+
+
+// =====================================================
+// INITIALISE
+// =====================================================
+
+let db = null;
 let records = [];
+let activityNames = {};
 
-const STORAGE_KEY = "TES_EARTHWORKS_REGISTER_V1";
+const $ = id => document.getElementById(id);
 
-// Load saved records
-function loadSaved() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            records = JSON.parse(saved);
-            renderTable();
-        }
-    } catch (error) {
-        console.error("Unable to load saved records", error);
-    }
-}
+const fmt = n =>
+    Number(n || 0).toLocaleString(
+        "en-ZA",
+        { maximumFractionDigits: 3 }
+    );
 
-function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-    updateDashboard();
-}
+function showMessage(text, error = false) {
 
-// Excel upload
-document.getElementById("excelFile").addEventListener("change", function(e) {
+    $("message").textContent = text;
 
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-
-        try {
-            const workbook = XLSX.read(event.target.result, {
-                type: "array"
-            });
-
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-            const rows = XLSX.utils.sheet_to_json(sheet, {
-                defval: ""
-            });
-
-            if (!rows.length) {
-                alert("The selected worksheet contains no records.");
-                return;
-            }
-
-            records = rows.map((row, index) => {
-
-                const get = (...names) => {
-                    const key = Object.keys(row).find(k =>
-                        names.some(n => k.toLowerCase().trim() === n.toLowerCase())
-                    );
-                    return key === undefined ? "" : row[key];
-                };
-
-                const design = Number(
-                    get("Design Qty", "Design Quantity", "Quantity") || 0
-                );
-
-                const completed = Number(
-                    get("Completed Qty", "Completed Quantity") || 0
-                );
-
-                return {
-                    id: Date.now() + index,
-                    activity: String(get("Activity", "Description", "Work Item") || "Earthworks"),
-                    chainage: String(get("Chainage", "CH") || ""),
-                    side: String(get("Side", "Position") || "Full Width"),
-                    design: design,
-                    completed: completed,
-                    done: completed >= design && design > 0
-                };
-            });
-
-            saveData();
-            renderTable();
-
-            document.getElementById("workbookInfo").textContent =
-                "Loaded " + records.length + " records from " + file.name;
-
-            alert("Excel workbook imported successfully.");
-
-        } catch (error) {
-            alert("Error reading Excel file: " + error.message);
-        }
-    };
-
-    reader.readAsArrayBuffer(file);
-});
-
-function addRow() {
-
-    records.push({
-        id: Date.now(),
-        activity: "New Earthworks Activity",
-        chainage: "",
-        side: "Full Width",
-        design: 0,
-        completed: 0,
-        done: false
-    });
-
-    saveData();
-    renderTable();
-}
-
-function updateRecord(id, field, value) {
-
-    const record = records.find(r => r.id === id);
-    if (!record) return;
-
-    if (field === "completed" || field === "design") {
-        value = Math.max(0, Number(value) || 0);
-    }
-
-    record[field] = value;
-
-    if (field === "completed") {
-        record.done = record.design > 0 &&
-                      record.completed >= record.design;
-    }
-
-    if (field === "done") {
-        record.done = value;
-        if (value) {
-            record.completed = record.design;
-        }
-    }
-
-    saveData();
-    renderTable();
-}
-
-function renderTable() {
-
-    const body = document.getElementById("registerBody");
-
-    const search = document.getElementById("search").value.toLowerCase();
-    const side = document.getElementById("sideFilter").value;
-    const status = document.getElementById("statusFilter").value;
-
-    body.innerHTML = "";
-
-    const filtered = records.filter(r => {
-
-        const matchesSearch =
-            r.activity.toLowerCase().includes(search) ||
-            r.chainage.toLowerCase().includes(search);
-
-        const matchesSide = !side || r.side === side;
-
-        const matchesStatus = !status ||
-            (status === "Complete" && r.done) ||
-            (status === "Outstanding" && !r.done);
-
-        return matchesSearch && matchesSide && matchesStatus;
-    });
-
-    filtered.forEach(r => {
-
-        const outstanding = Math.max(0, r.design - r.completed);
-
-        const percentage = r.design > 0
-            ? Math.min(100, (r.completed / r.design) * 100)
-            : 0;
-
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>
-                <input value="${escapeHTML(r.activity)}"
-                    onchange="updateRecord(${r.id}, 'activity', this.value)">
-            </td>
-
-            <td>
-                <input value="${escapeHTML(r.chainage)}"
-                    onchange="updateRecord(${r.id}, 'chainage', this.value)">
-            </td>
-
-            <td>
-                <select onchange="updateRecord(${r.id}, 'side', this.value)">
-                    <option ${r.side === "Left" ? "selected" : ""}>Left</option>
-                    <option ${r.side === "Right" ? "selected" : ""}>Right</option>
-                    <option ${r.side === "Full Width" ? "selected" : ""}>Full Width</option>
-                </select>
-            </td>
-
-            <td>
-                <input type="number" min="0" step="any"
-                    value="${r.design}"
-                    onchange="updateRecord(${r.id}, 'design', this.value)">
-            </td>
-
-            <td>
-                <input type="number" min="0" step="any"
-                    value="${r.completed}"
-                    onchange="updateRecord(${r.id}, 'completed', this.value)">
-            </td>
-
-            <td>${outstanding.toFixed(2)}</td>
-
-            <td>
-                <div class="progress">
-                    <div style="width:${percentage}%"></div>
-                </div>
-                ${percentage.toFixed(1)}%
-            </td>
-
-            <td>
-                <input type="checkbox"
-                    ${r.done ? "checked" : ""}
-                    onchange="updateRecord(${r.id}, 'done', this.checked)">
-            </td>
-
-            <td class="status ${r.done ? "completed" : "pending"}">
-                ${r.done ? "COMPLETE" : "OUTSTANDING"}
-            </td>
-        `;
-
-        body.appendChild(tr);
-    });
-
-    updateDashboard();
+    $("message").style.color =
+        error ? "var(--red)" : "var(--muted)";
 }
 
 function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-    })[char]);
+
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]
+    );
 }
 
-function updateDashboard() {
 
-    const total = records.length;
-    const completed = records.filter(r => r.done).length;
-    const outstanding = total - completed;
+// =====================================================
+// LOAD ALL PROJECT RECORDS
+// =====================================================
 
-    const progress = total > 0
-        ? (completed / total) * 100
-        : 0;
+async function getAll(table, columns) {
 
-    document.getElementById("totalActivities").textContent = total;
-    document.getElementById("completedActivities").textContent = completed;
-    document.getElementById("outstandingActivities").textContent = outstanding;
-    document.getElementById("overallProgress").textContent =
-        progress.toFixed(1) + "%";
+    const pageSize = 1000;
+    const all = [];
+
+    for (
+        let from = 0;
+        from < 50000;
+        from += pageSize
+    ) {
+
+        const { data, error } = await db
+            .from(table)
+            .select(columns)
+            .eq("project_id", PROJECT_ID)
+            .range(from, from + pageSize - 1);
+
+        if (error) {
+            throw new Error(
+                table + ": " + error.message
+            );
+        }
+
+        all.push(...(data || []));
+
+        if (!data || data.length < pageSize) {
+            break;
+        }
+    }
+
+    return all;
 }
+
+
+// =====================================================
+// LOAD REGISTER
+// =====================================================
+
+async function loadRegister() {
+
+    try {
+
+        $("loadBtn").disabled = true;
+
+        showMessage(
+            "Connecting to Supabase and loading Rural 1..."
+        );
+
+        if (!window.supabase) {
+            throw new Error(
+                "Supabase library did not load."
+            );
+        }
+
+        if (
+            SUPABASE_URL.includes("PASTE_") ||
+            SUPABASE_KEY.includes("PASTE_")
+        ) {
+            throw new Error(
+                "Add your existing Supabase URL and public key first."
+            );
+        }
+
+        db = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        // Check existing TES login session
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await db.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        if (!sessionData.session) {
+
+            showMessage(
+                "Please sign in to TES Digital Hub first."
+            );
+
+            setTimeout(() => {
+                location.href = "login.html";
+            }, 1500);
+
+            return;
+        }
+
+        // Retrieve existing records
+
+        const [
+            design,
+            progress,
+            activities
+        ] = await Promise.all([
+
+            getAll(
+                "ep_design_quantities",
+                "project_id,activity_code,side,chainage_m,design_quantity"
+            ),
+
+            getAll(
+                "ep_progress_status",
+                "id,project_id,activity_code,side,chainage_m,is_complete"
+            ),
+
+            db
+                .from("ep_activities")
+                .select(
+                    "activity_code,activity_name,unit,display_order"
+                )
+                .order("display_order")
+
+        ]);
+
+        if (activities.error) {
+            throw new Error(
+                activities.error.message
+            );
+        }
+
+        activityNames = {};
+
+        (activities.data || []).forEach(activity => {
+
+            activityNames[activity.activity_code] =
+                activity.activity_name;
+
+        });
+
+        // Match design quantities to progress records
+
+        const makeKey = row => [
+
+            row.project_id,
+            row.activity_code,
+            row.side,
+            row.chainage_m
+
+        ].join("|");
+
+        const progressMap = new Map();
+
+        progress.forEach(row => {
+
+            progressMap.set(makeKey(row), row);
+
+        });
+
+        records = design.map(row => {
+
+            const progressRow =
+                progressMap.get(makeKey(row));
+
+            return {
+
+                ...row,
+
+                progress_id:
+                    progressRow?.id ?? null,
+
+                is_complete:
+                    progressRow?.is_complete === true,
+
+                activity_name:
+                    activityNames[row.activity_code] ||
+                    row.activity_code
+
+            };
+
+        });
+
+        if (!records.length) {
+
+            throw new Error(
+                "No design quantities found for Rural 1."
+            );
+
+        }
+
+        const missing = records.filter(
+            row => row.progress_id === null
+        ).length;
+
+        populateFilters();
+
+        enableFilters(true);
+
+        renderTable();
+
+        $("connection").textContent =
+            "Supabase Connected";
+
+        $("info").textContent =
+            design.length.toLocaleString() +
+            " design records · " +
+            progress.length.toLocaleString() +
+            " progress records";
+
+        showMessage(
+            missing
+                ? missing + " records have no matching progress entry and are read-only."
+                : "Register loaded successfully. Changes save directly to Supabase."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message || String(error),
+            true
+        );
+
+        $("connection").textContent =
+            "Connection Issue";
+
+    } finally {
+
+        $("loadBtn").disabled = false;
+
+    }
+
+}
+
+
+// =====================================================
+// FILTERS
+// =====================================================
+
+function populateFilters() {
+
+    const activities = [
+        ...new Set(
+            records.map(row => row.activity_name)
+        )
+    ].sort();
+
+    $("activityFilter").innerHTML =
+        '<option value="">All Activities</option>' +
+
+        activities.map(activity =>
+
+            `<option value="${escapeHTML(activity)}">
+                ${escapeHTML(activity)}
+            </option>`
+
+        ).join("");
+
+    const chainages = [
+        ...new Set(
+            records.map(row => row.chainage_m)
+        )
+    ].sort((a, b) => a - b);
+
+    $("chainageFilter").innerHTML =
+        '<option value="">All Chainages</option>' +
+
+        chainages.map(chainage =>
+
+            `<option value="${chainage}">
+                ${chainage}
+            </option>`
+
+        ).join("");
+
+}
+
+function enableFilters(enabled) {
+
+    [
+        "search",
+        "activityFilter",
+        "sideFilter",
+        "chainageFilter",
+        "exportBtn"
+
+    ].forEach(id => {
+
+        $(id).disabled = !enabled;
+
+    });
+
+}
+
+
+// =====================================================
+// FILTERED RECORDS
+// =====================================================
+
+function getFilteredRecords() {
+
+    const search =
+        $("search").value.toLowerCase();
+
+    const activity =
+        $("activityFilter").value;
+
+    const side =
+        $("sideFilter").value;
+
+    const chainage =
+        $("chainageFilter").value;
+
+    return records.filter(row => {
+
+        const matchesActivity =
+            !activity ||
+            row.activity_name === activity;
+
+        const matchesSide =
+            !side ||
+            row.side === side;
+
+        const matchesChainage =
+            !chainage ||
+            String(row.chainage_m) === chainage;
+
+        const searchable = (
+
+            row.activity_name + " " +
+            row.activity_code + " " +
+            row.side + " " +
+            row.chainage_m
+
+        ).toLowerCase();
+
+        const matchesSearch =
+            !search ||
+            searchable.includes(search);
+
+        return (
+            matchesActivity &&
+            matchesSide &&
+            matchesChainage &&
+            matchesSearch
+        );
+
+    });
+
+}
+
+
+// =====================================================
+// DISPLAY REGISTER
+// =====================================================
+
+function renderTable() {
+
+    const filtered = getFilteredRecords();
+
+    let designTotal = 0;
+    let completedTotal = 0;
+    let completedCount = 0;
+
+    records.forEach(row => {
+
+        const quantity =
+            Number(row.design_quantity) || 0;
+
+        designTotal += quantity;
+
+        if (row.is_complete) {
+
+            completedTotal += quantity;
+            completedCount++;
+
+        }
+
+    });
+
+    $("body").innerHTML = filtered.map(row => {
+
+        const quantity =
+            Number(row.design_quantity) || 0;
+
+        return `
+
+        <tr>
+
+            <td>
+                ${escapeHTML(row.activity_name)}
+            </td>
+
+            <td>
+                ${escapeHTML(row.side)}
+            </td>
+
+            <td>
+                ${row.chainage_m}
+            </td>
+
+            <td>
+                ${fmt(quantity)}
+            </td>
+
+            <td>
+
+                <input
+                    class="toggle"
+                    type="checkbox"
+                    ${row.is_complete ? "checked" : ""}
+                    ${row.progress_id === null ? "disabled" : ""}
+                    onchange="updateProgress(${row.progress_id}, this.checked)"
+                >
+
+            </td>
+
+            <td>
+                ${fmt(
+                    row.is_complete ? quantity : 0
+                )}
+            </td>
+
+            <td>
+                ${fmt(
+                    row.is_complete ? 0 : quantity
+                )}
+            </td>
+
+        </tr>
+
+        `;
+
+    }).join("") ||
+
+    `<tr>
+        <td colspan="7" class="empty">
+            No matching records found.
+        </td>
+    </tr>`;
+
+    $("totalCount").textContent =
+        records.length.toLocaleString();
+
+    $("doneCount").textContent =
+        completedCount.toLocaleString() +
+        " / " +
+        records.length.toLocaleString();
+
+    $("progressPct").textContent =
+        designTotal > 0
+            ? (
+                completedTotal /
+                designTotal *
+                100
+            ).toFixed(1) + "%"
+            : "—";
+
+    $("shown").textContent =
+        "Showing " +
+        filtered.length.toLocaleString() +
+        " of " +
+        records.length.toLocaleString();
+
+}
+
+
+// =====================================================
+// UPDATE SUPABASE PROGRESS
+// =====================================================
+
+window.updateProgress = async function(
+    progressId,
+    completed
+) {
+
+    const row = records.find(
+        item => String(item.progress_id) === String(progressId)
+    );
+
+    if (!row || !db) return;
+
+    if (progressId === null) return;
+
+    showMessage(
+        "Saving progress to Supabase..."
+    );
+
+    const { error } = await db
+
+        .from("ep_progress_status")
+
+        .update({
+            is_complete: completed
+        })
+
+        .eq("id", progressId)
+
+        .eq("project_id", PROJECT_ID);
+
+    if (error) {
+
+        showMessage(
+            "Save failed: " + error.message,
+            true
+        );
+
+        renderTable();
+
+        return;
+
+    }
+
+    row.is_complete = completed;
+
+    renderTable();
+
+    showMessage(
+        "Progress successfully saved to Supabase."
+    );
+
+};
+
+
+// =====================================================
+// CSV EXPORT
+// =====================================================
 
 function exportCSV() {
 
-    const headers = [
+    const rows = [[
+
+        "Activity Code",
         "Activity",
-        "Chainage",
         "Side",
-        "Design Qty",
-        "Completed Qty",
-        "Outstanding Qty",
-        "Completion %",
-        "Done"
-    ];
+        "Chainage",
+        "Design Quantity",
+        "Completed",
+        "Completed Quantity",
+        "Outstanding Quantity"
 
-    const rows = records.map(r => [
-        r.activity,
-        r.chainage,
-        r.side,
-        r.design,
-        r.completed,
-        Math.max(0, r.design - r.completed),
-        r.design > 0
-            ? ((r.completed / r.design) * 100).toFixed(1)
-            : 0,
-        r.done ? "Yes" : "No"
-    ]);
+    ]];
 
-    const csv = [headers, ...rows]
-        .map(row => row.map(value =>
-            '"' + String(value).replace(/"/g, '""') + '"'
-        ).join(","))
-        .join("\n");
+    records.forEach(row => {
 
-    const blob = new Blob([csv], {
-        type: "text/csv;charset=utf-8;"
+        const quantity =
+            Number(row.design_quantity) || 0;
+
+        rows.push([
+
+            row.activity_code,
+            row.activity_name,
+            row.side,
+            row.chainage_m,
+            quantity,
+            row.is_complete ? "TRUE" : "FALSE",
+            row.is_complete ? quantity : 0,
+            row.is_complete ? 0 : quantity
+
+        ]);
+
     });
 
+    const csv = rows.map(row =>
+
+        row.map(value =>
+
+            '"' +
+            String(value ?? "").replace(/"/g, '""') +
+            '"'
+
+        ).join(",")
+
+    ).join("\r\n");
+
+    const blob = new Blob(
+        [csv],
+        { type: "text/csv;charset=utf-8" }
+    );
+
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "TES_Earthworks_Progress.csv";
+
+    link.download =
+        "TES_Earthworks_Rural1_Progress.csv";
+
     link.click();
 
     URL.revokeObjectURL(url);
+
 }
 
-function resetProgress() {
 
-    if (!confirm("Delete all locally saved register records?")) return;
+// =====================================================
+// EVENT LISTENERS
+// =====================================================
 
-    records = [];
-    localStorage.removeItem(STORAGE_KEY);
+$("loadBtn").addEventListener(
+    "click",
+    loadRegister
+);
 
-    renderTable();
-}
+$("exportBtn").addEventListener(
+    "click",
+    exportCSV
+);
 
-loadSaved();
+[
+    "search",
+    "activityFilter",
+    "sideFilter",
+    "chainageFilter"
+
+].forEach(id => {
+
+    $(id).addEventListener(
+        "input",
+        renderTable
+    );
+
+});
 
 </script>
 
