@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>TES Earthworks Pro | Quantity Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --navy:#0b1424;
+    --sidebar:#101e33;
+    --card:#172840;
+    --turquoise:#13c6bd;
+    --white:#fff;
+    --muted:#9aabc0;
+    --border:#263b54;
+}
+
+* {
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body {
+    font-family:Arial,sans-serif;
+    background:var(--navy);
+    color:var(--white);
+}
+
+.layout {
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar {
+    width:250px;
+    background:var(--sidebar);
+    padding:25px 15px;
+    position:fixed;
+    height:100vh;
+}
+
+.brand {
+    padding:10px;
+    margin-bottom:25px;
+    border-bottom:1px solid var(--border);
+}
+
+.brand h2 {
+    color:var(--turquoise);
+    font-size:18px;
+}
+
+.brand p {
+    color:var(--muted);
+    font-size:11px;
+    margin-top:7px;
+}
+
+.menu-title {
+    color:#71869e;
+    font-size:11px;
+    margin:22px 10px 10px;
+}
+
+.nav-item {
+    display:block;
+    padding:13px;
+    color:#c4d0df;
+    text-decoration:none;
+    border-radius:6px;
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background:#203a52;
+    color:var(--turquoise);
+}
+
+.main {
+    margin-left:250px;
+    width:calc(100% - 250px);
+}
+
+.topbar {
+    background:var(--sidebar);
+    padding:22px 30px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+}
+
+.content {
+    padding:30px;
+}
+
+.subtitle {
+    color:var(--muted);
+    margin-top:10px;
+    font-size:13px;
+}
+
+.panel {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:22px;
+    margin-top:25px;
+}
+
+.filters {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+label {
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:8px;
+}
+
+select,input {
+    width:100%;
+    padding:12px;
+    background:#0d1a2c;
+    color:white;
+    border:1px solid var(--border);
+    border-radius:6px;
+}
+
+.stats {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-top:25px;
+}
+
+.stat {
+    background:#20364e;
+    padding:20px;
+    border-radius:8px;
+}
+
+.stat p {
+    color:var(--muted);
+    font-size:12px;
+}
+
+.stat h2 {
+    color:var(--turquoise);
+    margin-top:12px;
+    font-size:25px;
+}
+
+.table-wrap {
+    overflow-x:auto;
+    margin-top:20px;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:750px;
+}
+
+th {
+    background:#20364e;
+    color:var(--turquoise);
+    text-align:left;
+    padding:14px;
+    font-size:12px;
+}
+
+td {
+    padding:13px;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+
+tr:hover {
+    background:#20364e;
+}
+
+button {
+    padding:12px 18px;
+    background:var(--turquoise);
+    color:var(--navy);
+    border:0;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button.secondary {
+    background:#30445c;
+    color:white;
+}
+
+.status {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:15px;
+}
+
+footer {
+    padding:25px;
+    text-align:center;
+    color:#71869e;
+    font-size:12px;
+}
+
+@media(max-width:900px) {
+    .stats {
+        grid-template-columns:repeat(2,1fr);
+    }
+    .filters {
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:650px) {
+    .layout {
+        display:block;
+    }
+    .sidebar {
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+    .main {
+        margin:0;
+        width:100%;
+    }
+    .content {
+        padding:15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <h2>THE ENTITY SOLUTIONS</h2>
+        <p>TES DIGITAL HUB</p>
+    </div>
+
+    <div class="menu-title">MAIN MENU</div>
+
+    <a class="nav-item" href="dashboard.html">
+        Digital Hub
+    </a>
+
+    <a class="nav-item" href="earthworks.html">
+        Earthworks Dashboard
+    </a>
+
+    <div class="menu-title">EARTHWORKS</div>
+
+    <a class="nav-item" href="earthworks.html">
+        Project Overview
+    </a>
+
+    <a class="nav-item active" href="earthworks-quantities.html">
+        Quantity Management
+    </a>
+
+    <a class="nav-item" href="earthworks-chainages.html">
+        Chainage Management
+    </a>
+
+    <a class="nav-item" href="earthworks-progress.html">
+        Progress Capture
+    </a>
+
+    <a class="nav-item" href="earthworks-reports.html">
+        Reports
+    </a>
+
+    <div class="menu-title">SYSTEM</div>
+
+    <a class="nav-item" href="admin.html">
+        Administration
+    </a>
+
+    <br>
+
+    <button onclick="logout()">Sign Out</button>
+
+</aside>
+
+
+<main class="main">
+
+<div class="topbar">
+
+    <h3>TES Earthworks Pro</h3>
+
+    <span id="userEmail">Loading...</span>
+
+</div>
+
+
+<div class="content">
+
+    <h1>Quantity Management</h1>
+
+    <p class="subtitle">
+        Engineering Design Quantities & Measurement Register
+    </p>
+
+
+    <!-- FILTERS -->
+
+    <div class="panel">
+
+        <h3>Quantity Search</h3>
+
+        <div class="filters">
+
+            <div>
+                <label>Project</label>
+                <select id="projectFilter">
+                    <option value="">All Projects</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Earthworks Activity</label>
+                <select id="activityFilter">
+                    <option value="">All Activities</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Search Chainage</label>
+                <input
+                    id="chainageSearch"
+                    placeholder="Enter chainage"
+                    oninput="renderData()">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+        <div class="stat">
+            <p>Activities</p>
+            <h2 id="activityCount">0</h2>
+        </div>
+
+        <div class="stat">
+            <p>Chainages</p>
+            <h2 id="chainageCount">0</h2>
+        </div>
+
+        <div class="stat">
+            <p>Quantity Records</p>
+            <h2 id="recordCount">0</h2>
+        </div>
+
+        <div class="stat">
+            <p>Total Design Quantity</p>
+            <h2 id="totalQuantity">0</h2>
+        </div>
+
+    </div>
+
+
+    <!-- QUANTITY REGISTER -->
+
+    <div class="panel">
+
+        <h3>Engineering Quantity Register</h3>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Chainage</th>
+                        <th>Activity</th>
+                        <th>Section</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                    </tr>
+                </thead>
+
+                <tbody id="quantityTable">
+
+                    <tr>
+                        <td colspan="5">
+                            Loading quantities...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <p class="status" id="status">
+            Connecting to database...
+        </p>
+
+        <br>
+
+        <button onclick="exportCSV()">
+            Export to Excel (CSV)
+        </button>
+
+        <button class="secondary"
+                onclick="window.print()">
+            Print Register
+        </button>
+
+    </div>
+
+
+    <!-- ACTIVITY SUMMARY -->
+
+    <div class="panel">
+
+        <h3>Activity Quantity Summary</h3>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Quantity Records</th>
+                        <th>Total Quantity</th>
+                    </tr>
+                </thead>
+
+                <tbody id="summaryTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer>
+    The Entity Solutions (Pty) Ltd<br>
+    TES Digital Hub | TES Earthworks Pro<br>
+    © 2026 All Rights Reserved
+</footer>
+
+</main>
+</div>
+
+
+<script>
+
+// ==================================
+// SUPABASE CONFIGURATION
+// ==================================
+
+const SUPABASE_URL = "sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kwY";
+
+const db = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+
+// ==================================
+// APPLICATION DATA
+// ==================================
+
+let projects = [];
+let activities = [];
+let chainages = [];
+let quantities = [];
+
+
+// ==================================
+// FIELD HELPERS
+// ==================================
+
+function field(row,names) {
+
+    const key = Object.keys(row).find(k =>
+        names.includes(k.toLowerCase())
+    );
+
+    return key ? row[key] : null;
+
+}
+
+function id(row) {
+    return field(row,["id"]);
+}
+
+function qty(row) {
+
+    return Number(field(row,[
+        "quantity",
+        "design_quantity",
+        "total_quantity",
+        "qty",
+        "volume"
+    ])) || 0;
+
+}
+
+function format(n) {
+
+    return Number(n).toLocaleString(
+        "en-ZA",
+        {maximumFractionDigits:2}
+    );
+
+}
+
+function escapeHTML(v) {
+
+    return String(v ?? "").replace(/[&<>"']/g,c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+    }[c]));
+
+}
+
+
+// ==================================
+// AUTHENTICATION
+// ==================================
+
+async function checkAuth() {
+
+    const {data,error} = await db.auth.getSession();
+
+    if(error || !data.session) {
+
+        window.location.href = "login.html";
+
+        return false;
+
+    }
+
+    document.getElementById("userEmail").textContent =
+        data.session.user.email || "TES User";
+
+    return true;
+
+}
+
+
+// ==================================
+// DATABASE
+// ==================================
+
+async function getTable(table) {
+
+    const {data,error} = await db
+        .from(table)
+        .select("*")
+        .limit(20000);
+
+    if(error) throw error;
+
+    return data || [];
+
+}
+
+
+// ==================================
+// LOAD DATA
+// ==================================
+
+async function init() {
+
+    try {
+
+        if(!await checkAuth()) return;
+
+        [
+            projects,
+            activities,
+            chainages,
+            quantities
+
+        ] = await Promise.all([
+
+            getTable("ep_projects"),
+            getTable("ep_activities"),
+            getTable("ep_chainages"),
+            getTable("ep_design_quantities")
+
+        ]);
+
+        populateFilters();
+
+        renderData();
+
+        document.getElementById("status").textContent =
+            "Quantity records loaded successfully.";
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        document.getElementById("status").textContent =
+            "Database error: " + error.message;
+
+    }
+
+}
+
+
+// ==================================
+// FILTERS
+// ==================================
+
+function populateFilters() {
+
+    projects.forEach(p => {
+
+        const pid = id(p);
+
+        const name = field(p,[
+            "project_name","name","title"
+        ]) || pid;
+
+        if(pid != null) {
+
+            projectFilter.add(
+                new Option(name,pid)
+            );
+
+        }
+
+    });
+
+    activities.forEach(a => {
+
+        const aid = id(a);
+
+        const name = field(a,[
+            "activity_name","name","description",
+            "activity_code"
+        ]) || aid;
+
+        if(aid != null) {
+
+            activityFilter.add(
+                new Option(name,aid)
+            );
+
+        }
+
+    });
+
+    projectFilter.onchange = renderData;
+    activityFilter.onchange = renderData;
+
+}
+
+
+// ==================================
+// QUANTITY REGISTER
+// ==================================
+
+function renderData() {
+
+    const project = projectFilter.value;
+    const activity = activityFilter.value;
+    const search = chainageSearch.value.trim();
+
+    let rows = quantities.filter(q => {
+
+        const pid = field(q,[
+            "project_id","ep_project_id"
+        ]);
+
+        const aid = field(q,[
+            "activity_id","ep_activity_id"
+        ]);
+
+        const cid = field(q,[
+            "chainage_id","ep_chainage_id"
+        ]);
+
+        if(project && String(pid) !== project)
+            return false;
+
+        if(activity && String(aid) !== activity)
+            return false;
+
+        const chain = chainages.find(c =>
+            String(id(c)) === String(cid)
+        );
+
+        const station = chain
+            ? field(chain,[
+                "chainage","chainage_number",
+                "chainage_value","station"
+            ])
+            : field(q,[
+                "chainage","chainage_number",
+                "chainage_value","station"
+            ]);
+
+        if(search && !String(station ?? "").includes(search))
+            return false;
+
+        return true;
+
+    });
+
+    let total = 0;
+
+    const summary = {};
+
+    const html = rows.map(q => {
+
+        const cid = field(q,[
+            "chainage_id","ep_chainage_id"
+        ]);
+
+        const aid = field(q,[
+            "activity_id","ep_activity_id"
+        ]);
+
+        const chain = chainages.find(c =>
+            String(id(c)) === String(cid)
+        );
+
+        const activity = activities.find(a =>
+            String(id(a)) === String(aid)
+        );
+
+        const station = chain
+            ? field(chain,[
+                "chainage","chainage_number",
+                "chainage_value","station"
+            ])
+            : field(q,[
+                "chainage","chainage_number",
+                "chainage_value","station"
+            ]);
+
+        const activityName = activity
+            ? field(activity,[
+                "activity_name","name",
+                "description","activity_code"
+            ])
+            : "—";
+
+        const section = field(q,[
+            "side","section","position","location"
+        ]) || "—";
+
+        const quantity = qty(q);
+
+        const unit = field(q,[
+            "unit","uom","measurement_unit"
+        ]) || "—";
+
+        total += quantity;
+
+        const key = activityName || "Unassigned";
+
+        if(!summary[key]) {
+            summary[key] = {
+                records:0,
+                quantity:0
+            };
+        }
+
+        summary[key].records++;
+        summary[key].quantity += quantity;
+
+        return `
+            <tr>
+                <td>${escapeHTML(station)}</td>
+                <td>${escapeHTML(activityName)}</td>
+                <td>${escapeHTML(section)}</td>
+                <td>${format(quantity)}</td>
+                <td>${escapeHTML(unit)}</td>
+            </tr>
+        `;
+
+    }).join("");
+
+    quantityTable.innerHTML = html ||
+        <tr><td colspan="5">No records found.</td></tr>;
+
+    document.getElementById("activityCount").textContent =
+        new Set(rows.map(q =>
+            field(q,["activity_id","ep_activity_id"])
+        )).size;
+
+    document.getElementById("chainageCount").textContent =
+        new Set(rows.map(q =>
+            field(q,["chainage_id","ep_chainage_id"])
+        )).size;
+
+    document.getElementById("recordCount").textContent =
+        rows.length;
+
+    document.getElementById("totalQuantity").textContent =
+        format(total);
+
+    summaryTable.innerHTML = Object.entries(summary)
+        .map(([name,data]) => `
+            <tr>
+                <td>${escapeHTML(name)}</td>
+                <td>${data.records}</td>
+                <td>${format(data.quantity)}</td>
+            </tr>
+        `).join("");
+
+}
+
+
+// ==================================
+// EXPORT CSV
+// ==================================
+
+function exportCSV() {
+
+    const table = document.getElementById("quantityTable");
+
+    const rows = [
+        ["Chainage","Activity","Section","Quantity","Unit"]
+    ];
+
+    table.querySelectorAll("tr").forEach(tr => {
+
+        const cells = [...tr.querySelectorAll("td")];
+
+        if(cells.length === 5) {
+            rows.push(cells.map(td => td.innerText));
+        }
+
+    });
+
+    const csv = rows.map(row =>
+        row.map(v =>
+            '"' + String(v).replace(/"/g,'""') + '"'
+        ).join(",")
+    ).join("\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csv],
+        {type:"text/csv;charset=utf-8;"}
+    );
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = "TES_Earthworks_Quantity_Register.csv";
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+
+}
+
+
+// ==================================
+// LOGOUT
+// ==================================
+
+async function logout() {
+
+    if(!confirm("Sign out?")) return;
+
+    await db.auth.signOut();
+
+    window.location.href = "login.html";
+
+}
+
+
+// START
+init();
+
+</script>
+
+</body>
+</html>
