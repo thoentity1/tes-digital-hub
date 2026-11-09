@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TES Earthworks Pro</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b1424;
+    color: white;
+}
+
+header {
+    background: #101e33;
+    padding: 22px 30px;
+    border-bottom: 2px solid #13c6bd;
+}
+
+header h1 {
+    margin: 0;
+    color: #13c6bd;
+}
+
+header p {
+    color: #aab8c9;
+}
+
+.container {
+    padding: 30px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #172840;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid #13c6bd;
+}
+
+.card h3 {
+    color: #aab8c9;
+    font-size: 14px;
+}
+
+.card h2 {
+    font-size: 32px;
+    color: #13c6bd;
+}
+
+.section {
+    background: #172840;
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 25px;
+}
+
+button {
+    background: #13c6bd;
+    color: #071525;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background: #0da59e;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #8495aa;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>TES EARTHWORKS PRO</h1>
+    <p>Earthworks Quantification & Progress Management</p>
+</header>
+
+<div class="container">
+
+<h2>Project Dashboard</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Projects</h3>
+<h2 id="projects">—</h2>
+</div>
+
+<div class="card">
+<h3>Activities</h3>
+<h2 id="activities">—</h2>
+</div>
+
+<div class="card">
+<h3>Total Chainages</h3>
+<h2 id="chainages">—</h2>
+</div>
+
+<div class="card">
+<h3>Overall Progress</h3>
+<h2 id="progress">—</h2>
+</div>
+
+</div>
+
+<div class="section">
+<h2>Project Management</h2>
+<button onclick="alert('Project Management coming next')">
+Manage Projects
+</button>
+</div>
+
+<div class="section">
+<h2>Earthworks Quantification</h2>
+<button onclick="alert('Quantity Management coming next')">
+View Quantities
+</button>
+<button onclick="alert('Chainage Management coming next')">
+Manage Chainages
+</button>
+</div>
+
+<div class="section">
+<h2>Construction Progress</h2>
+<button onclick="alert('Progress Capture coming next')">
+Capture Progress
+</button>
+<button onclick="alert('Reports coming next')">
+Progress Reports
+</button>
+</div>
+
+</div>
+
+<footer>
+The Entity Solutions (Pty) Ltd |
+TES Digital Hub | TES Earthworks Pro
+</footer>
+
+</body>
+</html>
