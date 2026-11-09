@@ -1,380 +1,148 @@
-/* ==========================================
+/* =====================================
    TES EARTHWORKS PRO
-   ENGINEERING CALCULATION ENGINE V1
-   Based on PVR Rural 1 Excel methodology
-========================================== */
+   PVR EXCEL CALCULATION ENGINE
+===================================== */
 
 const TES_EARTHWORKS_ENGINE = {
 
-    CHAINAGE_INTERVAL: 20,
+    INTERVAL: 20,
 
-    START_CHAINAGE: 9840,
+    START: 9840,
 
-    END_CHAINAGE: 16920,
+    END: 16920,
 
+    calculateRow(row) {
 
-    // ======================================
-    // 1. NORMALISE COMPLETION STATUS
-    // ======================================
+        let design = 0;
+        let completed = 0;
+        let distance = 0;
 
-    isCompleted(value) {
+        const chainages = [];
 
-        return value === true ||
-               value === 1 ||
-               String(value).toLowerCase() === "true";
+        row.quantities.forEach(item => {
 
-    },
+            const quantity = Number(item.designQuantity) || 0;
 
+            const done =
+                item.completed === true ||
+                String(item.completed).toLowerCase() === "true";
 
-    // ======================================
-    // 2. CALCULATE ACTIVITY QUANTITIES
-    // ======================================
+            design += quantity;
 
-    calculateActivity(designRecords, progressRecords) {
+            if (done) {
 
-        let designTotal = 0;
+                completed += quantity;
 
-        let completedTotal = 0;
-
-        let completedChainages = 0;
-
-        const chainageResults = [];
-
-        designRecords.forEach(design => {
-
-            const quantity = Number(design.quantity) || 0;
-
-            designTotal += quantity;
-
-            const progress = progressRecords.find(p =>
-
-                String(p.chainage_id) ===
-                    String(design.chainage_id) &&
-
-                String(p.activity_id) ===
-                    String(design.activity_id) &&
-
-                String(p.side).toLowerCase() ===
-                    String(design.side).toLowerCase()
-
-            );
-
-            const completed = progress
-                ? this.isCompleted(progress.completed)
-                : false;
-
-            const completedQuantity = completed
-                ? quantity
-                : 0;
-
-            completedTotal += completedQuantity;
-
-            if (completed) {
-
-                completedChainages++;
+                distance += this.INTERVAL;
 
             }
 
-            chainageResults.push({
+            chainages.push({
 
-                chainage_id: design.chainage_id,
+                chainage: item.chainage,
 
-                activity_id: design.activity_id,
+                designQuantity: quantity,
 
-                side: design.side,
+                completed: done,
 
-                design_quantity: quantity,
+                completedQuantity: done ? quantity : 0,
 
-                completed: completed,
-
-                completed_quantity: completedQuantity,
-
-                outstanding_quantity:
-                    quantity - completedQuantity
+                outstanding: done ? 0 : quantity
 
             });
 
         });
 
+        const outstanding = design - completed;
 
-        const outstanding = designTotal - completedTotal;
-
-        const percentage = designTotal > 0
-            ? (completedTotal / designTotal) * 100
+        const percentage = design > 0
+            ? ((design - outstanding) / design) * 100
             : 0;
 
-
         return {
 
-            design_quantity: designTotal,
+            activity: row.activity,
 
-            completed_quantity: completedTotal,
+            side: row.side,
 
-            outstanding_quantity: outstanding,
+            designQuantity: design,
 
-            progress_percentage: percentage,
+            completedQuantity: completed,
 
-            completed_chainages: completedChainages,
+            outstandingQuantity: outstanding,
 
-            distance_covered:
-                completedChainages * this.CHAINAGE_INTERVAL,
+            completionPercentage: percentage,
 
-            chainages: chainageResults
+            distanceCovered: distance,
+
+            chainages
 
         };
 
     },
 
 
-    // ======================================
-    // 3. CALCULATE PROJECT TOTALS
-    // ======================================
+    calculateProject(rows) {
 
-    calculateProject(designRecords, progressRecords) {
+        let design = 0;
+        let completed = 0;
 
-        const activities = {};
+        const results = rows.map(row => {
 
-        designRecords.forEach(record => {
+            const result = this.calculateRow(row);
 
-            const key = record.activity_id;
+            design += result.designQuantity;
 
-            if (!activities[key]) {
+            completed += result.completedQuantity;
 
-                activities[key] = [];
-
-            }
-
-            activities[key].push(record);
+            return result;
 
         });
-
-
-        const results = [];
-
-        let totalDesign = 0;
-
-        let totalCompleted = 0;
-
-        let totalOutstanding = 0;
-
-
-        Object.keys(activities).forEach(activityId => {
-
-            const activityDesign = activities[activityId];
-
-            const activityProgress = progressRecords.filter(p =>
-
-                String(p.activity_id) === String(activityId)
-
-            );
-
-
-            const result = this.calculateActivity(
-
-                activityDesign,
-
-                activityProgress
-
-            );
-
-
-            results.push({
-
-                activity_id: activityId,
-
-                ...result
-
-            });
-
-
-            totalDesign += result.design_quantity;
-
-            totalCompleted += result.completed_quantity;
-
-            totalOutstanding += result.outstanding_quantity;
-
-        });
-
 
         return {
 
-            total_design_quantity: totalDesign,
+            totalDesignQuantity: design,
 
-            total_completed_quantity: totalCompleted,
+            totalCompletedQuantity: completed,
 
-            total_outstanding_quantity: totalOutstanding,
+            totalOutstandingQuantity: design - completed,
 
-            overall_progress: totalDesign > 0
-
-                ? (totalCompleted / totalDesign) * 100
-
+            completionPercentage: design > 0
+                ? (completed / design) * 100
                 : 0,
 
-            activity_count: results.length,
+            measurementRows: results.length,
 
-            activities: results
-
-        };
-
-    },
-
-
-    // ======================================
-    // 4. CALCULATE LEFT / RIGHT TOTALS
-    // ======================================
-
-    calculateSides(designRecords, progressRecords) {
-
-        const left = designRecords.filter(r =>
-
-            String(r.side).toLowerCase() === "left"
-
-        );
-
-        const right = designRecords.filter(r =>
-
-            String(r.side).toLowerCase() === "right"
-
-        );
-
-        const fullWidth = designRecords.filter(r =>
-
-            String(r.side).toLowerCase() === "full width"
-
-        );
-
-
-        return {
-
-            left: this.calculateActivity(
-
-                left,
-
-                progressRecords
-
-            ),
-
-            right: this.calculateActivity(
-
-                right,
-
-                progressRecords
-
-            ),
-
-            full_width: this.calculateActivity(
-
-                fullWidth,
-
-                progressRecords
-
-            )
+            results
 
         };
 
     },
 
 
-    // ======================================
-    // 5. CALCULATE INDIVIDUAL CHAINAGE
-    // ======================================
+    calculateSide(rows, side) {
 
-    calculateChainage(designRecords, progressRecords, chainageId) {
+        const filtered = rows.filter(row =>
 
-        const design = designRecords.filter(r =>
-
-            String(r.chainage_id) === String(chainageId)
+            row.side.toLowerCase() === side.toLowerCase()
 
         );
 
-        const progress = progressRecords.filter(r =>
-
-            String(r.chainage_id) === String(chainageId)
-
-        );
-
-        return this.calculateActivity(
-
-            design,
-
-            progress
-
-        );
+        return this.calculateProject(filtered);
 
     },
 
 
-    // ======================================
-    // 6. CALCULATE DISTANCE
-    // ======================================
+    calculateActivity(rows, activity) {
 
-    calculateDistance(completedChainages) {
+        const filtered = rows.filter(row =>
 
-        return completedChainages *
-            this.CHAINAGE_INTERVAL;
+            row.activity === activity
 
-    },
+        );
 
-
-    // ======================================
-    // 7. VALIDATE QUANTITY DATA
-    // ======================================
-
-    validate(designRecords, progressRecords) {
-
-        const errors = [];
-
-        designRecords.forEach(record => {
-
-            if (record.quantity === null ||
-                record.quantity === undefined ||
-                !Number.isFinite(Number(record.quantity))) {
-
-                errors.push(
-                    "Invalid design quantity: " +
-                    record.chainage_id
-                );
-
-            }
-
-            if (Number(record.quantity) < 0) {
-
-                errors.push(
-                    "Negative design quantity detected."
-                );
-
-            }
-
-        });
-
-
-        progressRecords.forEach(record => {
-
-            if (typeof record.completed !== "boolean") {
-
-                errors.push(
-                    "Invalid completion status: " +
-                    record.chainage_id
-                );
-
-            }
-
-        });
-
-
-        return {
-
-            valid: errors.length === 0,
-
-            errors: errors
-
-        };
+        return this.calculateProject(filtered);
 
     }
 
 };
-
-
-// ==========================================
-// END OF TES EARTHWORKS ENGINE
-// ==========================================
