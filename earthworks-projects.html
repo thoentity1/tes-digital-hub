@@ -872,7 +872,7 @@ function generatedProjectCode(client, name) {
         .replace(/[^A-Z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
 
-    return ${prefix}-${suffix}.slice(0, 60);
+    return `${prefix}-${suffix}`.slice(0, 60);
 
 }
 
