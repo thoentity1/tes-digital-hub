@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TES Earthworks Pro | Projects</title>
+
+<title>TES Earthworks Pro | Project Management</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 :root {
     --bg: #07111f;
     --panel: #101f32;
@@ -34,6 +38,7 @@ header {
     padding: 22px 30px;
     background: #0b192a;
     border-bottom: 1px solid var(--border);
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -43,7 +48,7 @@ header {
 
 .brand {
     color: var(--cyan);
-    font-size: 22px;
+    font-size: 23px;
     font-weight: bold;
 }
 
@@ -52,7 +57,7 @@ header {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1250px;
     margin: auto;
     padding: 30px 20px;
 }
@@ -63,17 +68,19 @@ h1 {
 
 .subtitle {
     color: var(--muted);
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns:
+        repeat(auto-fit, minmax(190px, 1fr));
     gap: 15px;
     margin-bottom: 25px;
 }
 
-.stat-card, .card {
+.stat-card,
+.card {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -91,20 +98,22 @@ h1 {
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns:
+        repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
 }
 
 label {
     display: block;
-    margin: 15px 0 7px;
+    margin: 17px 0 8px;
     color: var(--muted);
     font-size: 14px;
 }
 
-input, textarea, select {
+input,
+textarea {
     width: 100%;
-    padding: 12px;
+    padding: 13px;
     border-radius: 7px;
     border: 1px solid var(--border);
     background: #091728;
@@ -113,16 +122,27 @@ input, textarea, select {
 }
 
 textarea {
-    min-height: 90px;
+    min-height: 110px;
     resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--cyan);
 }
 
 button {
     border: none;
     border-radius: 7px;
-    padding: 12px 17px;
+    padding: 13px 18px;
     cursor: pointer;
     font-weight: bold;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
 .primary {
@@ -141,22 +161,17 @@ button {
     color: white;
 }
 
-button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-}
-
 .form-actions {
     display: flex;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 22px;
     flex-wrap: wrap;
 }
 
 .project {
-    background: var(--panel);
+    background: var(--panel2);
     border: 1px solid var(--border);
-    padding: 20px;
+    padding: 18px;
     border-radius: 10px;
     margin-bottom: 14px;
 }
@@ -169,29 +184,24 @@ button:disabled {
 .project p {
     color: var(--muted);
     font-size: 14px;
+    overflow-wrap: anywhere;
 }
 
-.project-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
-.status {
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: #173e43;
+.project-code {
     color: var(--cyan);
     font-size: 12px;
 }
 
+.toolbar {
+    margin-bottom: 18px;
+}
+
 .message {
-    margin-top: 15px;
-    padding: 12px;
+    margin-top: 18px;
+    padding: 13px;
     border-radius: 7px;
     display: none;
+    overflow-wrap: anywhere;
 }
 
 .success {
@@ -204,22 +214,30 @@ button:disabled {
     color: #ff9bab;
 }
 
-.toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.toolbar input {
-    flex: 1;
-}
-
 #loading {
     color: var(--muted);
     padding: 15px 0;
 }
 
+.empty {
+    color: var(--muted);
+    padding: 20px 0;
+}
+
+.section-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
 @media(max-width:600px) {
+
     header {
         padding: 18px;
     }
@@ -231,13 +249,17 @@ button:disabled {
     .grid {
         grid-template-columns: 1fr;
     }
+
 }
+
 </style>
+
 </head>
 
 <body>
 
 <header>
+
     <div class="brand">
         TES <span>EARTHWORKS PRO</span>
     </div>
@@ -245,94 +267,100 @@ button:disabled {
     <button class="secondary" onclick="goDashboard()">
         ← Dashboard
     </button>
+
 </header>
+
 
 <div class="container">
 
     <h1>Project Management</h1>
+
     <p class="subtitle">
-        Register, manage and monitor your earthworks projects.
+        Register and manage earthworks projects
+        within TES Earthworks Pro.
     </p>
+
+
+    <!-- PROJECT STATISTICS -->
 
     <div class="stats">
 
         <div class="stat-card">
-            <small>Total Projects</small>
+
+            <small>Total Registered Projects</small>
+
             <h2 id="totalProjects">0</h2>
+
         </div>
 
         <div class="stat-card">
-            <small>Active Projects</small>
-            <h2 id="activeProjects">0</h2>
-        </div>
 
-        <div class="stat-card">
-            <small>Completed Projects</small>
-            <h2 id="completedProjects">0</h2>
+            <small>My Projects</small>
+
+            <h2 id="myProjects">0</h2>
+
         </div>
 
     </div>
 
+
     <div class="grid">
+
+
+        <!-- PROJECT REGISTRATION -->
 
         <div class="card">
 
-            <h2 id="formTitle">Register New Project</h2>
+            <h2 class="section-title">
+                Register New Project
+            </h2>
+
 
             <form id="projectForm">
 
-                <input type="hidden" id="projectId">
 
                 <label>Project Name *</label>
+
                 <input
                     type="text"
                     id="projectName"
                     required
                     placeholder="Enter project name">
 
-                <label>Project Code</label>
+
+                <label>Project Code *</label>
+
                 <input
                     type="text"
                     id="projectCode"
-                    placeholder="e.g. PVR-2026-001">
+                    required
+                    placeholder="Example: PVR-2026-001">
+
 
                 <label>Client / Organisation *</label>
+
                 <input
                     type="text"
                     id="clientName"
                     required
-                    placeholder="PVR Surveyors">
+                    placeholder="Enter client name">
 
-                <label>Project Location</label>
-                <input
-                    type="text"
-                    id="location"
-                    placeholder="Project location">
-
-                <label>Project Manager</label>
-                <input
-                    type="text"
-                    id="manager"
-                    placeholder="Project manager">
-
-                <label>Start Date</label>
-                <input type="date" id="startDate">
-
-                <label>Expected Completion</label>
-                <input type="date" id="endDate">
-
-                <label>Project Status</label>
-                <select id="projectStatus">
-                    <option value="Active">Active</option>
-                    <option value="Planning">Planning</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="Completed">Completed</option>
-                </select>
 
                 <label>Project Description</label>
+
                 <textarea
                     id="description"
-                    placeholder="Describe the earthworks project..."></textarea>
+                    placeholder="Describe the earthworks project...">
+                </textarea>
+
+
+                <label>Source Workbook</label>
+
+                <input
+                    type="text"
+                    id="sourceWorkbook"
+                    placeholder="MASTER EARTHWORKS PROGRESS TRACKER.xlsx">
+
 
                 <div class="form-actions">
 
@@ -340,303 +368,486 @@ button:disabled {
                         type="submit"
                         class="primary"
                         id="saveButton">
+
                         Register Project
+
                     </button>
+
 
                     <button
                         type="button"
                         class="secondary"
                         onclick="resetForm()">
+
                         Clear
+
                     </button>
 
                 </div>
 
             </form>
 
+
             <div id="message" class="message"></div>
 
         </div>
 
+
+
+        <!-- PROJECT LIST -->
+
         <div class="card">
 
-            <h2>Registered Projects</h2>
+            <h2 class="section-title">
+                Registered Projects
+            </h2>
+
 
             <div class="toolbar">
+
                 <input
                     type="search"
                     id="searchProjects"
                     placeholder="Search projects...">
+
             </div>
 
-            <div id="loading">Loading projects...</div>
+
+            <div id="loading">
+                Loading projects...
+            </div>
+
 
             <div id="projectList"></div>
 
         </div>
 
+
     </div>
 
 </div>
 
+
+<footer>
+
+    THE ENTITY SOLUTIONS (PTY) LTD
+
+    <br><br>
+
+    TES Digital Hub | TES Earthworks Pro
+
+</footer>
+
+
+
 <script>
 
-// ==================================================
-// SUPABASE CONFIGURATION
-// ==================================================
+// =====================================================
+// 1. SUPABASE CONFIGURATION
+// =====================================================
 
-const SUPABASE_URL = "https://jgzvycawkkfdvdimdjat.supabase.co";
+const SUPABASE_URL =
+    "YOUR_EXISTING_SUPABASE_PROJECT_URL";
 
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+const SUPABASE_KEY =
+    "YOUR_EXISTING_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+
 
 const db = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
 
-// ==================================================
-// AUTHENTICATION
-// ==================================================
+
+// =====================================================
+// 2. GLOBAL VARIABLES
+// =====================================================
 
 let currentUser = null;
+
 let projects = [];
+
+
+// =====================================================
+// 3. AUTHENTICATION
+// =====================================================
 
 async function initialise() {
 
-    const { data, error } = await db.auth.getSession();
+    try {
 
-    if (error || !data.session) {
-        window.location.href = "login.html";
-        return;
+        const {
+            data,
+            error
+        } = await db.auth.getSession();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!data.session) {
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+
+        currentUser = data.session.user;
+
+
+        await loadProjects();
+
     }
 
-    currentUser = data.session.user;
+    catch(error) {
 
-    await loadProjects();
+        console.error(error);
+
+        showMessage(
+            "Authentication error: " + error.message,
+            "error"
+        );
+
+    }
 
 }
 
-db.auth.onAuthStateChange((event, session) => {
 
-    if (event === "SIGNED_OUT" || !session) {
-        window.location.href = "login.html";
+db.auth.onAuthStateChange(
+    (event, session) => {
+
+        if (
+            event === "SIGNED_OUT" ||
+            !session
+        ) {
+
+            window.location.href = "login.html";
+
+        }
+
     }
+);
 
-});
 
-// ==================================================
-// LOAD PROJECTS
-// ==================================================
+// =====================================================
+// 4. LOAD PROJECTS
+// =====================================================
 
 async function loadProjects() {
 
-    document.getElementById("loading").style.display = "block";
+    const loading =
+        document.getElementById("loading");
 
-    const { data, error } = await db
+
+    loading.style.display = "block";
+
+
+    const {
+        data,
+        error
+    } = await db
+
         .from("ep_projects")
-        .select("*")
-        .order("created_at", { ascending: false });
 
-    document.getElementById("loading").style.display = "none";
+        .select("*")
+
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    loading.style.display = "none";
+
 
     if (error) {
-        showMessage(error.message, "error");
+
+        console.error(error);
+
+        showMessage(
+            "Could not load projects: " + error.message,
+            "error"
+        );
+
         return;
+
     }
 
+
     projects = data || [];
+
 
     renderProjects();
 
 }
 
-// ==================================================
-// REGISTER PROJECT
-// ==================================================
 
-document.getElementById("projectForm")
-.addEventListener("submit", async function(event) {
+// =====================================================
+// 5. REGISTER PROJECT
+// =====================================================
 
-    event.preventDefault();
+document
+    .getElementById("projectForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
 
-    if (!currentUser) {
-        showMessage("Please sign in first.", "error");
-        return;
-    }
+            event.preventDefault();
 
-    const saveButton = document.getElementById("saveButton");
 
-    saveButton.disabled = true;
-    saveButton.textContent = "Saving...";
+            if (!currentUser) {
 
-    const projectId = document.getElementById("projectId").value;
+                showMessage(
+                    "Please sign in first.",
+                    "error"
+                );
 
-    const payload = {
+                return;
 
-        project_name: document.getElementById("projectName").value.trim(),
+            }
 
-        project_code: document.getElementById("projectCode").value.trim() || null,
 
-        client_name: document.getElementById("clientName").value.trim(),
+            const saveButton =
+                document.getElementById("saveButton");
 
-        location: document.getElementById("location").value.trim() || null,
 
-        project_manager: document.getElementById("manager").value.trim() || null,
+            saveButton.disabled = true;
 
-        start_date: document.getElementById("startDate").value || null,
+            saveButton.textContent = "Saving...";
 
-        end_date: document.getElementById("endDate").value || null,
 
-        status: document.getElementById("projectStatus").value,
+            const payload = {
 
-        description: document.getElementById("description").value.trim() || null
+                id: crypto.randomUUID(),
 
-    };
+                project_code:
+                    document
+                    .getElementById("projectCode")
+                    .value.trim(),
 
-    try {
+                project_name:
+                    document
+                    .getElementById("projectName")
+                    .value.trim(),
 
-        let result;
+                client_name:
+                    document
+                    .getElementById("clientName")
+                    .value.trim(),
 
-        if (projectId) {
+                description:
+                    document
+                    .getElementById("description")
+                    .value.trim() || null,
 
-            result = await db
-                .from("ep_projects")
-                .update(payload)
-                .eq("id", projectId);
+                source_workbook:
+                    document
+                    .getElementById("sourceWorkbook")
+                    .value.trim() || null
 
-        } else {
+            };
 
-            result = await db
-                .from("ep_projects")
-                .insert({
-                    id: crypto.randomUUID(),
-                    ...payload
-                });
+
+            try {
+
+
+                // INSERT PROJECT
+                // Do not append .select().single()
+                // Project-owner trigger handles membership.
+
+
+                const {
+                    error
+                } = await db
+
+                    .from("ep_projects")
+
+                    .insert(payload);
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                showMessage(
+                    "Project registered successfully!",
+                    "success"
+                );
+
+
+                resetForm();
+
+
+                // Refresh project list separately.
+
+                await loadProjects();
+
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Project registration error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Registration failed: " +
+                    error.message,
+                    "error"
+                );
+
+            }
+
+            finally {
+
+                saveButton.disabled = false;
+
+                saveButton.textContent =
+                    "Register Project";
+
+            }
 
         }
+    );
 
-        if (result.error) {
-            throw result.error;
-        }
 
-        showMessage(
-            projectId
-                ? "Project updated successfully."
-                : "Project registered successfully.",
-            "success"
-        );
 
-        resetForm();
-
-        await loadProjects();
-
-    } catch (error) {
-
-        console.error("Project registration error:", error);
-
-        showMessage(error.message, "error");
-
-    } finally {
-
-        saveButton.disabled = false;
-        saveButton.textContent = "Register Project";
-
-    }
-
-});
-
-// ==================================================
-// DISPLAY PROJECTS
-// ==================================================
+// =====================================================
+// 6. DISPLAY PROJECTS
+// =====================================================
 
 function renderProjects() {
 
-    const list = document.getElementById("projectList");
 
-    const search = document
+    const list =
+        document.getElementById("projectList");
+
+
+    const search =
+        document
         .getElementById("searchProjects")
-        .value.toLowerCase();
+        .value
+        .toLowerCase();
+
 
     const filtered = projects.filter(project => {
 
         return (
 
-            (project.project_name || "").toLowerCase().includes(search) ||
+            (project.project_name || "")
+                .toLowerCase()
+                .includes(search)
 
-            (project.project_code || "").toLowerCase().includes(search) ||
+            ||
 
-            (project.client_name || "").toLowerCase().includes(search)
+            (project.project_code || "")
+                .toLowerCase()
+                .includes(search)
+
+            ||
+
+            (project.client_name || "")
+                .toLowerCase()
+                .includes(search)
 
         );
 
     });
 
-    document.getElementById("totalProjects").textContent =
-        projects.length;
 
-    document.getElementById("activeProjects").textContent =
-        projects.filter(p => p.status === "Active").length;
+    document.getElementById(
+        "totalProjects"
+    ).textContent = projects.length;
 
-    document.getElementById("completedProjects").textContent =
-        projects.filter(p => p.status === "Completed").length;
+
+    document.getElementById(
+        "myProjects"
+    ).textContent = projects.filter(
+        project => project.owner_id === currentUser.id
+    ).length;
+
 
     if (!filtered.length) {
 
         list.innerHTML = `
-            <p style="color:#91a6bc">
+
+            <div class="empty">
+
                 No projects found.
-            </p>
+
+                <br><br>
+
+                Register your first earthworks project.
+
+            </div>
+
         `;
 
         return;
 
     }
 
+
     list.innerHTML = filtered.map(project => `
 
         <div class="project">
 
-            <h3>${escapeHTML(project.project_name || "")}</h3>
+            <h3>
+                ${escapeHTML(project.project_name || "")}
+            </h3>
 
-            <span class="status">
-                ${escapeHTML(project.status || "Active")}
-            </span>
+            <div class="project-code">
 
-            <p>
-                <strong>Code:</strong>
-                ${escapeHTML(project.project_code || "Not assigned")}
-            </p>
-
-            <p>
-                <strong>Client:</strong>
-                ${escapeHTML(project.client_name || "")}
-            </p>
-
-            <p>
-                <strong>Location:</strong>
-                ${escapeHTML(project.location || "Not specified")}
-            </p>
-
-            <p>
-                <strong>Manager:</strong>
-                ${escapeHTML(project.project_manager || "Not assigned")}
-            </p>
-
-            <div class="project-actions">
-
-                <button
-                    class="secondary"
-                    onclick="editProject('${project.id}')">
-                    Edit
-                </button>
-
-                <button
-                    class="danger"
-                    onclick="deleteProject('${project.id}')">
-                    Delete
-                </button>
+                PROJECT CODE:
+                ${escapeHTML(project.project_code || "")}
 
             </div>
+
+            <p>
+
+                <strong>Client:</strong>
+
+                ${escapeHTML(project.client_name || "")}
+
+            </p>
+
+            <p>
+
+                <strong>Description:</strong>
+
+                ${escapeHTML(project.description || "Not provided")}
+
+            </p>
+
+            <p>
+
+                <strong>Source Workbook:</strong>
+
+                ${escapeHTML(project.source_workbook || "Not uploaded")}
+
+            </p>
+
+            <p>
+
+                <strong>Created:</strong>
+
+                ${project.created_at
+                    ? new Date(project.created_at).toLocaleDateString()
+                    : "Not available"}
+
+            </p>
 
         </div>
 
@@ -644,163 +855,109 @@ function renderProjects() {
 
 }
 
-// ==================================================
-// EDIT PROJECT
-// ==================================================
 
-function editProject(id) {
 
-    const project = projects.find(p => p.id === id);
-
-    if (!project) return;
-
-    document.getElementById("projectId").value = project.id;
-
-    document.getElementById("projectName").value =
-        project.project_name || "";
-
-    document.getElementById("projectCode").value =
-        project.project_code || "";
-
-    document.getElementById("clientName").value =
-        project.client_name || "";
-
-    document.getElementById("location").value =
-        project.location || "";
-
-    document.getElementById("manager").value =
-        project.project_manager || "";
-
-    document.getElementById("startDate").value =
-        project.start_date || "";
-
-    document.getElementById("endDate").value =
-        project.end_date || "";
-
-    document.getElementById("projectStatus").value =
-        project.status || "Active";
-
-    document.getElementById("description").value =
-        project.description || "";
-
-    document.getElementById("formTitle").textContent =
-        "Edit Project";
-
-    document.getElementById("saveButton").textContent =
-        "Update Project";
-
-    document.getElementById("projectName").focus();
-
-}
-
-// ==================================================
-// DELETE PROJECT
-// ==================================================
-
-async function deleteProject(id) {
-
-    const confirmed = confirm(
-        "Are you sure you want to delete this project?"
-    );
-
-    if (!confirmed) return;
-
-    const { error } = await db
-        .from("ep_projects")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-
-        showMessage(error.message, "error");
-
-        return;
-
-    }
-
-    showMessage("Project deleted.", "success");
-
-    await loadProjects();
-
-}
-
-// ==================================================
-// RESET FORM
-// ==================================================
+// =====================================================
+// 7. RESET FORM
+// =====================================================
 
 function resetForm() {
 
-    document.getElementById("projectForm").reset();
-
-    document.getElementById("projectId").value = "";
-
-    document.getElementById("formTitle").textContent =
-        "Register New Project";
-
-    document.getElementById("saveButton").textContent =
-        "Register Project";
+    document
+        .getElementById("projectForm")
+        .reset();
 
 }
 
-// ==================================================
-// MESSAGE HANDLING
-// ==================================================
+
+
+// =====================================================
+// 8. MESSAGE HANDLING
+// =====================================================
 
 function showMessage(message, type) {
 
-    const box = document.getElementById("message");
+    const box =
+        document.getElementById("message");
+
 
     box.textContent = message;
 
-    box.className = "message " + type;
+
+    box.className =
+        "message " + type;
+
 
     box.style.display = "block";
 
 }
 
-// ==================================================
-// HTML ESCAPING
-// ==================================================
+
+
+// =====================================================
+// 9. HTML SECURITY
+// =====================================================
 
 function escapeHTML(value) {
 
-    return String(value).replace(/[&<>"']/g, char => ({
+    return String(value).replace(
+        /[&<>"']/g,
+        char => ({
 
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
+            "&": "&amp;",
 
-    })[char]);
+            "<": "&lt;",
+
+            ">": "&gt;",
+
+            '"': "&quot;",
+
+            "'": "&#039;"
+
+        })[char]
+    );
 
 }
 
-// ==================================================
-// NAVIGATION
-// ==================================================
+
+
+// =====================================================
+// 10. NAVIGATION
+// =====================================================
 
 function goDashboard() {
 
-    window.location.href = "dashboard.html";
+    window.location.href =
+        "dashboard.html";
 
 }
 
-// ==================================================
-// SEARCH
-// ==================================================
+
+
+// =====================================================
+// 11. PROJECT SEARCH
+// =====================================================
 
 document
-.getElementById("searchProjects")
-.addEventListener("input", renderProjects);
 
-// ==================================================
-// START APPLICATION
-// ==================================================
+    .getElementById("searchProjects")
+
+    .addEventListener(
+        "input",
+        renderProjects
+    );
+
+
+
+// =====================================================
+// 12. START APPLICATION
+// =====================================================
 
 initialise();
+
 
 </script>
 
 </body>
+
 </html>
