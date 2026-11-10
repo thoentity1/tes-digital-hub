@@ -1450,11 +1450,7 @@ $("projectsBody").addEventListener(
 
         if (button.dataset.action === "delete") {
 
-            if (
-                !confirm(
-                    Delete project "${project.project_name}" (${project.project_code})?\n\nOnly proceed if you are certain no linked project records need to be retained.
-                )
-            ) {
+            if (!confirm("Delete this project? This action cannot be undone.")) {
 
                 return;
 
