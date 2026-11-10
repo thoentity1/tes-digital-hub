@@ -723,33 +723,24 @@ async function loadDashboard() {
 
 function openModule(module) {
 
-    const pages = {
-
+    const routes = {
         projects: "earthworks-projects.html",
-
         quantities: "earthworks-quantities.html",
-
         chainages: "earthworks-chainages.html",
-
         progress: "earthworks-progress.html",
-
         reports: "earthworks-reports.html",
-
         analytics: "earthworks-analytics.html"
-
     };
 
     if (routes[module]) {
 
-    window.location.href = routes[module];
+        window.location.href = routes[module];
 
-} else {
+    } else {
 
-    alert(
-        module.toUpperCase() +
-        " module will be activated in the next development phase."
-    );
+        alert("Module not found: " + module);
 
+    }
 }
 
 }
