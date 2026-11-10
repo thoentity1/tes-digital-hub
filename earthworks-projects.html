@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Management | TES Earthworks Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --navy: #0b1424;
+    --sidebar: #101e33;
+    --card: #172840;
+    --turquoise: #13c6bd;
+    --white: #ffffff;
+    --muted: #9aabc0;
+    --border: #263b54;
+    --danger: #ef6464;
+    --success: #31c48d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 255px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+}
+
+.brand {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--turquoise);
+    line-height: 1.25;
+}
+
+.brand small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-top: 8px;
+}
+
+.nav-label {
+    font-size: 10px;
+    color: #71849c;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 32px 10px 10px;
+}
+
+.nav a {
+    display: block;
+    text-decoration: none;
+    color: #c5d1df;
+    padding: 12px 13px;
+    border-radius: 8px;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.nav a:hover,
+.nav a.active {
+    background: #203b56;
+    color: var(--turquoise);
+    border-left: 3px solid var(--turquoise);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 15px 8px;
+}
+
+main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+}
+
+.topbar h2 {
+    font-size: 19px;
+}
+
+.user-email {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.page-heading h1 {
+    font-size: 29px;
+    margin-bottom: 8px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-primary {
+    background: var(--turquoise);
+    color: #06202a;
+}
+
+.btn-secondary {
+    background: #263b54;
+    color: #e8f0f8;
+    border: 1px solid #3b536e;
+}
+
+.btn-danger {
+    background: #512b36;
+    color: #ffd9df;
+    border: 1px solid #80404d;
+}
+
+.btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.stat,
+.panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+}
+
+.stat {
+    padding: 18px 20px;
+    border-left: 4px solid var(--turquoise);
+}
+
+.stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.stat strong {
+    font-size: 27px;
+    color: var(--turquoise);
+}
+
+.panel {
+    padding: 20px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.toolbar h3 {
+    font-size: 17px;
+}
+
+input,
+textarea {
+    width: 100%;
+    background: #0e1b2d;
+    color: var(--white);
+    border: 1px solid #38516d;
+    border-radius: 8px;
+    padding: 12px;
+    font: inherit;
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--turquoise);
+}
+
+.search {
+    max-width: 330px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #243951;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: #1c3049;
+}
+
+.code {
+    color: var(--turquoise);
+    font-weight: 700;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.actions .btn {
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 35px;
+}
+
+.status {
+    padding: 10px 13px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    display: none;
+}
+
+.status.error {
+    display: block;
+    background: #472a34;
+    color: #ffd9df;
+    border: 1px solid #824351;
+}
+
+.status.success {
+    display: block;
+    background: #173c36;
+    color: #c6ffeb;
+    border: 1px solid #267a66;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: #000b;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 10;
+}
+
+.modal-backdrop.open {
+    display: flex;
+}
+
+.modal {
+    width: min(600px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    background: #14243a;
+    border: 1px solid #38516d;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 20px 60px #0008;
+}
+
+.modal h2 {
+    margin-bottom: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.field {
+    margin-bottom: 14px;
+}
+
+.field.full {
+    grid-column: 1/-1;
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 7px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.loading {
+    color: var(--muted);
+    padding: 25px;
+    text-align: center;
+}
+
+@media(max-width:800px) {
+    .sidebar {
+        width: 205px;
+    }
+
+    main {
+        padding: 22px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width:600px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 18px;
+    }
+
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .nav-label {
+        margin-top: 18px;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    main {
+        padding: 18px;
+    }
+
+    .page-heading {
+        display: block;
+    }
+
+    .page-heading .btn {
+        margin-top: 15px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full {
+        grid-column: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            THE ENTITY<br>
+            SOLUTIONS
+            <small>TES DIGITAL HUB</small>
+        </div>
+
+        <div class="nav-label">Main menu</div>
+
+        <nav class="nav">
+            <a href="earthworks.html">◆ Dashboard</a>
+        </nav>
+
+        <div class="nav-label">Earthworks management</div>
+
+        <nav class="nav">
+            <a class="active" href="projects.html">
+                ▣ Project Management
+            </a>
+
+            <a href="earthworks-quantities.html">
+                ▤ Quantity Management
+            </a>
+
+            <a href="earthworks-chainages.html">
+                ▥ Chainage Tracking
+            </a>
+
+            <a href="earthworks-progress.html">
+                ◉ Progress Monitoring
+            </a>
+        </nav>
+
+        <div class="nav-label">Reporting</div>
+
+        <nav class="nav">
+            <a href="earthworks-reports.html">
+                ▤ Reports
+            </a>
+
+            <a href="earthworks-analytics.html">
+                ▥ Analytics
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            TES Earthworks Pro<br>
+            Quantification &amp; Progress Management
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main>
+
+        <header class="topbar">
+
+            <h2>TES Earthworks Pro</h2>
+
+            <div class="user-email" id="userEmail">
+                Checking session…
+            </div>
+
+        </header>
+
+
+        <section class="page-heading">
+
+            <div>
+                <h1>Project Management</h1>
+
+                <p>
+                    Create, maintain and manage earthworks
+                    projects and their client information.
+                </p>
+            </div>
+
+            <button
+                class="btn btn-primary"
+                id="addProjectBtn">
+
+                ＋ Add New Project
+
+            </button>
+
+        </section>
+
+
+        <div
+            id="message"
+            class="status"
+            role="status">
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <section class="stats">
+
+            <div class="stat">
+                <span>Total projects</span>
+                <strong id="totalProjects">—</strong>
+            </div>
+
+            <div class="stat">
+                <span>Clients represented</span>
+                <strong id="totalClients">—</strong>
+            </div>
+
+            <div class="stat">
+                <span>Recently created</span>
+                <strong id="recentProjects">—</strong>
+            </div>
+
+        </section>
+
+
+        <!-- PROJECT TABLE -->
+
+        <section class="panel">
+
+            <div class="toolbar">
+
+                <h3>Registered projects</h3>
+
+                <input
+                    class="search"
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search project code, name or client…">
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Project code</th>
+                            <th>Project name</th>
+                            <th>Client</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="projectsBody">
+
+                        <tr>
+                            <td colspan="5" class="loading">
+                                Loading projects…
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ADD / EDIT PROJECT MODAL -->
+
+<div class="modal-backdrop" id="projectModal">
+
+    <div class="modal">
+
+        <h2 id="modalTitle">
+            Add New Project
+        </h2>
+
+        <form id="projectForm">
+
+            <input
+                type="hidden"
+                id="projectId">
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="projectCode">
+                        Project code *
+                    </label>
+
+                    <input
+                        id="projectCode"
+                        maxlength="60"
+                        required
+                        placeholder="e.g. PVR-RURAL-1">
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="projectName">
+                        Project name *
+                    </label>
+
+                    <input
+                        id="projectName"
+                        maxlength="150"
+                        required
+                        placeholder="e.g. Rural 1">
+
+                </div>
+
+
+                <div class="field full">
+
+                    <label for="clientName">
+                        Client name
+                    </label>
+
+                    <input
+                        id="clientName"
+                        maxlength="150"
+                        placeholder="e.g. PVR Surveyors">
+
+                </div>
+
+
+                <div class="field full">
+
+                    <label for="description">
+                        Project description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        maxlength="2000"
+                        placeholder="Enter project details…">
+                    </textarea>
+
+                </div>
+
+
+                <div class="field full">
+
+                    <label for="sourceWorkbook">
+                        Source workbook / reference
+                    </label>
+
+                    <input
+                        id="sourceWorkbook"
+                        maxlength="255"
+                        placeholder="e.g. MASTER EARTHWORKS PROGRESS TRACKER.xlsx">
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="cancelBtn">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="saveBtn">
+
+                    Save Project
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- JAVASCRIPT / SUPABASE -->
+
+<script>
+
+/*
+====================================================
+SUPABASE CONFIGURATION
+====================================================
+
+Use the SAME Supabase project URL and publishable/anon
+key already configured in your working earthworks.html.
+
+Never use a service_role or secret key in browser code.
+*/
+
+const SUPABASE_URL =
+"sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
+
+const SUPABASE_ANON_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
+
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+
+let currentUser = null;
+let projects = [];
+
+
+const $ = (id) =>
+    document.getElementById(id);
+
+const messageBox = $("message");
+
+
+/* MESSAGE DISPLAY */
+
+function showMessage(text, type = "success") {
+
+    messageBox.textContent = text;
+
+    messageBox.className =
+        "status " + type;
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    if (type === "success") {
+
+        setTimeout(() => {
+
+            messageBox.className = "status";
+
+        }, 4500);
+
+    }
+
+}
+
+
+/* HTML ESCAPING */
+
+function escapeHtml(value) {
+
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        ch => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[ch])
+    );
+
+}
+
+
+/* DATE FORMATTING */
+
+function formatDate(value) {
+
+    if (!value) return "—";
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? "—"
+        : date.toLocaleDateString();
+
+}
+
+
+/* GENERATE PROJECT CODE */
+
+function generatedProjectCode(client, name) {
+
+    const prefix =
+        (client || "TES")
+        .trim()
+        .split(/\s+/)
+        .map(w => w[0])
+        .join("")
+        .replace(/[^A-Z0-9]/gi, "")
+        .toUpperCase()
+        .slice(0, 5) || "TES";
+
+    const suffix =
+        (name || "PROJECT")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+    return ${prefix}-${suffix}.slice(0, 60);
+
+}
+
+
+/* CHECK LOGIN SESSION */
+
+async function checkSession() {
+
+    if (
+        SUPABASE_URL.includes("PASTE_") ||
+        SUPABASE_ANON_KEY.includes("PASTE_")
+    ) {
+
+        $("userEmail").textContent =
+            "Supabase configuration required";
+
+        showMessage(
+            "Copy the existing Supabase URL and publishable/anon key from earthworks.html into the two configuration constants in this file.",
+            "error"
+        );
+
+        $("projectsBody").innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Supabase connection is not configured.
+                </td>
+            </tr>
+        `;
+
+        return false;
+
+    }
+
+
+    const { data, error } =
+        await db.auth.getSession();
+
+
+    if (error) {
+
+        showMessage(
+            "Could not verify your login session: " +
+            error.message,
+            "error"
+        );
+
+        return false;
+
+    }
+
+
+    currentUser =
+        data.session?.user || null;
+
+
+    if (!currentUser) {
+
+        window.location.href = "login.html";
+
+        return false;
+
+    }
+
+
+    $("userEmail").textContent =
+        currentUser.email || "Signed in";
+
+
+    return true;
+
+}
+
+
+/* LOAD PROJECTS FROM SUPABASE */
+
+async function loadProjects() {
+
+    $("projectsBody").innerHTML = `
+        <tr>
+            <td colspan="5" class="loading">
+                Loading projects…
+            </td>
+        </tr>
+    `;
+
+
+    const { data, error } = await db
+        .from("ep_projects")
+        .select(`
+            id,
+            project_code,
+            project_name,
+            client_name,
+            description,
+            source_workbook,
+            created_at,
+            updated_at
+        `)
+        .order("created_at", {
+            ascending: false
+        });
+
+
+    if (error) {
+
+        $("projectsBody").innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Projects could not be loaded.
+                </td>
+            </tr>
+        `;
+
+        showMessage(
+            "Unable to load projects: " +
+            error.message +
+            " (code: " +
+            (error.code || "unknown") +
+            ")",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    projects = data || [];
+
+    renderProjects();
+
+}
+
+
+/* DISPLAY PROJECTS */
+
+function renderProjects() {
+
+    const query =
+        $("searchInput").value
+        .trim()
+        .toLowerCase();
+
+
+    const filtered = projects.filter(p =>
+
+        [
+            p.project_code,
+            p.project_name,
+            p.client_name,
+            p.description
+        ].some(v =>
+            String(v || "")
+            .toLowerCase()
+            .includes(query)
+        )
+
+    );
+
+
+    $("totalProjects").textContent =
+        projects.length;
+
+
+    $("totalClients").textContent =
+        new Set(
+            projects
+                .map(p =>
+                    (p.client_name || "").trim()
+                )
+                .filter(Boolean)
+                .map(v => v.toLowerCase())
+        ).size;
+
+
+    const cutoff =
+        Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+
+    $("recentProjects").textContent =
+        projects.filter(p =>
+            p.created_at &&
+            new Date(p.created_at).getTime() >= cutoff
+        ).length;
+
+
+    if (!filtered.length) {
+
+        $("projectsBody").innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    ${
+                        projects.length
+                        ? "No projects match your search."
+                        : "No projects registered yet. Select Add New Project to get started."
+                    }
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    $("projectsBody").innerHTML = filtered.map(p => `
+
+        <tr>
+
+            <td class="code">
+                ${escapeHtml(p.project_code)}
+            </td>
+
+            <td>
+                <strong>
+                    ${escapeHtml(p.project_name)}
+                </strong>
+            </td>
+
+            <td>
+                ${escapeHtml(p.client_name || "—")}
+            </td>
+
+            <td class="muted">
+                ${formatDate(p.created_at)}
+            </td>
+
+            <td>
+
+                <div class="actions">
+
+                    <button
+                        class="btn btn-secondary"
+                        data-action="edit"
+                        data-id="${escapeHtml(p.id)}">
+
+                        Edit
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-danger"
+                        data-action="delete"
+                        data-id="${escapeHtml(p.id)}">
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+/* OPEN PROJECT MODAL */
+
+function openModal(project = null) {
+
+    $("projectForm").reset();
+
+    $("projectId").value =
+        project?.id || "";
+
+
+    $("modalTitle").textContent =
+        project
+        ? "Edit Project"
+        : "Add New Project";
+
+
+    $("saveBtn").textContent =
+        project
+        ? "Update Project"
+        : "Save Project";
+
+
+    $("projectCode").value =
+        project?.project_code || "";
+
+
+    $("projectName").value =
+        project?.project_name || "";
+
+
+    $("clientName").value =
+        project?.client_name || "";
+
+
+    $("description").value =
+        project?.description || "";
+
+
+    $("sourceWorkbook").value =
+        project?.source_workbook || "";
+
+
+    $("projectModal").classList.add("open");
+
+}
+
+
+/* CLOSE MODAL */
+
+function closeModal() {
+
+    $("projectModal").classList.remove("open");
+
+}
+
+
+/* BUTTON EVENTS */
+
+$("addProjectBtn").addEventListener(
+    "click",
+    () => {
+
+        $("projectCode").dataset.edited = "";
+
+        openModal();
+
+    }
+);
+
+
+$("cancelBtn").addEventListener(
+    "click",
+    closeModal
+);
+
+
+$("projectModal").addEventListener(
+    "click",
+    e => {
+
+        if (e.target === $("projectModal")) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+$("searchInput").addEventListener(
+    "input",
+    renderProjects
+);
+
+
+/* AUTOMATIC PROJECT CODE */
+
+$("projectName").addEventListener(
+    "input",
+    () => {
+
+        if (
+            !$("projectId").value &&
+            !$("projectCode").dataset.edited
+        ) {
+
+            $("projectCode").value =
+                generatedProjectCode(
+                    $("clientName").value,
+                    $("projectName").value
+                );
+
+        }
+
+    }
+);
+
+
+$("clientName").addEventListener(
+    "input",
+    () => {
+
+        if (
+            !$("projectId").value &&
+            !$("projectCode").dataset.edited &&
+            $("projectName").value
+        ) {
+
+            $("projectCode").value =
+                generatedProjectCode(
+                    $("clientName").value,
+                    $("projectName").value
+                );
+
+        }
+
+    }
+);
+
+
+$("projectCode").addEventListener(
+    "input",
+    () => {
+
+        $("projectCode").dataset.edited = "true";
+
+    }
+);
+
+
+/* SAVE OR UPDATE PROJECT */
+
+$("projectForm").addEventListener(
+    "submit",
+    async e => {
+
+        e.preventDefault();
+
+
+        const id =
+            $("projectId").value;
+
+
+        const payload = {
+
+            project_code:
+                $("projectCode").value.trim(),
+
+            project_name:
+                $("projectName").value.trim(),
+
+            client_name:
+                $("clientName").value.trim() || null,
+
+            description:
+                $("description").value.trim() || null,
+
+            source_workbook:
+                $("sourceWorkbook").value.trim() || null,
+
+            updated_at:
+                new Date().toISOString()
+
+        };
+
+
+        if (
+            !payload.project_code ||
+            !payload.project_name
+        ) {
+
+            showMessage(
+                "Project code and project name are required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        $("saveBtn").disabled = true;
+
+        $("saveBtn").textContent =
+            id ? "Updating…" : "Saving…";
+
+
+        let result;
+
+
+        if (id) {
+
+            result = await db
+                .from("ep_projects")
+                .update(payload)
+                .eq("id", id)
+                .select()
+                .single();
+
+        } else {
+
+            /*
+              The existing ep_projects.id column has no
+              database default, so generate a UUID here.
+            */
+
+            result = await db
+                .from("ep_projects")
+                .insert({
+                    id: crypto.randomUUID(),
+                    ...payload
+                })
+                .select()
+                .single();
+
+        }
+
+
+        $("saveBtn").disabled = false;
+
+        $("saveBtn").textContent =
+            id ? "Update Project" : "Save Project";
+
+
+        if (result.error) {
+
+            showMessage(
+                "Project could not be saved: " +
+                result.error.message +
+                " (code: " +
+                (result.error.code || "unknown") +
+                "). Check the ep_projects INSERT/UPDATE RLS policies for authenticated users.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        closeModal();
+
+
+        showMessage(
+            id
+            ? "Project updated successfully."
+            : "Project created successfully."
+        );
+
+
+        await loadProjects();
+
+    }
+);
+
+
+/* EDIT AND DELETE PROJECTS */
+
+$("projectsBody").addEventListener(
+    "click",
+    async e => {
+
+        const button =
+            e.target.closest("button[data-action]");
+
+
+        if (!button) return;
+
+
+        const project =
+            projects.find(p =>
+                p.id === button.dataset.id
+            );
+
+
+        if (!project) return;
+
+
+        /* EDIT */
+
+        if (button.dataset.action === "edit") {
+
+            $("projectCode").dataset.edited = "";
+
+            openModal(project);
+
+            return;
+
+        }
+
+
+        /* DELETE */
+
+        if (button.dataset.action === "delete") {
+
+            if (
+                !confirm(
+                    Delete project "${project.project_name}" (${project.project_code})?\n\nOnly proceed if you are certain no linked project records need to be retained.
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const { error } = await db
+                .from("ep_projects")
+                .delete()
+                .eq("id", project.id);
+
+
+            if (error) {
+
+                showMessage(
+                    "Project could not be deleted: " +
+                    error.message +
+                    ". It may have linked records or deletion may be blocked by Row Level Security.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            showMessage("Project deleted.");
+
+            await loadProjects();
+
+        }
+
+    }
+);
+
+
+/* INITIALISE APPLICATION */
+
+(async function init() {
+
+    const ok = await checkSession();
+
+    if (ok) {
+
+        await loadProjects();
+
+    }
+
+})();
+
+</script>
+
+</body>
+</html>
