@@ -739,10 +739,18 @@ function openModule(module) {
 
     };
 
+    if (routes[module]) {
+
+    window.location.href = routes[module];
+
+} else {
+
     alert(
         module.toUpperCase() +
         " module will be activated in the next development phase."
     );
+
+}
 
 }
 
