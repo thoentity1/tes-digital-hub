@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TES Earthworks Pro | Design Quantities</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --bg: #071525;
+    --panel: #10243a;
+    --panel2: #152d45;
+    --border: #25445d;
+    --turquoise: #00d5c0;
+    --text: #edf5fa;
+    --muted: #91a9ba;
+    --green: #13b981;
+    --red: #ef6464;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+header {
+    background: #091c30;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.brand {
+    color: var(--turquoise);
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.brand small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+.header-right {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.container {
+    max-width: 1450px;
+    margin: auto;
+    padding: 25px;
+}
+
+h2 {
+    color: var(--turquoise);
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.panel h3 {
+    color: var(--turquoise);
+    margin-top: 0;
+    font-size: 17px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    gap: 18px;
+}
+
+label {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+input, select {
+    width: 100%;
+    background: #081a2c;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 12px;
+    color: white;
+    outline: none;
+    font-size: 14px;
+}
+
+input:focus, select:focus {
+    border-color: var(--turquoise);
+}
+
+button {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.primary {
+    background: var(--turquoise);
+    color: #06202a;
+}
+
+.secondary {
+    background: #25445d;
+    color: white;
+}
+
+.danger {
+    background: #8d3030;
+    color: white;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.stat {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 18px;
+    border-radius: 10px;
+}
+
+.stat span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 24px;
+    color: var(--turquoise);
+    margin-top: 10px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+th {
+    background: #17344c;
+    color: var(--turquoise);
+    text-align: left;
+    padding: 13px;
+    font-size: 12px;
+}
+
+td {
+    border-bottom: 1px solid var(--border);
+    padding: 12px;
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background: #17344c;
+}
+
+.status {
+    padding: 12px;
+    border-radius: 7px;
+    margin-top: 15px;
+    display: none;
+}
+
+.success {
+    background: #075d45;
+    color: #b8ffe3;
+}
+
+.error {
+    background: #702e32;
+    color: white;
+}
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 25px;
+    font-size: 11px;
+}
+
+@media(max-width:600px) {
+    header {
+        padding: 18px;
+    }
+
+    .container {
+        padding: 13px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="brand">
+        TES EARTHWORKS PRO
+        <small>THE ENTITY SOLUTIONS (PTY) LTD</small>
+    </div>
+
+    <div class="header-right">
+        ENGINEERING QUANTITY MANAGEMENT
+    </div>
+
+</header>
+
+<div class="container">
+
+<h2>Design Quantities</h2>
+
+<div class="subtitle">
+Capture and manage original earthworks design quantities.
+</div>
+
+<!-- PROJECT SELECTION -->
+
+<div class="panel">
+
+<h3>01. Project Information</h3>
+
+<div class="grid">
+
+    <div>
+        <label>Select Project</label>
+        <select id="projectSelect">
+            <option value="">Loading projects...</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Project Code</label>
+        <input id="projectCode" readonly>
+    </div>
+
+    <div>
+        <label>Project Client</label>
+        <input id="projectClient" readonly>
+    </div>
+
+    <div>
+        <label>Measurement Unit</label>
+        <select id="unitSelect">
+            <option value="m3">Cubic metres (m³)</option>
+            <option value="m2">Square metres (m²)</option>
+            <option value="m">Linear metres (m)</option>
+            <option value="ton">Tonnes</option>
+        </select>
+    </div>
+
+</div>
+
+</div>
+
+<!-- QUANTITY ENTRY -->
+
+<div class="panel">
+
+<h3>02. Engineering Quantity Entry</h3>
+
+<div class="grid">
+
+    <div>
+        <label>Chainage (m)</label>
+        <input type="number" id="chainage"
+               placeholder="Example: 9840" step="0.001">
+    </div>
+
+    <div>
+        <label>Earthworks Activity</label>
+        <select id="activity">
+            <option value="">Select activity</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Measurement Position</label>
+        <select id="side">
+            <option value="Left">Left</option>
+            <option value="Right">Right</option>
+            <option value="Full Width">Full Width</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Design Quantity</label>
+        <input type="number" id="quantity"
+               placeholder="Enter quantity" min="0" step="0.001">
+    </div>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="addQuantity()">
+    + Add Design Quantity
+</button>
+
+<button class="secondary" onclick="clearForm()">
+    Clear
+</button>
+
+<div id="message" class="status"></div>
+
+</div>
+
+<!-- SUMMARY -->
+
+<div class="stats">
+
+    <div class="stat">
+        <span>Quantity Records</span>
+        <strong id="recordCount">0</strong>
+    </div>
+
+    <div class="stat">
+        <span>Total Design Quantity</span>
+        <strong id="totalQuantity">0.000</strong>
+    </div>
+
+    <div class="stat">
+        <span>Chainage Positions</span>
+        <strong id="chainageCount">0</strong>
+    </div>
+
+    <div class="stat">
+        <span>Activities Captured</span>
+        <strong id="activityCount">0</strong>
+    </div>
+
+</div>
+
+<!-- QUANTITY TABLE -->
+
+<div class="panel">
+
+<h3>03. Design Quantity Register</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+    <th>Chainage</th>
+    <th>Activity</th>
+    <th>Position</th>
+    <th>Quantity</th>
+    <th>Unit</th>
+    <th>Action</th>
+</tr>
+</thead>
+
+<tbody id="quantityTable">
+
+<tr>
+<td colspan="6" style="text-align:center;color:#91a9ba">
+No quantities captured yet.
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<br>
+
+<button class="secondary" onclick="exportCSV()">
+    Export Quantities
+</button>
+
+<button class="danger" onclick="clearRegister()">
+    Clear Register
+</button>
+
+</div>
+
+<!-- CALCULATION SUMMARY -->
+
+<div class="panel">
+
+<h3>04. Engineering Quantity Summary</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+    <th>Activity</th>
+    <th>Unit</th>
+    <th>Design Quantity</th>
+    <th>Records</th>
+</tr>
+</thead>
+
+<tbody id="summaryTable">
+
+<tr>
+<td colspan="4">No summary available.</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+THE ENTITY SOLUTIONS (PTY) LTD
+<br>
+TES DIGITAL HUB | TES EARTHWORKS PRO
+</footer>
+
+<script>
+
+// =====================================
+// SUPABASE CONFIGURATION
+// =====================================
+
+const SUPABASE_URL =
+"https://YOUR-PROJECT.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"YOUR-SUPABASE-ANON-KEY";
+
+const db = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+// =====================================
+// APPLICATION DATA
+// =====================================
+
+let projects = [];
+let activities = [];
+let quantities = [];
+
+const activityDefaults = [
+
+["SEAL20","20mm Seal","m2"],
+["BSM150","150mm BSM Base","m3"],
+["SUBBASE200","200mm Subbase","m3"],
+["USSG150","150mm USSG","m3"],
+["LSSG150","150mm LSSG","m3"],
+["FILL250","250mm Fill Layer","m3"],
+["DRAINAGE","Drainage Blanket","m3"],
+["CUTLAYERS","Cut to Bottom of Layers","m3"],
+["BOULDERS","Boulders","m3"],
+["BLASTING","Blasting","m3"],
+["HARDROCK","Hard Rock Excavation","m3"],
+["TOPFILL","Fill to Top of Fill","m3"],
+["SHOULDER","Shoulder Fill","m3"],
+["TOPSOIL","Topsoil Strip","m3"],
+["MILLING","Milling Existing Tar","m3"],
+["UNDERCUT","Undercut / Backfill","m3"],
+["ROADBED","150mm Roadbed","m3"],
+["EXISTING","Existing Pavement Layers","m3"],
+["CLEARGRUB","Clear & Grub","m2"],
+["CUTSLOPE","Cut Slopes","m2"],
+["FILLSLOPE","Fill Slopes","m2"]
+
+];
+
+// =====================================
+// LOAD PROJECTS
+// =====================================
+
+async function loadProjects() {
+
+    const {data,error} = await db
+        .from("ep_projects")
+        .select("id,project_name,project_code")
+        .order("created_at",{ascending:false});
+
+    if(error) {
+        showMessage("Unable to load projects: "+error.message,true);
+        return;
+    }
+
+    projects = data || [];
+
+    const select = document.getElementById("projectSelect");
+
+    select.innerHTML =
+        '<option value="">Select a project</option>';
+
+    projects.forEach(p => {
+
+        const option = document.createElement("option");
+
+        option.value = p.id;
+
+        option.textContent =
+            p.project_name+" ("+p.project_code+")";
+
+        select.appendChild(option);
+
+    });
+
+}
+
+// =====================================
+// LOAD ACTIVITIES
+// =====================================
+
+async function loadActivities() {
+
+    const {data,error} = await db
+        .from("ep_activities")
+        .select("activity_code,activity_name,unit")
+        .order("display_order");
+
+    const select = document.getElementById("activity");
+
+    select.innerHTML =
+        '<option value="">Select activity</option>';
+
+    if(error) {
+        showMessage("Unable to load activities: "+error.message,true);
+        return;
+    }
+
+    activities = data || [];
+
+    activities.forEach(a => {
+
+        const option = document.createElement("option");
+
+        option.value = a.activity_code;
+
+        option.textContent =
+            a.activity_name+" ("+a.unit+")";
+
+        option.dataset.unit = a.unit;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+// =====================================
+// PROJECT SELECTION
+// =====================================
+
+document.getElementById("projectSelect")
+.addEventListener("change",function() {
+
+    const project = projects.find(
+        p => p.id === this.value
+    );
+
+    document.getElementById("projectCode").value =
+        project ? project.project_code : "";
+
+    // Client information will be populated
+    // when the project schema includes its client field.
+
+    document.getElementById("projectClient").value = "";
+
+    quantities = [];
+
+    renderTable();
+
+});
+
+// =====================================
+// ADD QUANTITY
+// =====================================
+
+function addQuantity() {
+
+    const projectId =
+        document.getElementById("projectSelect").value;
+
+    const chainage =
+        Number(document.getElementById("chainage").value);
+
+    const activityCode =
+        document.getElementById("activity").value;
+
+    const side =
+        document.getElementById("side").value;
+
+    const quantity =
+        Number(document.getElementById("quantity").value);
+
+    const activity = activities.find(
+        a => a.activity_code === activityCode
+    );
+
+    if(!projectId) {
+        return showMessage("Please select a project.",true);
+    }
+
+    if(!Number.isFinite(chainage) || chainage < 0) {
+        return showMessage("Enter a valid chainage.",true);
+    }
+
+    if(!activity) {
+        return showMessage("Select an activity.",true);
+    }
+
+    if(!Number.isFinite(quantity) || quantity < 0) {
+        return showMessage("Enter a valid quantity.",true);
+    }
+
+    const duplicate = quantities.some(q =>
+        q.chainage === chainage &&
+        q.activity_code === activityCode &&
+        q.side === side
+    );
+
+    if(duplicate) {
+        return showMessage(
+            "This activity and position already exist at this chainage. Edit or remove the existing record.",
+            true
+        );
+    }
+
+    quantities.push({
+
+        id: crypto.randomUUID(),
+
+        project_id: projectId,
+
+        chainage: chainage,
+
+        activity_code: activityCode,
+
+        activity_name: activity.activity_name,
+
+        side: side,
+
+        quantity: quantity,
+
+        unit: activity.unit
+
+    });
+
+    renderTable();
+
+    clearForm();
+
+    showMessage(
+        "Design quantity added to the register.",
+        false
+    );
+
+}
+
+// =====================================
+// RENDER TABLE
+// =====================================
+
+function renderTable() {
+
+    const table =
+        document.getElementById("quantityTable");
+
+    table.innerHTML = "";
+
+    if(quantities.length === 0) {
+
+        table.innerHTML =
+        '<tr><td colspan="6">No quantities captured yet.</td></tr>';
+
+    }
+
+    quantities.sort((a,b) =>
+        a.chainage-b.chainage
+    );
+
+    quantities.forEach((q,index) => {
+
+        const row = document.createElement("tr");
+
+        const values = [
+            q.chainage.toFixed(3),
+            q.activity_name,
+            q.side,
+            q.quantity.toFixed(3),
+            q.unit
+        ];
+
+        values.forEach(value => {
+
+            const cell = document.createElement("td");
+
+            cell.textContent = value;
+
+            row.appendChild(cell);
+
+        });
+
+        const action = document.createElement("td");
+
+        const remove = document.createElement("button");
+
+        remove.className = "danger";
+
+        remove.textContent = "Remove";
+
+        remove.onclick = () => {
+
+            quantities.splice(index,1);
+
+            renderTable();
+
+        };
+
+        action.appendChild(remove);
+
+        row.appendChild(action);
+
+        table.appendChild(row);
+
+    });
+
+    calculateSummary();
+
+}
+
+// =====================================
+// ENGINEERING SUMMARY
+// =====================================
+
+function calculateSummary() {
+
+    const groups = {};
+
+    let total = 0;
+
+    quantities.forEach(q => {
+
+        const key = q.activity_code;
+
+        if(!groups[key]) {
+
+            groups[key] = {
+
+                name:q.activity_name,
+
+                unit:q.unit,
+
+                quantity:0,
+
+                records:0
+
+            };
+
+        }
+
+        groups[key].quantity += q.quantity;
+
+        groups[key].records++;
+
+        total += q.quantity;
+
+    });
+
+    document.getElementById("recordCount").textContent =
+        quantities.length;
+
+    document.getElementById("totalQuantity").textContent =
+        total.toFixed(3);
+
+    document.getElementById("chainageCount").textContent =
+        new Set(quantities.map(q=>q.chainage)).size;
+
+    document.getElementById("activityCount").textContent =
+        Object.keys(groups).length;
+
+    const summary =
+        document.getElementById("summaryTable");
+
+    summary.innerHTML = "";
+
+    Object.values(groups).forEach(g => {
+
+        const row = document.createElement("tr");
+
+        [
+            g.name,
+            g.unit,
+            g.quantity.toFixed(3),
+            g.records
+        ].forEach(value => {
+
+            const cell = document.createElement("td");
+
+            cell.textContent = value;
+
+            row.appendChild(cell);
+
+        });
+
+        summary.appendChild(row);
+
+    });
+
+    if(Object.keys(groups).length === 0) {
+
+        summary.innerHTML =
+            '<tr><td colspan="4">No summary available.</td></tr>';
+
+    }
+
+}
+
+// =====================================
+// CLEAR FORM
+// =====================================
+
+function clearForm() {
+
+    document.getElementById("chainage").value = "";
+
+    document.getElementById("activity").value = "";
+
+    document.getElementById("quantity").value = "";
+
+    document.getElementById("side").value = "Left";
+
+}
+
+// =====================================
+// CLEAR REGISTER
+// =====================================
+
+function clearRegister() {
+
+    if(!confirm(
+        "Clear all unsaved quantities from this register?"
+    )) return;
+
+    quantities = [];
+
+    renderTable();
+
+}
+
+// =====================================
+// EXPORT CSV
+// =====================================
+
+function exportCSV() {
+
+    if(quantities.length === 0) {
+
+        return showMessage("Nothing to export.",true);
+
+    }
+
+    const headers = [
+        "Chainage",
+        "Activity",
+        "Position",
+        "Quantity",
+        "Unit"
+    ];
+
+    const rows = quantities.map(q => [
+
+        q.chainage,
+        q.activity_name,
+        q.side,
+        q.quantity,
+        q.unit
+
+    ]);
+
+    const csv = [
+        headers,
+        ...rows
+    ].map(row =>
+        row.map(value =>
+            '"'+String(value).replace(/"/g,'""')+'"'
+        ).join(",")
+    ).join("\n");
+
+    const blob = new Blob(
+        [csv],
+        {type:"text/csv"}
+    );
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = "TES-Design-Quantities.csv";
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+
+}
+
+// =====================================
+// MESSAGE
+// =====================================
+
+function showMessage(message,isError) {
+
+    const box =
+        document.getElementById("message");
+
+    box.textContent = message;
+
+    box.className =
+        "status "+(isError?"error":"success");
+
+    box.style.display = "block";
+
+    setTimeout(() => {
+
+        box.style.display = "none";
+
+    },5000);
+
+}
+
+// =====================================
+// INITIALISE
+// =====================================
+
+async function initialise() {
+
+    await loadProjects();
+
+    await loadActivities();
+
+}
+
+initialise();
+
+</script>
+
+</body>
+</html>
