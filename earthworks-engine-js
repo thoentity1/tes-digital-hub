@@ -1,0 +1,433 @@
+/*
+ * TES EARTHWORKS PRO
+ * PVR SURVEYORS - RURAL 1
+ * ENGINEERING CALCULATION ENGINE
+ *
+ * Original workbook:
+ * MASTER EARTHWORKS PROGRESS TRACKER.xlsx
+ *
+ * Worksheets:
+ * 1. Rural 1 Qty's
+ * 2. Rural 1
+ *
+ * Original chainages: C:MS
+ * Chainage interval: 20 metres
+ * Starting chainage: 9840
+ * Ending chainage: 16920
+ *
+ * Original activity rows: 6:45
+ *
+ * IMPORTANT:
+ * Preserve original Excel calculation methodology.
+ */
+
+(function (root) {
+    'use strict';
+
+    const CONFIG = Object.freeze({
+        firstChainage: 9840,
+        lastChainage: 16920,
+        chainageInterval: 20,
+        chainageCount: 355,
+        firstExcelActivityRow: 6,
+        lastExcelActivityRow: 45,
+        expectedActivityRows: 40
+    });
+
+    // ORIGINAL PVR ACTIVITY STRUCTURE
+
+    const ACTIVITY_LAYOUT = Object.freeze([
+
+        { row: 6, activity: '20mm Seal (m2)', side: 'Left' },
+        { row: 7, activity: '20mm Seal (m2)', side: 'Right' },
+
+        { row: 8, activity: '150mm BSM BASE (m3)', side: 'Left' },
+        { row: 9, activity: '150mm BSM BASE (m3)', side: 'Right' },
+
+        { row: 10, activity: '200mm Subbase (m3)', side: 'Left' },
+        { row: 11, activity: '200mm Subbase (m3)', side: 'Right' },
+
+        { row: 12, activity: '150mm USSG (m3)', side: 'Left' },
+        { row: 13, activity: '150mm USSG (m3)', side: 'Right' },
+
+        { row: 14, activity: '150mm LSSG (m3)', side: 'Left' },
+        { row: 15, activity: '150mm LSSG (m3)', side: 'Right' },
+
+        { row: 16, activity: '250mm Fill Layer In Major Cuts (m3)', side: 'Left' },
+        { row: 17, activity: '250mm Fill Layer In Major Cuts (m3)', side: 'Right' },
+
+        { row: 18, activity: '100mm Drainage Blanket Layer In Major Cuts (m3)', side: 'Left' },
+        { row: 19, activity: '100mm Drainage Blanket Layer In Major Cuts (m3)', side: 'Right' },
+
+        { row: 20, activity: 'Cut to Bottom Of Layers (m3)', side: 'Left' },
+        { row: 21, activity: 'Cut to Bottom Of Layers (m3)', side: 'Right' },
+
+        { row: 22, activity: 'Boulders (m3)', side: 'Full Width' },
+        { row: 23, activity: 'Blasting (m3)', side: 'Full Width' },
+
+        { row: 24, activity: 'Hard Rock Excavation (m3)', side: 'Left' },
+        { row: 25, activity: 'Hard Rock Excavation (m3)', side: 'Right' },
+
+        { row: 26, activity: 'Fill to Top Of Fill (m3)', side: 'Left' },
+        { row: 27, activity: 'Fill to Top Of Fill (m3)', side: 'Right' },
+
+        { row: 28, activity: 'Shoulder Fill (m3)', side: 'Left' },
+        { row: 29, activity: 'Shoulder Fill (m3)', side: 'Right' },
+
+        { row: 30, activity: 'Topsoil Strip (m3)', side: 'Left' },
+        { row: 31, activity: 'Topsoil Strip (m3)', side: 'Right' },
+
+        { row: 32, activity: 'Milling Of Existing Tar (m3)', side: 'Left' },
+        { row: 33, activity: 'Milling Of Existing Tar (m3)', side: 'Right' },
+
+        { row: 34, activity: 'Undercut/Backfill (m3)', side: 'Left' },
+        { row: 35, activity: 'Undercut/Backfill (m3)', side: 'Right' },
+
+        { row: 36, activity: '150mm Roadbed (m3)', side: 'Left' },
+        { row: 37, activity: '150mm Roadbed (m3)', side: 'Right' },
+
+        { row: 38, activity: 'Existing Pavement Layers (m3)', side: 'Left' },
+        { row: 39, activity: 'Existing Pavement Layers (m3)', side: 'Right' },
+
+        { row: 40, activity: 'Clear & Grub (m2)', side: 'Left' },
+        { row: 41, activity: 'Clear & Grub (m2)', side: 'Right' },
+
+        { row: 42, activity: 'Cut Slopes (m2)', side: 'Left' },
+        { row: 43, activity: 'Cut Slopes (m2)', side: 'Right' },
+
+        { row: 44, activity: 'Fill Slopes (m2)', side: 'Left' },
+        { row: 45, activity: 'Fill Slopes (m2)', side: 'Right' }
+
+    ]);
+
+    // GENERATE CHAINAGES
+
+    function makeChainages() {
+
+        return Array.from(
+            { length: CONFIG.chainageCount },
+            (_, i) => CONFIG.firstChainage + i * CONFIG.chainageInterval
+        );
+
+    }
+
+    const CHAINAGES = Object.freeze(makeChainages());
+
+    // NUMERIC VALIDATION
+
+    function toNumber(value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ''
+        ) {
+            return 0;
+        }
+
+        const n = Number(value);
+
+        if (!Number.isFinite(n)) {
+            throw new TypeError(
+                Invalid numeric quantity: ${value}
+            );
+        }
+
+        return n;
+
+    }
+
+    // COMPLETION INDICATOR
+
+    function isCompleted(value) {
+
+        return (
+            value === true ||
+            value === 1 ||
+            value === 'true' ||
+            value === 'TRUE'
+        );
+
+    }
+
+    // EXCEL AVERAGE BEHAVIOUR
+
+    function excelAverage(values) {
+
+        const numeric = values.filter(
+            v => typeof v === 'number' && Number.isFinite(v)
+        );
+
+        if (!numeric.length) {
+            return null;
+        }
+
+        return numeric.reduce(
+            (a, b) => a + b,
+            0
+        ) / numeric.length;
+
+    }
+
+    // ==========================================
+    // ROW CALCULATIONS
+    // ==========================================
+
+    function calculateRow(
+        designByChainage,
+        completedByChainage
+    ) {
+
+        const design = Array.isArray(designByChainage)
+            ? designByChainage
+            : [];
+
+        const completed = Array.isArray(completedByChainage)
+            ? completedByChainage
+            : [];
+
+        if (
+            design.length > CONFIG.chainageCount ||
+            completed.length > CONFIG.chainageCount
+        ) {
+
+            throw new RangeError(
+                A row cannot contain more than ${CONFIG.chainageCount} chainages.
+            );
+
+        }
+
+        // MT = SUM(C6:MS6)
+
+        const totalDesignQuantity = design.reduce(
+            (sum, quantity) => sum + toNumber(quantity),
+            0
+        );
+
+        // MU = SUMIFS(C6:MS6, Rural 1!C6:MS6, TRUE)
+
+        let completedQuantity = 0;
+
+        let completedChainageCount = 0;
+
+        for (
+            let i = 0;
+            i < CONFIG.chainageCount;
+            i++
+        ) {
+
+            if (isCompleted(completed[i])) {
+
+                completedQuantity += toNumber(
+                    design[i]
+                );
+
+                completedChainageCount++;
+
+            }
+
+        }
+
+        // MW = MT - MU
+
+        const outstandingQuantity =
+            totalDesignQuantity - completedQuantity;
+
+        // MV = ((MT - MW) / MT) * 100
+
+        const progressPercent =
+            totalDesignQuantity !== 0
+                ? (
+                    (totalDesignQuantity - outstandingQuantity)
+                    / totalDesignQuantity
+                ) * 100
+                : null;
+
+        // MX = (100 - MV) / 100
+
+        const outstandingRatio =
+            progressPercent === null
+                ? null
+                : (100 - progressPercent) / 100;
+
+        // MY = COUNTIF(C6:MS6, TRUE) * 20
+
+        const distanceCovered =
+            completedChainageCount *
+            CONFIG.chainageInterval;
+
+        return {
+
+            totalDesignQuantity,
+
+            completedQuantity,
+
+            outstandingQuantity,
+
+            progressPercent,
+
+            outstandingRatio,
+
+            completedChainageCount,
+
+            distanceCovered
+
+        };
+
+    }
+
+    // ==========================================
+    // COMPLETE EARTHWORKS CALCULATION ENGINE
+    // ==========================================
+
+    function calculateEarthworks(rows) {
+
+        if (!Array.isArray(rows)) {
+
+            throw new TypeError(
+                'Rows must be supplied as an array.'
+            );
+
+        }
+
+        const calculatedRows = rows.map(input => {
+
+            const layout = ACTIVITY_LAYOUT.find(
+                x => x.row === Number(input.excelRow)
+            );
+
+            const activity =
+                input.activity ||
+                (layout && layout.activity) ||
+                'Unspecified activity';
+
+            const side =
+                input.side ||
+                (layout && layout.side) ||
+                'Unspecified';
+
+            return {
+
+                excelRow: input.excelRow ?? null,
+
+                activity,
+
+                side,
+
+                ...calculateRow(
+                    input.designByChainage,
+                    input.completedByChainage
+                )
+
+            };
+
+        });
+
+        // ORIGINAL EXCEL:
+        // AVERAGE(MV6:MV45)
+
+        const overallProgressPercent = excelAverage(
+            calculatedRows.map(
+                row => row.progressPercent
+            )
+        );
+
+        // ORIGINAL EXCEL:
+        // AVERAGE(MX6:MX45) * 100
+
+        const overallOutstandingPercent = excelAverage(
+            calculatedRows.map(
+                row => row.outstandingRatio
+            )
+        );
+
+        const overallOutstandingPercentValue =
+            overallOutstandingPercent === null
+                ? null
+                : overallOutstandingPercent * 100;
+
+        // PROJECT TOTALS
+
+        const totalDesignQuantity = calculatedRows.reduce(
+            (sum, row) => sum + row.totalDesignQuantity,
+            0
+        );
+
+        const completedQuantity = calculatedRows.reduce(
+            (sum, row) => sum + row.completedQuantity,
+            0
+        );
+
+        const outstandingQuantity = calculatedRows.reduce(
+            (sum, row) => sum + row.outstandingQuantity,
+            0
+        );
+
+        const distanceCoveredByActivity = calculatedRows.reduce(
+            (sum, row) => sum + row.distanceCovered,
+            0
+        );
+
+        return {
+
+            chainageStart: CONFIG.firstChainage,
+
+            chainageEnd: CONFIG.lastChainage,
+
+            chainageInterval: CONFIG.chainageInterval,
+
+            chainageCount: CONFIG.chainageCount,
+
+            totalDesignQuantity,
+
+            completedQuantity,
+
+            outstandingQuantity,
+
+            overallProgressPercent,
+
+            overallOutstandingPercent:
+                overallOutstandingPercentValue,
+
+            distanceCoveredByActivity,
+
+            rows: calculatedRows
+
+        };
+
+    }
+
+    // ==========================================
+    // PUBLIC API
+    // ==========================================
+
+    const api = Object.freeze({
+
+        CONFIG,
+
+        ACTIVITY_LAYOUT,
+
+        CHAINAGES,
+
+        calculateRow,
+
+        calculateEarthworks
+
+    });
+
+    if (
+        typeof module !== 'undefined' &&
+        module.exports
+    ) {
+
+        module.exports = api;
+
+    }
+
+    root.TESEarthworksEngine = api;
+
+})(
+    typeof globalThis !== 'undefined'
+        ? globalThis
+        : this
+);
