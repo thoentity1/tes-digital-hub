@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Earthworks Pro | Chainage Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./earthworks-engine.js"></script>
+
+<style>
+:root {
+ --bg:#071321;
+ --panel:#102238;
+ --panel2:#18324b;
+ --line:#29435b;
+ --teal:#20c9bd;
+ --gold:#d6b66a;
+ --text:#edf5fb;
+ --muted:#9bb0c2;
+ --green:#25c58a;
+ --amber:#f2bd68;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{background:#091a2b;padding:20px 25px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+.brand{font-size:19px;font-weight:bold}
+.brand span{color:var(--teal)}
+.subtitle{font-size:12px;color:var(--muted);margin-top:6px}
+.badge{background:#1b4652;color:#9ef4e8;padding:8px 13px;border-radius:20px;font-size:12px}
+main{max-width:1450px;margin:auto;padding:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px}
+h2{color:var(--gold);font-size:18px;margin:0 0 18px}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:7px}
+select,input{background:#091a2b;color:var(--text);border:1px solid var(--line);padding:12px;border-radius:7px;width:100%;font-size:14px}
+button{background:var(--teal);color:#03232b;border:0;border-radius:7px;padding:12px 18px;font-weight:bold;cursor:pointer}
+button.secondary{background:#263e55;color:var(--text);border:1px solid var(--line)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{background:var(--panel);border:1px solid var(--line);padding:17px;border-radius:10px}
+.stat small{display:block;color:var(--muted);margin-bottom:9px}
+.stat strong{font-size:23px;color:var(--teal)}
+.status{background:#18324b;padding:12px;border-radius:7px;color:var(--muted);font-size:13px;margin-top:14px;line-height:1.5}
+.status.error{color:#ff7777}
+.status.good{color:var(--green)}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar input{flex:1;min-width:200px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+th{background:var(--panel2);color:#bfeeed}
+tr:hover td{background:#152e46}
+.progress{height:9px;background:#071321;border-radius:20px;overflow:hidden;min-width:75px}
+.progress div{height:100%;background:var(--teal)}
+.pill{padding:5px 9px;border-radius:15px;font-size:11px;background:#194d42;color:#8df0c6}
+.pill.pending{background:#51432b;color:#f2bd68}
+.detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.detail{background:var(--panel2);padding:14px;border-radius:8px}
+.detail small{display:block;color:var(--muted);margin-bottom:7px}
+.detail strong{font-size:19px}
+.hidden{display:none}
+footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+@media(max-width:750px){
+ main{padding:12px}
+ .grid,.detail-grid{grid-template-columns:1fr}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div>
+  <div class="brand">THE ENTITY SOLUTIONS <span>| TES EARTHWORKS PRO</span></div>
+  <div class="subtitle">PVR Surveyors | Chainage Management</div>
+ </div>
+ <span class="badge" id="connection">Connecting...</span>
+</header>
+
+<main>
+
+<section class="card">
+ <h2>01. Select Project</h2>
+
+ <div class="grid">
+  <div>
+   <label>Earthworks Project</label>
+   <select id="project">
+    <option value="">Loading projects...</option>
+   </select>
+  </div>
+  <div>
+   <label>Logged-in User</label>
+   <input id="userEmail" readonly>
+  </div>
+ </div>
+
+ <div id="message" class="status">
+  Select a project to load chainage information.
+ </div>
+</section>
+
+<section class="stats">
+ <div class="stat">
+  <small>Total Chainages</small>
+  <strong id="totalChainages">0</strong>
+ </div>
+ <div class="stat">
+  <small>Completed Chainages</small>
+  <strong id="completedChainages">0</strong>
+ </div>
+ <div class="stat">
+  <small>Outstanding Chainages</small>
+  <strong id="outstandingChainages">0</strong>
+ </div>
+ <div class="stat">
+  <small>Project Progress</small>
+  <strong id="projectProgress">0%</strong>
+ </div>
+</section>
+
+<section class="card">
+ <h2>02. Chainage Register</h2>
+
+ <div class="toolbar">
+  <input id="search" type="search" placeholder="Search chainage...">
+
+  <select id="filter">
+   <option value="">All chainages</option>
+   <option value="complete">Fully completed</option>
+   <option value="partial">Partially completed</option>
+   <option value="outstanding">Outstanding</option>
+  </select>
+
+  <button class="secondary" id="export" disabled>
+   Export CSV
+  </button>
+ </div>
+
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr>
+     <th>Chainage</th>
+     <th>Design Quantity Records</th>
+     <th>Completed Activities</th>
+     <th>Outstanding Activities</th>
+     <th>Completion</th>
+     <th>Status</th>
+     <th>Action</th>
+    </tr>
+   </thead>
+   <tbody id="chainageBody">
+    <tr><td colspan="7">Select a project.</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<section class="card hidden" id="detailCard">
+ <h2>03. Chainage Detail</h2>
+
+ <h3 id="detailTitle"></h3>
+
+ <div class="detail-grid">
+  <div class="detail">
+   <small>Design Quantity Records</small>
+   <strong id="detailRecords">0</strong>
+  </div>
+  <div class="detail">
+   <small>Completed Activities</small>
+   <strong id="detailCompleted">0</strong>
+  </div>
+  <div class="detail">
+   <small>Outstanding Activities</small>
+   <strong id="detailOutstanding">0</strong>
+  </div>
+ </div>
+
+ <div class="table-wrap" style="margin-top:20px">
+  <table>
+   <thead>
+    <tr>
+     <th>Activity</th>
+     <th>Side</th>
+     <th>Design Quantity</th>
+     <th>Progress</th>
+     <th>Status</th>
+    </tr>
+   </thead>
+   <tbody id="detailBody"></tbody>
+  </table>
+ </div>
+</section>
+
+<section class="card">
+ <h2>04. Engineering Chainage Configuration</h2>
+
+ <div class="detail-grid">
+  <div class="detail">
+   <small>First Chainage</small>
+   <strong>9,840m</strong>
+  </div>
+  <div class="detail">
+   <small>Last Chainage</small>
+   <strong>16,920m</strong>
+  </div>
+  <div class="detail">
+   <small>Chainage Interval</small>
+   <strong>20m</strong>
+  </div>
+ </div>
+
+ <div class="status">
+  Chainage positions are aligned to the original PVR Rural 1 workbook.
+  The engineering chainage configuration is not editable in this version.
+ </div>
+</section>
+
+</main>
+
+<footer>
+ THE ENTITY SOLUTIONS (PTY) LTD |
+ TES EARTHWORKS PRO | PVR SURVEYORS
+</footer>
+
+<script>
+
+/* =====================================================
+   CONFIGURATION
+   ===================================================== */
+
+const SUPABASE_URL = "PASTE_YOUR_EXISTING_SUPABASE_URL";
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLIC_ANON_OR_PUBLISHABLE_KEY";
+
+let db = null;
+let currentUser = null;
+let designRecords = [];
+let progressRecords = [];
+let activityRecords = [];
+let chainageData = [];
+let selectedProject = null;
+
+const $ = id => document.getElementById(id);
+
+
+/* =====================================================
+   HELPERS
+   ===================================================== */
+
+function esc(value){
+ return String(value ?? '').replace(/[&<>"']/g,c=>({
+  '&':'&amp;',
+  '<':'&lt;',
+  '>':'&gt;',
+  '"':'&quot;',
+  "'":'&#39;'
+ }[c]));
+}
+
+function fmt(value){
+ return Number(value||0).toLocaleString('en-ZA',{
+  minimumFractionDigits:2,
+  maximumFractionDigits:3
+ });
+}
+
+function message(text,type=''){
+ $('message').textContent=text;
+ $('message').className='status '+type;
+}
+
+
+/* =====================================================
+   AUTHENTICATION
+   ===================================================== */
+
+async function initialise(){
+
+ try{
+
+  if(!window.supabase) throw new Error('Supabase library unavailable.');
+
+  if(!window.TES_EARTHWORKS_ENGINE) throw new Error('Calculation engine unavailable.');
+
+  if(SUPABASE_URL.includes('PASTE_') || SUPABASE_KEY.includes('PASTE_')){
+   throw new Error('Insert the existing Supabase URL and public key.');
+  }
+
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+  const {data,error}=await db.auth.getSession();
+
+  if(error) throw error;
+
+  currentUser=data.session?.user;
+
+  if(!currentUser){
+   location.href='login.html';
+   return;
+  }
+
+  $('userEmail').value=currentUser.email||'Authenticated';
+
+  $('connection').textContent='Connected';
+
+  await loadProjects();
+
+ }catch(e){
+
+  console.error(e);
+
+  $('connection').textContent='Connection Error';
+
+  message(e.message,'error');
+
+ }
+}
+
+
+/* =====================================================
+   PROJECTS
+   ===================================================== */
+
+async function loadProjects(){
+
+ const {data,error}=await db
+  .from('ep_projects')
+  .select('id,project_code,project_name')
+  .order('created_at',{ascending:false});
+
+ if(error) throw error;
+
+ $('project').innerHTML='<option value="">Select project...</option>';
+
+ (data||[]).forEach(p=>{
+
+  const option=document.createElement('option');
+
+  option.value=p.id;
+
+  option.textContent=p.project_name+' · '+p.project_code;
+
+  $('project').appendChild(option);
+
+ });
+
+ message((data||[]).length+' projects loaded.','good');
+
+}
+
+
+/* =====================================================
+   PAGINATED PROJECT DATA
+   ===================================================== */
+
+async function getAll(table,columns,projectId){
+
+ const output=[];
+ const pageSize=1000;
+
+ for(let start=0;start<50000;start+=pageSize){
+
+  const {data,error}=await db
+   .from(table)
+   .select(columns)
+   .eq('project_id',projectId)
+   .range(start,start+pageSize-1);
+
+  if(error) throw error;
+
+  output.push(...(data||[]));
+
+  if(!data || data.length<pageSize) break;
+
+ }
+
+ return output;
+
+}
+
+
+/* =====================================================
+   LOAD SELECTED PROJECT
+   ===================================================== */
+
+async function loadProject(projectId){
+
+ try{
+
+  selectedProject=projectId;
+
+  message('Loading design quantities and progress...');
+
+  $('export').disabled=true;
+
+  const results=await Promise.all([
+
+   getAll(
+    'ep_design_quantities',
+    'project_id,activity_code,side,chainage_m,design_quantity',
+    projectId
+   ),
+
+   getAll(
+    'ep_progress_status',
+    'project_id,activity_code,side,chainage_m,is_complete',
+    projectId
+   ),
+
+   db.from('ep_activities')
+    .select('activity_code,activity_name,unit,display_order')
+    .order('display_order')
+
+  ]);
+
+  designRecords=results[0];
+
+  progressRecords=results[1];
+
+  if(results[2].error) throw results[2].error;
+
+  activityRecords=results[2].data||[];
+
+  if(!designRecords.length){
+
+   throw new Error('No design quantities found for this project.');
+
+  }
+
+  buildChainages();
+
+  render();
+
+  $('export').disabled=false;
+
+  message(
+   'Loaded '+designRecords.length.toLocaleString()+
+   ' design records and '+progressRecords.length.toLocaleString()+
+   ' progress records.',
+   'good'
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+  message(e.message,'error');
+
+ }
+
+}
+
+
+/* =====================================================
+   BUILD CHAINAGE REGISTER
+   ===================================================== */
+
+function buildChainages(){
+
+ const map=new Map();
+
+ designRecords.forEach(record=>{
+
+  const chainage=Number(record.chainage_m);
+
+  if(!Number.isFinite(chainage)) return;
+
+  if(!map.has(chainage)){
+
+   map.set(chainage,{
+    chainage,
+    records:[],
+    completed:0,
+    outstanding:0,
+    designTotal:0,
+    completedQuantity:0
+   });
+
+  }
+
+  const item=map.get(chainage);
+
+  const progress=progressRecords.find(p=>
+
+   p.activity_code===record.activity_code &&
+   p.side===record.side &&
+   Number(p.chainage_m)===chainage
+
+  );
+
+  const done=progress?.is_complete===true;
+
+  const quantity=Number(record.design_quantity)||0;
+
+  item.records.push({
+   ...record,
+   done,
+   quantity
+  });
+
+  item.designTotal+=quantity;
+
+  if(done){
+
+   item.completed++;
+
+   item.completedQuantity+=quantity;
+
+  }else{
+
+   item.outstanding++;
+
+  }
+
+ });
+
+ chainageData=[...map.values()].sort((a,b)=>a.chainage-b.chainage);
+
+}
+
+
+/* =====================================================
+   RENDER REGISTER
+   ===================================================== */
+
+function render(){
+
+ const query=$('search').value.trim().toLowerCase();
+
+ const filter=$('filter').value;
+
+ const total=chainageData.length;
+
+ const complete=chainageData.filter(x=>x.outstanding===0 && x.completed>0).length;
+
+ const outstanding=chainageData.filter(x=>x.completed===0).length;
+
+ const totalRecords=designRecords.length;
+
+ const completedRecords=chainageData.reduce((s,x)=>s+x.completed,0);
+
+ const overall=totalRecords?completedRecords/totalRecords*100:0;
+
+ $('totalChainages').textContent=total;
+
+ $('completedChainages').textContent=complete;
+
+ $('outstandingChainages').textContent=outstanding;
+
+ $('projectProgress').textContent=overall.toFixed(2)+'%';
+
+
+ const filtered=chainageData.filter(item=>{
+
+  const pct=item.records.length?
+   item.completed/item.records.length*100:0;
+
+  const status=item.completed===0?'outstanding':
+   item.outstanding===0?'complete':'partial';
+
+  return (
+
+   (!query || String(item.chainage).includes(query)) &&
+
+   (!filter || filter===status)
+
+  );
+
+ });
+
+
+ $('chainageBody').innerHTML=filtered.map(item=>{
+
+  const pct=item.records.length?
+   item.completed/item.records.length*100:0;
+
+  const status=item.completed===0?'Outstanding':
+   item.outstanding===0?'Complete':'Partially complete';
+
+  const cls=item.completed===0?'pending':'';
+
+  return `
+
+   <tr>
+
+    <td><strong>${item.chainage.toLocaleString('en-ZA')}m</strong></td>
+
+    <td>${item.records.length}</td>
+
+    <td>${item.completed}</td>
+
+    <td>${item.outstanding}</td>
+
+    <td>
+     ${pct.toFixed(1)}%
+     <div class="progress">
+      <div style="width:${pct}%"></div>
+     </div>
+    </td>
+
+    <td><span class="pill ${cls}">${status}</span></td>
+
+    <td>
+     <button class="secondary"
+      onclick="showDetail(${item.chainage})">
+      View
+     </button>
+    </td>
+
+   </tr>
+
+  `;
+
+ }).join('')||'<tr><td colspan="7">No matching chainages.</td></tr>';
+
+}
+
+
+/* =====================================================
+   CHAINAGE DETAIL
+   ===================================================== */
+
+window.showDetail=function(chainage){
+
+ const item=chainageData.find(x=>x.chainage===chainage);
+
+ if(!item) return;
+
+ $('detailCard').classList.remove('hidden');
+
+ $('detailTitle').textContent='Chainage '+chainage.toLocaleString('en-ZA')+'m';
+
+ $('detailRecords').textContent=item.records.length;
+
+ $('detailCompleted').textContent=item.completed;
+
+ $('detailOutstanding').textContent=item.outstanding;
+
+
+ $('detailBody').innerHTML=item.records.map(record=>{
+
+  const activity=activityRecords.find(a=>
+   a.activity_code===record.activity_code
+  );
+
+  return `
+
+   <tr>
+
+    <td>${esc(activity?.activity_name||record.activity_code)}</td>
+
+    <td>${esc(record.side)}</td>
+
+    <td>${fmt(record.quantity)}</td>
+
+    <td>${record.done?'Completed':'Outstanding'}</td>
+
+    <td>
+     <span class="pill ${record.done?'':'pending'}">
+      ${record.done?'Complete':'Pending'}
+     </span>
+    </td>
+
+   </tr>
+
+  `;
+
+ }).join('');
+
+ $('detailCard').scrollIntoView({behavior:'smooth'});
+
+};
+
+
+/* =====================================================
+   CSV EXPORT
+   ===================================================== */
+
+function exportCSV(){
+
+ const rows=[[
+  'Chainage',
+  'Design Records',
+  'Completed Activities',
+  'Outstanding Activities',
+  'Completion Percentage',
+  'Design Quantity'
+ ]];
+
+ chainageData.forEach(item=>{
+
+  const pct=item.records.length?
+   item.completed/item.records.length*100:0;
+
+  rows.push([
+   item.chainage,
+   item.records.length,
+   item.completed,
+   item.outstanding,
+   pct.toFixed(2),
+   item.designTotal
+  ]);
+
+ });
+
+ const csv=rows.map(row=>
+  row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')
+ ).join('\r\n');
+
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+
+ const url=URL.createObjectURL(blob);
+
+ const a=document.createElement('a');
+
+ a.href=url;
+
+ a.download='TES_Earthworks_Chainage_Register.csv';
+
+ a.click();
+
+ URL.revokeObjectURL(url);
+
+}
+
+
+/* =====================================================
+   EVENTS
+   ===================================================== */
+
+$('project').addEventListener('change',function(){
+
+ $('detailCard').classList.add('hidden');
+
+ if(this.value) loadProject(this.value);
+
+});
+
+$('search').addEventListener('input',render);
+
+$('filter').addEventListener('change',render);
+
+$('export').addEventListener('click',exportCSV);
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+document.addEventListener('DOMContentLoaded',initialise);
+
+</script>
+
+</body>
+</html>
