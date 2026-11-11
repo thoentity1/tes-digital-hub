@@ -2,621 +2,857 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>TES Earthworks Pro | Progress Capture</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./earthworks-engine.js"></script>
 
 <style>
 :root {
-    --navy:#0b1424;
-    --sidebar:#101e33;
-    --card:#172840;
-    --turquoise:#13c6bd;
-    --white:#fff;
-    --muted:#9aabc0;
-    --border:#263b54;
+    --bg:#071321;
+    --panel:#102238;
+    --panel2:#18324b;
+    --line:#29435b;
+    --teal:#20c9bd;
+    --gold:#d6b66a;
+    --text:#edf5fb;
+    --muted:#9bb0c2;
+    --green:#25c58a;
+    --red:#ff7777;
+    --amber:#f2bd68;
 }
 
 * {
     box-sizing:border-box;
-    margin:0;
-    padding:0;
 }
 
 body {
-    background:var(--navy);
-    color:white;
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
     font-family:Arial,sans-serif;
 }
 
-.layout {
+header {
+    padding:20px 25px;
+    background:#091a2b;
+    border-bottom:1px solid var(--line);
     display:flex;
-    min-height:100vh;
-}
-
-.sidebar {
-    width:250px;
-    background:var(--sidebar);
-    padding:25px 15px;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
 }
 
 .brand {
-    padding:10px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:25px;
+    font-size:20px;
+    font-weight:bold;
 }
 
-.brand h2 {
-    color:var(--turquoise);
-    font-size:18px;
-}
-
-.brand p {
-    color:var(--muted);
-    font-size:11px;
-    margin-top:7px;
-}
-
-.menu-title {
-    color:#71869e;
-    font-size:11px;
-    margin:22px 10px 10px;
-}
-
-.nav-item {
-    display:block;
-    padding:13px;
-    color:#c4d0df;
-    text-decoration:none;
-    border-radius:6px;
-    margin-bottom:5px;
-    font-size:13px;
-}
-
-.nav-item:hover,
-.nav-item.active {
-    background:#203a52;
-    color:var(--turquoise);
-}
-
-.main {
-    flex:1;
-    min-width:0;
-}
-
-.topbar {
-    background:var(--sidebar);
-    padding:22px 30px;
-    border-bottom:1px solid var(--border);
-    display:flex;
-    justify-content:space-between;
-}
-
-.content {
-    padding:30px;
+.brand span {
+    color:var(--teal);
 }
 
 .subtitle {
     color:var(--muted);
-    margin-top:9px;
-    font-size:13px;
+    font-size:12px;
+    margin-top:6px;
 }
 
-.panel {
-    background:var(--card);
-    padding:25px;
-    border:1px solid var(--border);
-    border-radius:10px;
-    margin-top:25px;
+.badge {
+    background:#1b4652;
+    color:#9ef4e8;
+    padding:7px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+main {
+    max-width:1350px;
+    margin:auto;
+    padding:24px;
+}
+
+.section {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px;
+    margin-bottom:20px;
+}
+
+h2 {
+    color:var(--gold);
+    font-size:18px;
+    margin:0 0 18px;
+}
+
+h3 {
+    font-size:15px;
+    margin:0 0 14px;
 }
 
 .form-grid {
     display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:20px;
-    margin-top:20px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+}
+
+.field {
+    display:flex;
+    flex-direction:column;
+    gap:7px;
 }
 
 label {
-    display:block;
     color:var(--muted);
-    font-size:12px;
-    margin-bottom:8px;
+    font-size:13px;
 }
 
-input,select,textarea {
+input,select {
     width:100%;
-    padding:13px;
-    background:#0d1a2c;
-    color:white;
-    border:1px solid var(--border);
-    border-radius:6px;
+    background:#091a2b;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:12px;
+    color:var(--text);
+    font-size:14px;
 }
 
-textarea {
-    resize:vertical;
-    min-height:90px;
+input:disabled,select:disabled {
+    opacity:.5;
 }
 
-.stats {
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    margin-top:20px;
-}
-
-.stat {
-    background:#20364e;
-    padding:20px;
-    border-radius:8px;
-}
-
-.stat p {
-    color:var(--muted);
-    font-size:12px;
-}
-
-.stat h2 {
-    color:var(--turquoise);
-    margin-top:12px;
-    font-size:25px;
+input[type=checkbox] {
+    width:21px;
+    height:21px;
+    accent-color:var(--teal);
 }
 
 button {
-    padding:13px 20px;
-    background:var(--turquoise);
-    color:var(--navy);
+    background:var(--teal);
+    color:#03232b;
     border:0;
-    border-radius:6px;
+    border-radius:7px;
+    padding:12px 18px;
     font-weight:bold;
     cursor:pointer;
 }
 
 button.secondary {
-    background:#30445c;
-    color:white;
+    background:#263e55;
+    color:var(--text);
+    border:1px solid var(--line);
 }
 
 button:disabled {
-    opacity:.5;
+    opacity:.45;
     cursor:not-allowed;
 }
 
-.progress-bar {
-    background:#30445c;
-    height:13px;
+.toolbar {
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:18px;
+}
+
+.stats {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.stat {
+    background:var(--panel);
+    border:1px solid var(--line);
     border-radius:10px;
+    padding:17px;
+}
+
+.stat small {
+    display:block;
+    color:var(--muted);
+    margin-bottom:9px;
+}
+
+.stat strong {
+    font-size:23px;
+    color:var(--teal);
+}
+
+.result-grid {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+}
+
+.result {
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:16px;
+}
+
+.result small {
+    display:block;
+    color:var(--muted);
+    margin-bottom:8px;
+}
+
+.result strong {
+    font-size:20px;
+}
+
+.progress-track {
+    background:#071321;
+    height:12px;
+    border-radius:20px;
     overflow:hidden;
     margin-top:15px;
 }
 
 .progress-fill {
-    background:var(--turquoise);
     height:100%;
     width:0%;
+    background:var(--teal);
+    transition:width .3s;
 }
 
 .status {
+    margin-top:14px;
+    padding:12px;
+    border-radius:7px;
+    background:#18324b;
     color:var(--muted);
     font-size:13px;
-    margin-top:15px;
+    line-height:1.5;
+}
+
+.status.good {
+    color:var(--green);
+}
+
+.status.error {
+    color:var(--red);
+}
+
+.status.warning {
+    color:var(--amber);
+}
+
+.table-wrap {
+    overflow-x:auto;
+}
+
+table {
+    border-collapse:collapse;
+    width:100%;
+    min-width:850px;
+}
+
+th,td {
+    padding:12px;
+    border-bottom:1px solid var(--line);
+    text-align:left;
+    font-size:13px;
+}
+
+th {
+    background:var(--panel2);
+    color:#bfeeed;
+}
+
+tr:hover td {
+    background:#152e46;
+}
+
+.muted {
+    color:var(--muted);
 }
 
 footer {
-    padding:25px;
+    padding:20px;
     text-align:center;
-    color:#71869e;
+    color:var(--muted);
     font-size:12px;
 }
 
-@media(max-width:850px) {
-    .form-grid {
+@media(max-width:750px) {
+    main {
+        padding:12px;
+    }
+
+    .form-grid,
+    .result-grid {
         grid-template-columns:1fr;
     }
 
     .stats {
-        grid-template-columns:1fr;
-    }
-
-    .layout {
-        display:block;
-    }
-
-    .sidebar {
-        width:100%;
+        grid-template-columns:repeat(2,minmax(0,1fr));
     }
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="layout">
-
-<!-- SIDEBAR -->
-
-<aside class="sidebar">
-
-    <div class="brand">
-        <h2>THE ENTITY SOLUTIONS</h2>
-        <p>TES DIGITAL HUB</p>
-    </div>
-
-    <div class="menu-title">MAIN MENU</div>
-
-    <a class="nav-item" href="dashboard.html">
-        Digital Hub
-    </a>
-
-    <a class="nav-item" href="earthworks.html">
-        Earthworks Dashboard
-    </a>
-
-    <div class="menu-title">EARTHWORKS</div>
-
-    <a class="nav-item" href="earthworks-quantities.html">
-        Quantity Management
-    </a>
-
-    <a class="nav-item" href="earthworks-chainages.html">
-        Chainage Management
-    </a>
-
-    <a class="nav-item active" href="earthworks-progress.html">
-        Progress Capture
-    </a>
-
-    <a class="nav-item" href="earthworks-reports.html">
-        Reports
-    </a>
-
-    <div class="menu-title">SYSTEM</div>
-
-    <a class="nav-item" href="admin.html">
-        Administration
-    </a>
-
-    <br>
-
-    <button onclick="logout()">Sign Out</button>
-
-</aside>
-
-
-<!-- MAIN -->
-
-<main class="main">
-
-<div class="topbar">
-
-    <h3>TES Earthworks Pro</h3>
-
-    <span id="userEmail">Loading...</span>
-
-</div>
-
-
-<div class="content">
-
-<h1>Progress Capture</h1>
-
-<p class="subtitle">
-Record completed earthworks against approved design quantities.
-</p>
-
-
-<!-- SELECTION -->
-
-<div class="panel">
-
-<h3>Construction Progress Entry</h3>
-
-<div class="form-grid">
+<header>
 
     <div>
-        <label>Project</label>
-        <select id="project">
-            <option value="">Select Project</option>
-        </select>
+        <div class="brand">
+            THE ENTITY SOLUTIONS
+            <span>| TES EARTHWORKS PRO</span>
+        </div>
+
+        <div class="subtitle">
+            PVR Surveyors | Earthworks Progress Capture
+        </div>
     </div>
 
-    <div>
-        <label>Earthworks Activity</label>
-        <select id="activity">
-            <option value="">Select Activity</option>
-        </select>
-    </div>
+    <span class="badge" id="connectionBadge">
+        Connecting...
+    </span>
 
-    <div>
-        <label>Chainage</label>
-        <select id="chainage">
-            <option value="">Select Chainage</option>
-        </select>
-    </div>
-
-    <div>
-        <label>Work Completion Date</label>
-        <input type="date" id="workDate">
-    </div>
-
-</div>
-
-</div>
+</header>
 
 
-<!-- QUANTITIES -->
+<main>
 
-<div class="panel">
+    <!-- PROJECT SELECTION -->
 
-<h3>Quantity Information</h3>
+    <section class="section">
 
-<div class="stats">
+        <h2>01. Project Selection</h2>
 
-    <div class="stat">
-        <p>Design Quantity</p>
-        <h2 id="designQty">0</h2>
-    </div>
+        <div class="form-grid">
 
-    <div class="stat">
-        <p>Previously Completed</p>
-        <h2 id="previousQty">0</h2>
-    </div>
+            <div class="field">
 
-    <div class="stat">
-        <p>Outstanding Quantity</p>
-        <h2 id="outstandingQty">0</h2>
-    </div>
+                <label>Select Project</label>
 
-</div>
+                <select id="projectSelect">
 
-<br><br>
+                    <option value="">
+                        Loading projects...
+                    </option>
 
-<div class="form-grid">
+                </select>
 
-    <div>
-        <label>Additional Quantity Completed</label>
-        <input
-            type="number"
-            id="completedQty"
-            min="0"
-            step="0.01"
-            placeholder="Enter quantity"
-            oninput="calculateProgress()">
-    </div>
+            </div>
 
-    <div>
-        <label>Updated Cumulative Quantity</label>
-        <input
-            type="number"
-            id="cumulativeQty"
-            readonly>
-    </div>
+            <div class="field">
 
-</div>
+                <label>Logged-in User</label>
 
-<div class="progress-bar">
-    <div class="progress-fill" id="progressFill"></div>
-</div>
+                <input
+                    type="text"
+                    id="userEmail"
+                    readonly
+                    placeholder="Checking login..."
+                >
 
-<p class="status" id="percentage">
-    Completion: 0%
-</p>
+            </div>
 
-</div>
+        </div>
+
+        <div id="projectMessage" class="status">
+            Select a project to load its earthworks records.
+        </div>
+
+    </section>
 
 
-<!-- COMMENTS -->
+    <!-- PROGRESS CAPTURE -->
 
-<div class="panel">
+    <section class="section">
 
-<h3>Site Observations</h3>
+        <h2>02. Capture Completed Work</h2>
 
-<br>
+        <div class="form-grid">
 
-<label>Progress Comments</label>
+            <div class="field">
 
-<textarea
-    id="comments"
-    placeholder="Enter construction observations, site conditions or additional information...">
-</textarea>
+                <label>Earthworks Activity</label>
 
-<br><br>
+                <select id="activitySelect" disabled>
 
-<button onclick="saveDraft()">
-Save Progress Draft
-</button>
+                    <option value="">
+                        Select activity...
+                    </option>
 
-<button class="secondary" onclick="resetForm()">
-Clear Form
-</button>
+                </select>
 
-<p class="status" id="status">
-Waiting for project selection.
-</p>
-
-</div>
+            </div>
 
 
-<!-- HISTORY -->
+            <div class="field">
 
-<div class="panel">
+                <label>Road Section</label>
 
-<h3>Saved Progress Drafts</h3>
+                <select id="sideSelect" disabled>
 
-<div id="draftHistory" class="status">
-No drafts saved.
-</div>
+                    <option value="">
+                        Select side...
+                    </option>
 
-</div>
+                    <option value="Left">Left</option>
 
-</div>
+                    <option value="Right">Right</option>
+
+                    <option value="Full Width">Full Width</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Chainage</label>
+
+                <select id="chainageSelect" disabled>
+
+                    <option value="">
+                        Select chainage...
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Design Quantity</label>
+
+                <input
+                    type="text"
+                    id="designQuantity"
+                    readonly
+                    placeholder="Calculated from design records"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div style="margin-top:22px">
+
+            <label style="display:flex;align-items:center;gap:12px;color:var(--text)">
+
+                <input
+                    type="checkbox"
+                    id="completedCheckbox"
+                    disabled
+                >
+
+                Mark this chainage as completed
+
+            </label>
+
+        </div>
+
+
+        <div class="toolbar">
+
+            <button
+                id="saveButton"
+                disabled
+            >
+                Save Progress
+            </button>
+
+            <button
+                class="secondary"
+                id="clearButton"
+            >
+                Clear Selection
+            </button>
+
+        </div>
+
+
+        <div id="captureMessage" class="status">
+            Select a project, activity, side and chainage.
+        </div>
+
+    </section>
+
+
+    <!-- QUANTITY RESULTS -->
+
+    <section class="section">
+
+        <h2>03. Quantity Calculation</h2>
+
+        <div class="result-grid">
+
+            <div class="result">
+
+                <small>Total Design Quantity</small>
+
+                <strong id="totalDesign">0.000</strong>
+
+            </div>
+
+            <div class="result">
+
+                <small>Completed Quantity</small>
+
+                <strong id="completedQuantity">0.000</strong>
+
+            </div>
+
+            <div class="result">
+
+                <small>Outstanding Quantity</small>
+
+                <strong id="outstandingQuantity">0.000</strong>
+
+            </div>
+
+        </div>
+
+
+        <div style="margin-top:25px">
+
+            <div style="display:flex;justify-content:space-between">
+
+                <span>Activity Progress</span>
+
+                <strong id="activityProgress">
+                    0%
+                </strong>
+
+            </div>
+
+            <div class="progress-track">
+
+                <div
+                    class="progress-fill"
+                    id="activityProgressBar"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROJECT DASHBOARD -->
+
+    <section class="section">
+
+        <h2>04. Project Progress Overview</h2>
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <small>Design Records</small>
+
+                <strong id="recordCount">0</strong>
+
+            </div>
+
+            <div class="stat">
+
+                <small>Completed Records</small>
+
+                <strong id="doneCount">0</strong>
+
+            </div>
+
+            <div class="stat">
+
+                <small>Activities</small>
+
+                <strong id="activityCount">40</strong>
+
+            </div>
+
+            <div class="stat">
+
+                <small>Overall Progress</small>
+
+                <strong id="overallProgress">0%</strong>
+
+            </div>
+
+        </div>
+
+        <div class="progress-track">
+
+            <div
+                class="progress-fill"
+                id="overallProgressBar"
+            ></div>
+
+        </div>
+
+        <div id="dashboardMessage" class="status">
+            Project calculations will appear after loading records.
+        </div>
+
+    </section>
+
+
+    <!-- ACTIVITY SUMMARY -->
+
+    <section class="section">
+
+        <h2>05. Activity Progress Summary</h2>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Activity</th>
+                        <th>Side</th>
+                        <th>Design Quantity</th>
+                        <th>Completed Quantity</th>
+                        <th>Outstanding</th>
+                        <th>Progress</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="summaryBody">
+
+                    <tr>
+                        <td colspan="6" class="muted">
+                            Select a project to view the summary.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- EXPORT -->
+
+    <section class="section">
+
+        <h2>06. Progress Reporting</h2>
+
+        <p class="muted">
+            Export the current project's progress records for reporting.
+        </p>
+
+        <div class="toolbar">
+
+            <button
+                class="secondary"
+                id="exportButton"
+                disabled
+            >
+                Export Progress CSV
+            </button>
+
+            <button
+                class="secondary"
+                onclick="window.location.href='earthworks.html'"
+            >
+                Return to Earthworks Dashboard
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
 
 
 <footer>
-The Entity Solutions (Pty) Ltd<br>
-TES Digital Hub | TES Earthworks Pro<br>
-© 2026 All Rights Reserved
-</footer>
 
-</main>
-</div>
+    THE ENTITY SOLUTIONS (PTY) LTD
+    <br>
+    TES EARTHWORKS PRO | PVR SURVEYORS
+
+</footer>
 
 
 <script>
 
-// ===================================
-// SUPABASE
-// ===================================
-
-const SUPABASE_URL = "sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
-
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnenZ5Y2F3a2tmZHZkaW1kamF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzA0NjQsImV4cCI6MjEwODg0NjQ2NH0.M4Se5ri9hpHnYaMx8d6pbeZwIFCCvWMBOjS5Bx8c0kw";
-
-const db = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
+/* ============================================================
+   TES EARTHWORKS PRO
+   PROGRESS CAPTURE MODULE
+   ============================================================ */
 
 
-// ===================================
-// DATA
-// ===================================
+/* ------------------------------------------------------------
+   1. SUPABASE CONFIGURATION
+   ------------------------------------------------------------ */
 
-let projects = [];
-let activities = [];
-let chainages = [];
-let designs = [];
-let progressRecords = [];
+/*
+   Copy the SAME Supabase URL and public anon/publishable key
+   from your working projects.html.
+
+   Never use the service_role key here.
+*/
+
+const SUPABASE_URL =
+    "PASTE_YOUR_EXISTING_SUPABASE_URL";
+
+const SUPABASE_KEY =
+    "PASTE_YOUR_EXISTING_PUBLIC_ANON_OR_PUBLISHABLE_KEY";
+
+
+/* ------------------------------------------------------------
+   2. APPLICATION VARIABLES
+   ------------------------------------------------------------ */
+
+let db = null;
 
 let currentUser = null;
-let selectedDesign = 0;
-let previousProgress = 0;
+
+let projects = [];
+
+let designRecords = [];
+
+let progressRecords = [];
+
+let activityRecords = [];
+
+let currentProjectId = null;
+
+let selectedRecord = null;
+
+let calculationRows = [];
+
+let activityMap = {};
+
+const $ = id => document.getElementById(id);
 
 
-// ===================================
-// HELPERS
-// ===================================
+/* ------------------------------------------------------------
+   3. GENERAL FUNCTIONS
+   ------------------------------------------------------------ */
 
-function getField(row,names) {
+function escapeHtml(value) {
 
-    const key = Object.keys(row).find(k =>
-        names.includes(k.toLowerCase())
-    );
-
-    return key ? row[key] : null;
-
-}
-
-function getId(row) {
-    return getField(row,["id"]);
-}
-
-function getQty(row) {
-
-    return Number(getField(row,[
-        "quantity",
-        "design_quantity",
-        "total_quantity",
-        "qty",
-        "volume"
-    ])) || 0;
-
-}
-
-function format(n) {
-
-    return Number(n).toLocaleString(
-        "en-ZA",
-        {maximumFractionDigits:2}
+    return String(value ?? '').replace(
+        /[&<>"']/g,
+        char => ({
+            '&':'&amp;',
+            '<':'&lt;',
+            '>':'&gt;',
+            '"':'&quot;',
+            "'":'&#39;'
+        }[char])
     );
 
 }
 
 
-// ===================================
-// AUTHENTICATION
-// ===================================
+function formatNumber(value) {
 
-async function checkAuth() {
-
-    const {data,error} = await db.auth.getSession();
-
-    if(error || !data.session) {
-
-        location.href = "login.html";
-
-        return false;
-
-    }
-
-    currentUser = data.session.user;
-
-    document.getElementById("userEmail").textContent =
-        currentUser.email;
-
-    return true;
+    return Number(value || 0).toLocaleString(
+        'en-ZA',
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:3
+        }
+    );
 
 }
 
 
-// ===================================
-// DATABASE
-// ===================================
+function setMessage(id,text,type='') {
 
-async function getTable(table) {
+    const element = $(id);
 
-    const {data,error} = await db
-        .from(table)
-        .select("*")
-        .limit(20000);
+    element.textContent = text;
 
-    if(error) throw error;
-
-    return data || [];
+    element.className = 'status ' + type;
 
 }
 
 
-// ===================================
-// INITIALISE
-// ===================================
+/* ------------------------------------------------------------
+   4. INITIALISE SUPABASE
+   ------------------------------------------------------------ */
 
-async function init() {
+async function initialiseApplication() {
 
     try {
 
-        if(!await checkAuth()) return;
+        if (!window.supabase) {
 
-        [
-            projects,
-            activities,
-            chainages,
-            designs,
-            progressRecords
+            throw new Error(
+                'Supabase library failed to load.'
+            );
 
-        ] = await Promise.all([
+        }
 
-            getTable("ep_projects"),
-            getTable("ep_activities"),
-            getTable("ep_chainages"),
-            getTable("ep_design_quantities"),
-            getTable("ep_progress_status")
 
-        ]);
+        if (
+            SUPABASE_URL.includes('PASTE_') ||
+            SUPABASE_KEY.includes('PASTE_')
+        ) {
 
-        populateProjects();
-        populateActivities();
+            throw new Error(
+                'Copy the existing Supabase URL and public key from projects.html.'
+            );
 
-        document.getElementById("workDate").value =
-            new Date().toISOString().slice(0,10);
+        }
 
-        document.getElementById("status").textContent =
-            "Database connected. Select a project to begin.";
 
-        displayDrafts();
+        if (!window.TES_EARTHWORKS_ENGINE) {
+
+            throw new Error(
+                'TES Earthworks calculation engine has not loaded.'
+            );
+
+        }
+
+
+        db = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+
+        const {data,error} = await db.auth.getSession();
+
+        if (error) throw error;
+
+
+        currentUser = data.session?.user || null;
+
+
+        if (!currentUser) {
+
+            window.location.href = 'login.html';
+
+            return;
+
+        }
+
+
+        $('userEmail').value =
+            currentUser.email || 'Authenticated user';
+
+
+        $('connectionBadge').textContent =
+            'Connected';
+
+
+        await loadProjects();
 
     }
 
@@ -624,397 +860,1267 @@ async function init() {
 
         console.error(error);
 
-        document.getElementById("status").textContent =
-            error.message;
+        $('connectionBadge').textContent =
+            'Connection Error';
+
+        setMessage(
+            'projectMessage',
+            error.message,
+            'error'
+        );
 
     }
 
 }
 
 
-// ===================================
-// DROPDOWNS
-// ===================================
+/* ------------------------------------------------------------
+   5. LOAD PROJECTS
+   ------------------------------------------------------------ */
 
-function populateProjects() {
+async function loadProjects() {
 
-    projects.forEach(p => {
+    const {data,error} = await db
 
-        const id = getId(p);
+        .from('ep_projects')
 
-        const name = getField(p,[
-            "project_name","name","title"
-        ]) || id;
+        .select(
+            'id,project_code,project_name,client_name'
+        )
 
-        if(id != null) {
-            project.add(new Option(name,id));
-        }
+        .order(
+            'created_at',
+            {ascending:false}
+        );
 
-    });
 
-    project.onchange = loadChainages;
+    if (error) throw error;
+
+
+    projects = data || [];
+
+
+    $('projectSelect').innerHTML =
+
+        '<option value="">Select a project...</option>' +
+
+        projects.map(project => `
+
+            <option value="${escapeHtml(project.id)}">
+
+                ${escapeHtml(project.project_name)}
+                ·
+                ${escapeHtml(project.project_code)}
+
+            </option>
+
+        `).join('');
+
+
+    setMessage(
+        'projectMessage',
+        projects.length +
+        ' project(s) loaded successfully.',
+        'good'
+    );
 
 }
 
 
-function populateActivities() {
+/* ------------------------------------------------------------
+   6. PAGINATED TABLE LOADING
+   ------------------------------------------------------------ */
 
-    activities.forEach(a => {
+async function loadProjectTable(
+    table,
+    columns,
+    projectId
+) {
 
-        const id = getId(a);
+    const allRecords = [];
 
-        const name = getField(a,[
-            "activity_name","name",
-            "description","activity_code"
-        ]) || id;
-
-        if(id != null) {
-            activity.add(new Option(name,id));
-        }
-
-    });
-
-    activity.onchange = loadDesign;
-
-}
+    const pageSize = 1000;
 
 
-// ===================================
-// CHAINAGES
-// ===================================
+    for (
+        let start = 0;
+        start < 50000;
+        start += pageSize
+    ) {
 
-function loadChainages() {
+        const {data,error} = await db
 
-    chainage.innerHTML =
-        '<option value="">Select Chainage</option>';
+            .from(table)
 
-    const selectedProject = project.value;
+            .select(columns)
 
-    const filtered = chainages.filter(c => {
+            .eq('project_id',projectId)
 
-        const pid = getField(c,[
-            "project_id","ep_project_id"
-        ]);
-
-        return String(pid) === String(selectedProject);
-
-    });
-
-    filtered.sort((a,b) => {
-
-        const av = Number(getField(a,[
-            "chainage","chainage_number",
-            "chainage_value","station"
-        ])) || 0;
-
-        const bv = Number(getField(b,[
-            "chainage","chainage_number",
-            "chainage_value","station"
-        ])) || 0;
-
-        return av-bv;
-
-    });
-
-    filtered.forEach(c => {
-
-        const id = getId(c);
-
-        const station = getField(c,[
-            "chainage","chainage_number",
-            "chainage_value","station"
-        ]);
-
-        if(id != null) {
-            chainage.add(
-                new Option(station ?? id,id)
+            .range(
+                start,
+                start + pageSize - 1
             );
+
+
+        if (error) throw error;
+
+
+        allRecords.push(...(data || []));
+
+
+        if (!data || data.length < pageSize) {
+
+            break;
+
+        }
+
+    }
+
+
+    return allRecords;
+
+}
+
+
+/* ------------------------------------------------------------
+   7. LOAD SELECTED PROJECT
+   ------------------------------------------------------------ */
+
+async function loadSelectedProject(projectId) {
+
+    try {
+
+        if (!projectId) return;
+
+
+        currentProjectId = projectId;
+
+
+        setMessage(
+            'projectMessage',
+            'Loading project design and progress records...'
+        );
+
+
+        $('saveButton').disabled = true;
+
+
+        const results = await Promise.all([
+
+            loadProjectTable(
+                'ep_design_quantities',
+                'project_id,activity_code,side,chainage_m,design_quantity',
+                projectId
+            ),
+
+            loadProjectTable(
+                'ep_progress_status',
+                'id,project_id,activity_code,side,chainage_m,is_complete',
+                projectId
+            ),
+
+            db
+
+                .from('ep_activities')
+
+                .select(
+                    'activity_code,activity_name,unit,display_order'
+                )
+
+                .order('display_order')
+
+        ]);
+
+
+        designRecords = results[0];
+
+        progressRecords = results[1];
+
+
+        if (results[2].error) {
+
+            throw results[2].error;
+
+        }
+
+
+        activityRecords = results[2].data || [];
+
+
+        if (!designRecords.length) {
+
+            throw new Error(
+                'No design quantity records exist for this project.'
+            );
+
+        }
+
+
+        buildActivityMap();
+
+        buildCaptureControls();
+
+        calculateProject();
+
+        renderSummary();
+
+
+        setMessage(
+            'projectMessage',
+            'Project records loaded successfully. Ready for progress capture.',
+            'good'
+        );
+
+
+        $('exportButton').disabled = false;
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        setMessage(
+            'projectMessage',
+            error.message,
+            'error'
+        );
+
+    }
+
+}
+
+
+/* ------------------------------------------------------------
+   8. MAP ACTIVITIES
+   ------------------------------------------------------------ */
+
+function buildActivityMap() {
+
+    activityMap = {};
+
+
+    activityRecords.forEach(activity => {
+
+        activityMap[activity.activity_code] = activity;
+
+    });
+
+
+}
+
+
+/* ------------------------------------------------------------
+   9. BUILD CAPTURE CONTROLS
+   ------------------------------------------------------------ */
+
+function buildCaptureControls() {
+
+    const activitySelect = $('activitySelect');
+
+
+    const uniqueActivities = new Map();
+
+
+    designRecords.forEach(record => {
+
+        const code = record.activity_code;
+
+        if (!uniqueActivities.has(code)) {
+
+            uniqueActivities.set(
+                code,
+                activityMap[code]?.activity_name || code
+            );
+
         }
 
     });
 
-    chainage.onchange = loadDesign;
 
-    loadDesign();
+    activitySelect.innerHTML =
+
+        '<option value="">Select activity...</option>' +
+
+        [...uniqueActivities.entries()].map(
+
+            ([code,name]) => `
+
+                <option value="${escapeHtml(code)}">
+
+                    ${escapeHtml(name)}
+
+                </option>
+
+            `
+
+        ).join('');
+
+
+    activitySelect.disabled = false;
+
+    $('sideSelect').disabled = false;
+
+    $('chainageSelect').disabled = false;
+
+
+    $('sideSelect').value = '';
+
+    $('chainageSelect').innerHTML =
+
+        '<option value="">Select chainage...</option>';
+
 
 }
 
 
-// ===================================
-// DESIGN QUANTITY
-// ===================================
+/* ------------------------------------------------------------
+   10. FILTER CHAINAGES
+   ------------------------------------------------------------ */
 
-function loadDesign() {
+function updateChainages() {
 
-    selectedDesign = 0;
-    previousProgress = 0;
+    const activityCode = $('activitySelect').value;
 
-    const cid = chainage.value;
-    const aid = activity.value;
+    const side = $('sideSelect').value;
 
-    if(!cid || !aid) {
 
-        updateQuantityDisplay();
+    const matching = designRecords.filter(record =>
+
+        record.activity_code === activityCode &&
+
+        record.side === side
+
+    );
+
+
+    const chainages = [...new Set(
+
+        matching.map(record => Number(record.chainage_m))
+
+    )].sort((a,b) => a-b);
+
+
+    $('chainageSelect').innerHTML =
+
+        '<option value="">Select chainage...</option>' +
+
+        chainages.map(chainage => `
+
+            <option value="${chainage}">
+
+                ${chainage.toLocaleString('en-ZA')}m
+
+            </option>
+
+        `).join('');
+
+
+    $('designQuantity').value = '';
+
+    $('completedCheckbox').checked = false;
+
+    $('completedCheckbox').disabled = true;
+
+    $('saveButton').disabled = true;
+
+    selectedRecord = null;
+
+}
+
+
+/* ------------------------------------------------------------
+   11. FIND SELECTED RECORD
+   ------------------------------------------------------------ */
+
+function findSelectedRecord() {
+
+    const activityCode = $('activitySelect').value;
+
+    const side = $('sideSelect').value;
+
+    const chainage = Number(
+        $('chainageSelect').value
+    );
+
+
+    if (
+        !activityCode ||
+        !side ||
+        !chainage
+    ) {
+
+        selectedRecord = null;
 
         return;
 
     }
 
-    const matching = designs.filter(d => {
 
-        const designChain = getField(d,[
-            "chainage_id","ep_chainage_id"
-        ]);
+    selectedRecord = designRecords.find(record =>
 
-        const designActivity = getField(d,[
-            "activity_id","ep_activity_id"
-        ]);
+        record.activity_code === activityCode &&
 
-        return String(designChain) === String(cid)
-            && String(designActivity) === String(aid);
+        record.side === side &&
+
+        Number(record.chainage_m) === chainage
+
+    );
+
+
+    if (!selectedRecord) {
+
+        $('designQuantity').value = '';
+
+        return;
+
+    }
+
+
+    const progress = progressRecords.find(record =>
+
+        record.project_id === currentProjectId &&
+
+        record.activity_code === activityCode &&
+
+        record.side === side &&
+
+        Number(record.chainage_m) === chainage
+
+    );
+
+
+    $('designQuantity').value = formatNumber(
+
+        selectedRecord.design_quantity
+
+    );
+
+
+    $('completedCheckbox').checked =
+
+        progress?.is_complete === true;
+
+
+    $('completedCheckbox').disabled = !progress;
+
+
+    $('saveButton').disabled = !progress;
+
+
+    if (!progress) {
+
+        setMessage(
+            'captureMessage',
+            'No existing progress record exists for this measurement. It is read-only until the database record is provisioned.',
+            'warning'
+        );
+
+    } else {
+
+        setMessage(
+            'captureMessage',
+            'Existing progress record loaded. You can update its completion status.',
+            'good'
+        );
+
+    }
+
+}
+
+
+/* ------------------------------------------------------------
+   12. BUILD ENGINE INPUT
+   ------------------------------------------------------------ */
+
+function buildCalculationRows() {
+
+    const engine = window.TES_EARTHWORKS_ENGINE;
+
+
+    const layouts = engine.ACTIVITY_LAYOUT;
+
+
+    const output = [];
+
+
+    layouts.forEach(layout => {
+
+        const activity = activityRecords.find(item => {
+
+            return (
+
+                item.activity_name === layout.activity
+
+            );
+
+        });
+
+
+        if (!activity) {
+
+            return;
+
+        }
+
+
+        const activityDesign = Array(
+            engine.CONFIG.chainageCount
+        ).fill(0);
+
+
+        const activityProgress = Array(
+            engine.CONFIG.chainageCount
+        ).fill(false);
+
+
+        const matchingDesign = designRecords.filter(record =>
+
+            record.activity_code === activity.activity_code &&
+
+            record.side === layout.side
+
+        );
+
+
+        matchingDesign.forEach(record => {
+
+            const index = Math.round(
+
+                (
+
+                    Number(record.chainage_m) -
+
+                    engine.CONFIG.firstChainage
+
+                ) / engine.CONFIG.chainageInterval
+
+            );
+
+
+            if (
+                index < 0 ||
+                index >= engine.CONFIG.chainageCount
+            ) {
+
+                return;
+
+            }
+
+
+            activityDesign[index] = Number(
+                record.design_quantity
+            ) || 0;
+
+
+            const progress = progressRecords.find(p =>
+
+                p.activity_code === record.activity_code &&
+
+                p.side === record.side &&
+
+                Number(p.chainage_m) === Number(record.chainage_m)
+
+            );
+
+
+            activityProgress[index] =
+
+                progress?.is_complete === true;
+
+        });
+
+
+        output.push({
+
+            excelRow:layout.row,
+
+            activity:layout.activity,
+
+            side:layout.side,
+
+            designByChainage:activityDesign,
+
+            completedByChainage:activityProgress
+
+        });
 
     });
 
-    selectedDesign = matching.reduce(
-        (sum,d) => sum + getQty(d),0
+
+    return output;
+
+}
+
+
+/* ------------------------------------------------------------
+   13. CALCULATE PROJECT
+   ------------------------------------------------------------ */
+
+function calculateProject() {
+
+    const engine = window.TES_EARTHWORKS_ENGINE;
+
+
+    const inputRows = buildCalculationRows();
+
+
+    calculationRows = inputRows;
+
+
+    const result = engine.calculateEarthworks(
+
+        inputRows
+
     );
 
-    const progress = progressRecords.filter(p => {
 
-        const pc = getField(p,[
-            "chainage_id","ep_chainage_id"
-        ]);
+    $('recordCount').textContent =
 
-        const pa = getField(p,[
-            "activity_id","ep_activity_id"
-        ]);
+        designRecords.length.toLocaleString();
 
-        return String(pc) === String(cid)
-            && String(pa) === String(aid);
+
+    const completedCount = progressRecords.filter(
+
+        p => p.is_complete === true
+
+    ).length;
+
+
+    $('doneCount').textContent =
+
+        completedCount.toLocaleString();
+
+
+    $('activityCount').textContent =
+
+        inputRows.length;
+
+
+    const progress = result.overallProgressPercent;
+
+
+    const safeProgress = progress === null
+
+        ? 0
+
+        : Math.max(0,Math.min(100,progress));
+
+
+    $('overallProgress').textContent =
+
+        safeProgress.toFixed(2) + '%';
+
+
+    $('overallProgressBar').style.width =
+
+        safeProgress + '%';
+
+
+    setMessage(
+        'dashboardMessage',
+        'Official progress calculated using the original Excel activity-row average. ' +
+        'Calculation rows loaded: ' + inputRows.length + '.',
+        'good'
+    );
+
+
+    updateActivityCalculation();
+
+}
+
+
+/* ------------------------------------------------------------
+   14. ACTIVITY CALCULATION
+   ------------------------------------------------------------ */
+
+function updateActivityCalculation() {
+
+    const code = $('activitySelect').value;
+
+    const side = $('sideSelect').value;
+
+
+    if (!code || !side) {
+
+        resetActivityResults();
+
+        return;
+
+    }
+
+
+    const design = Array(
+        window.TES_EARTHWORKS_ENGINE.CONFIG.chainageCount
+    ).fill(0);
+
+
+    const completed = Array(
+        window.TES_EARTHWORKS_ENGINE.CONFIG.chainageCount
+    ).fill(false);
+
+
+    designRecords.filter(record =>
+
+        record.activity_code === code &&
+
+        record.side === side
+
+    ).forEach(record => {
+
+        const index = Math.round(
+
+            (
+
+                Number(record.chainage_m) -
+
+                window.TES_EARTHWORKS_ENGINE.CONFIG.firstChainage
+
+            ) / window.TES_EARTHWORKS_ENGINE.CONFIG.chainageInterval
+
+        );
+
+
+        if (
+            index < 0 ||
+            index >= design.length
+        ) {
+
+            return;
+
+        }
+
+
+        design[index] = Number(
+            record.design_quantity
+        ) || 0;
+
+
+        const p = progressRecords.find(progress =>
+
+            progress.activity_code === code &&
+
+            progress.side === side &&
+
+            Number(progress.chainage_m) === Number(record.chainage_m)
+
+        );
+
+
+        completed[index] =
+
+            p?.is_complete === true;
 
     });
 
-    previousProgress = progress.reduce(
-        (sum,p) => sum + getQty(p),0
+
+    const calculation =
+
+        window.TES_EARTHWORKS_ENGINE.calculateRow(
+
+            design,
+
+            completed
+
+        );
+
+
+    $('totalDesign').textContent =
+
+        formatNumber(calculation.totalDesignQuantity);
+
+
+    $('completedQuantity').textContent =
+
+        formatNumber(calculation.completedQuantity);
+
+
+    $('outstandingQuantity').textContent =
+
+        formatNumber(calculation.outstandingQuantity);
+
+
+    const percentage = calculation.progressPercent || 0;
+
+
+    $('activityProgress').textContent =
+
+        percentage.toFixed(2) + '%';
+
+
+    $('activityProgressBar').style.width =
+
+        Math.max(0,Math.min(100,percentage)) + '%';
+
+}
+
+
+function resetActivityResults() {
+
+    $('totalDesign').textContent = '0.000';
+
+    $('completedQuantity').textContent = '0.000';
+
+    $('outstandingQuantity').textContent = '0.000';
+
+    $('activityProgress').textContent = '0%';
+
+    $('activityProgressBar').style.width = '0%';
+
+}
+
+
+/* ------------------------------------------------------------
+   15. ACTIVITY SUMMARY TABLE
+   ------------------------------------------------------------ */
+
+function renderSummary() {
+
+    const result =
+
+        window.TES_EARTHWORKS_ENGINE.calculateEarthworks(
+
+            buildCalculationRows()
+
+        );
+
+
+    $('summaryBody').innerHTML =
+
+        result.rows.map(row => `
+
+            <tr>
+
+                <td>${escapeHtml(row.activity)}</td>
+
+                <td>${escapeHtml(row.side)}</td>
+
+                <td>${formatNumber(row.totalDesignQuantity)}</td>
+
+                <td>${formatNumber(row.completedQuantity)}</td>
+
+                <td>${formatNumber(row.outstandingQuantity)}</td>
+
+                <td>
+
+                    ${
+                        row.progressPercent === null
+
+                        ? '—'
+
+                        : row.progressPercent.toFixed(2) + '%'
+
+                    }
+
+                </td>
+
+            </tr>
+
+        `).join('') ||
+
+        '<tr><td colspan="6">No calculation rows available.</td></tr>';
+
+}
+
+
+/* ------------------------------------------------------------
+   16. SAVE PROGRESS TO SUPABASE
+   ------------------------------------------------------------ */
+
+async function saveProgress() {
+
+    try {
+
+        if (!selectedRecord) {
+
+            throw new Error(
+                'Please select an activity, side and chainage.'
+            );
+
+        }
+
+
+        const progress = progressRecords.find(record =>
+
+            record.project_id === currentProjectId &&
+
+            record.activity_code === selectedRecord.activity_code &&
+
+            record.side === selectedRecord.side &&
+
+            Number(record.chainage_m) === Number(selectedRecord.chainage_m)
+
+        );
+
+
+        if (!progress || !progress.id) {
+
+            throw new Error(
+                'No existing progress record was found. Nothing was saved.'
+            );
+
+        }
+
+
+        $('saveButton').disabled = true;
+
+
+        setMessage(
+            'captureMessage',
+            'Saving progress to Supabase...'
+        );
+
+
+        const completed = $('completedCheckbox').checked;
+
+
+        const {data,error} = await db
+
+            .from('ep_progress_status')
+
+            .update({
+
+                is_complete:completed
+
+            })
+
+            .eq('id',progress.id)
+
+            .eq('project_id',currentProjectId)
+
+            .select('id,is_complete');
+
+
+        if (error) throw error;
+
+
+        if (!data || data.length === 0) {
+
+            throw new Error(
+                'Supabase did not confirm the update. Check project permissions and RLS policies.'
+            );
+
+        }
+
+
+        progress.is_complete = completed;
+
+
+        calculateProject();
+
+        renderSummary();
+
+        updateActivityCalculation();
+
+
+        setMessage(
+            'captureMessage',
+            completed
+                ? 'Progress successfully saved. Chainage marked as completed.'
+                : 'Progress successfully saved. Chainage marked as outstanding.',
+            'good'
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        setMessage(
+            'captureMessage',
+            error.message,
+            'error'
+        );
+
+    }
+
+    finally {
+
+        $('saveButton').disabled = false;
+
+    }
+
+}
+
+
+/* ------------------------------------------------------------
+   17. CLEAR CAPTURE FORM
+   ------------------------------------------------------------ */
+
+function clearSelection() {
+
+    $('activitySelect').value = '';
+
+    $('sideSelect').value = '';
+
+    $('chainageSelect').innerHTML =
+
+        '<option value="">Select chainage...</option>';
+
+
+    $('designQuantity').value = '';
+
+    $('completedCheckbox').checked = false;
+
+    $('completedCheckbox').disabled = true;
+
+    $('saveButton').disabled = true;
+
+
+    selectedRecord = null;
+
+
+    resetActivityResults();
+
+
+    setMessage(
+        'captureMessage',
+        'Selection cleared.'
     );
 
-    updateQuantityDisplay();
-
 }
 
 
-// ===================================
-// CALCULATIONS
-// ===================================
+/* ------------------------------------------------------------
+   18. EXPORT CSV
+   ------------------------------------------------------------ */
 
-function calculateProgress() {
+function exportProgress() {
 
-    const additional = Number(completedQty.value) || 0;
-
-    const cumulative = previousProgress + additional;
-
-    const outstanding = selectedDesign - cumulative;
-
-    const percentage = selectedDesign > 0
-        ? (cumulative/selectedDesign)*100
-        : 0;
-
-    cumulativeQty.value = cumulative.toFixed(2);
-
-    document.getElementById("percentage").textContent =
-        "Completion: " + percentage.toFixed(2) + "%";
-
-    document.getElementById("progressFill").style.width =
-        Math.min(100,Math.max(0,percentage)) + "%";
-
-    document.getElementById("outstandingQty").textContent =
-        format(Math.max(0,outstanding));
-
-}
+    if (!designRecords.length) return;
 
 
-function updateQuantityDisplay() {
+    const rows = [[
 
-    designQty.textContent = format(selectedDesign);
+        'Project ID',
 
-    previousQty.textContent = format(previousProgress);
+        'Activity Code',
 
-    completedQty.value = "";
+        'Activity',
 
-    cumulativeQty.value = previousProgress.toFixed(2);
+        'Side',
 
-    document.getElementById("outstandingQty").textContent =
-        format(selectedDesign-previousProgress);
+        'Chainage',
 
-    calculateProgress();
+        'Design Quantity',
 
-}
+        'Completed',
+
+        'Completed Quantity',
+
+        'Outstanding Quantity'
+
+    ]];
 
 
-// ===================================
-// SAVE DRAFT
-// ===================================
+    designRecords.forEach(record => {
 
-function saveDraft() {
+        const progress = progressRecords.find(p =>
 
-    const additional = Number(completedQty.value);
+            p.activity_code === record.activity_code &&
 
-    if(!project.value ||
-       !activity.value ||
-       !chainage.value ||
-       !workDate.value) {
+            p.side === record.side &&
 
-        alert("Complete the project, activity, chainage and date.");
+            Number(p.chainage_m) === Number(record.chainage_m)
 
-        return;
+        );
 
-    }
 
-    if(!Number.isFinite(additional) || additional <= 0) {
+        const completed =
 
-        alert("Enter a completed quantity greater than zero.");
+            progress?.is_complete === true;
 
-        return;
 
-    }
+        const quantity =
 
-    const cumulative = previousProgress + additional;
+            Number(record.design_quantity) || 0;
 
-    if(selectedDesign <= 0) {
 
-        alert("No valid design quantity was found.");
+        rows.push([
 
-        return;
+            currentProjectId,
 
-    }
+            record.activity_code,
 
-    if(cumulative > selectedDesign) {
+            activityMap[record.activity_code]?.activity_name ||
 
-        alert("Completed quantity cannot exceed design quantity.");
+                record.activity_code,
 
-        return;
+            record.side,
 
-    }
+            record.chainage_m,
 
-    const draft = {
+            quantity,
 
-        project_id:project.value,
+            completed ? 'TRUE' : 'FALSE',
 
-        activity_id:activity.value,
+            completed ? quantity : 0,
 
-        chainage_id:chainage.value,
+            completed ? 0 : quantity
 
-        work_date:workDate.value,
+        ]);
 
-        design_quantity:selectedDesign,
+    });
 
-        previous_quantity:previousProgress,
 
-        additional_quantity:additional,
+    const csv = rows.map(row =>
 
-        cumulative_quantity:cumulative,
+        row.map(value =>
 
-        outstanding_quantity:selectedDesign-cumulative,
+            '"' + String(value ?? '').replace(/"/g,'""') + '"'
 
-        comments:comments.value,
+        ).join(',')
 
-        captured_by:currentUser.id,
+    ).join('\r\n');
 
-        captured_at:new Date().toISOString()
 
-    };
+    const blob = new Blob(
 
-    const drafts = JSON.parse(
-        localStorage.getItem("tes_earthworks_drafts") || "[]"
+        [csv],
+
+        {type:'text/csv;charset=utf-8;'}
+
     );
 
-    drafts.push(draft);
 
-    localStorage.setItem(
-        "tes_earthworks_drafts",
-        JSON.stringify(drafts)
-    );
+    const url = URL.createObjectURL(blob);
 
-    document.getElementById("status").textContent =
-        "Progress draft saved locally. It has NOT been submitted to Supabase.";
 
-    displayDrafts();
+    const link = document.createElement('a');
 
-    resetForm();
+    link.href = url;
+
+    link.download =
+
+        'TES_Earthworks_Progress_' +
+
+        currentProjectId +
+
+        '.csv';
+
+
+    link.click();
+
+
+    URL.revokeObjectURL(url);
 
 }
 
 
-// ===================================
-// DRAFT HISTORY
-// ===================================
+/* ------------------------------------------------------------
+   19. EVENT LISTENERS
+   ------------------------------------------------------------ */
 
-function displayDrafts() {
+$('projectSelect').addEventListener(
 
-    const drafts = JSON.parse(
-        localStorage.getItem("tes_earthworks_drafts") || "[]"
-    );
+    'change',
 
-    if(!drafts.length) {
+    function () {
 
-        draftHistory.textContent = "No drafts saved.";
+        clearSelection();
 
-        return;
+        loadSelectedProject(this.value);
 
     }
 
-    draftHistory.innerHTML = drafts.map((d,i) => `
-
-        <div style="padding:12px;border-bottom:1px solid #263b54">
-
-            <strong>Draft ${i+1}</strong><br>
-
-            Date: ${d.work_date}<br>
-
-            Additional Quantity:
-            ${format(d.additional_quantity)}<br>
-
-            Cumulative:
-            ${format(d.cumulative_quantity)}
-
-        </div>
-
-    `).join("");
-
-}
+);
 
 
-// ===================================
-// RESET
-// ===================================
+$('activitySelect').addEventListener(
 
-function resetForm() {
+    'change',
 
-    completedQty.value = "";
-    comments.value = "";
+    function () {
 
-    calculateProgress();
+        updateChainages();
 
-}
+        updateActivityCalculation();
 
+    }
 
-// ===================================
-// LOGOUT
-// ===================================
-
-async function logout() {
-
-    if(!confirm("Sign out?")) return;
-
-    await db.auth.signOut();
-
-    location.href = "login.html";
-
-}
+);
 
 
-// START
-init();
+$('sideSelect').addEventListener(
+
+    'change',
+
+    function () {
+
+        updateChainages();
+
+        updateActivityCalculation();
+
+    }
+
+);
+
+
+$('chainageSelect').addEventListener(
+
+    'change',
+
+    function () {
+
+        findSelectedRecord();
+
+    }
+
+);
+
+
+$('completedCheckbox').addEventListener(
+
+    'change',
+
+    function () {
+
+        updateActivityCalculation();
+
+    }
+
+);
+
+
+$('saveButton').addEventListener(
+
+    'click',
+
+    saveProgress
+
+);
+
+
+$('clearButton').addEventListener(
+
+    'click',
+
+    clearSelection
+
+);
+
+
+$('exportButton').addEventListener(
+
+    'click',
+
+    exportProgress
+
+);
+
+
+/* ------------------------------------------------------------
+   20. START APPLICATION
+   ------------------------------------------------------------ */
+
+document.addEventListener(
+
+    'DOMContentLoaded',
+
+    initialiseApplication
+
+);
 
 </script>
 
