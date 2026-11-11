@@ -1,4 +1,4 @@
-/* =========================================================
+[08:19, 11/11/2026] none: /* =========================================================
    THE ENTITY SOLUTIONS
    TES EARTHWORKS PRO
    PVR SURVEYORS - RURAL 1
@@ -34,754 +34,372 @@
 
         START: 9840,
 
-        END: 16920,
+        …
+[08:27, 11/11/2026] none: /* =====================================================
+   TES EARTHWORKS PRO
+   SUPABASE CALCULATION INTEGRATION
 
-        INTERVAL: 20,
+   Connects:
+   Supabase
+       |
+   Design Quantities
+       |
+   Progress Status
+       |
+   Calculation Engine
+       |
+   Project Results
+===================================================== */
 
-        CHAINAGE_COUNT: 355,
+(function (window) {
 
-        FIRST_EXCEL_ROW: 6,
+    'use strict';
 
-        LAST_EXCEL_ROW: 45,
+    const Engine = window.TESEarthworksEngine;
 
-        EXPECTED_ROWS: 40
-
-    });
-
-
-    // =====================================================
-    // GENERATE CHAINAGES
-    // =====================================================
-
-    const CHAINAGES = Object.freeze(
-
-        Array.from(
-
-            {
-                length: CONFIG.CHAINAGE_COUNT
-            },
-
-            (_, index) =>
-
-                CONFIG.START +
-                (index * CONFIG.INTERVAL)
-
-        )
-
-    );
-
-
-    // =====================================================
-    // GENERAL HELPERS
-    // =====================================================
-
-    function toNumber(value) {
-
-        if (
-            value === null ||
-            value === undefined ||
-            value === ''
-        ) {
-            return 0;
-        }
-
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) {
-
-            throw new TypeError(
-                'Invalid quantity: ' + value
-            );
-
-        }
-
-        return number;
-
-    }
-
-
-    function isCompleted(value) {
-
-        return (
-
-            value === true ||
-
-            value === 1 ||
-
-            String(value).toLowerCase() === 'true'
-
+    if (!Engine) {
+        throw new Error(
+            'TES Earthworks Engine not loaded.'
         );
-
     }
 
+    const Integration = {
 
-    function excelAverage(values) {
+        results: null,
 
-        const valid = values.filter(
+        projectId: null,
 
-            value =>
+        activities: [],
 
-                typeof value === 'number' &&
-                Number.isFinite(value)
+        designRecords: [],
 
-        );
+        progressRecords: [],
 
-        if (!valid.length) {
+        // =========================================
+        // LOAD PROJECT DATA
+        // =========================================
 
-            return null;
+        async loadProject(supabase, projectId) {
 
-        }
-
-        return (
-
-            valid.reduce(
-                (total, value) => total + value,
-                0
-            ) / valid.length
-
-        );
-
-    }
-
-
-    function getChainageIndex(chainage) {
-
-        const value = Number(chainage);
-
-        const index =
-
-            (value - CONFIG.START) /
-            CONFIG.INTERVAL;
-
-        if (
-
-            !Number.isInteger(index) ||
-
-            index < 0 ||
-
-            index >= CONFIG.CHAINAGE_COUNT
-
-        ) {
-
-            return -1;
-
-        }
-
-        return index;
-
-    }
-
-
-    // =====================================================
-    // NORMALISE ORIGINAL AND NEW INPUT STRUCTURES
-    // =====================================================
-
-    function normaliseRow(input) {
-
-        const design = new Array(
-            CONFIG.CHAINAGE_COUNT
-        ).fill(0);
-
-        const completed = new Array(
-            CONFIG.CHAINAGE_COUNT
-        ).fill(false);
-
-
-        // NEW INPUT FORMAT:
-        //
-        // {
-        //   designByChainage: [],
-        //   completedByChainage: []
-        // }
-
-        if (Array.isArray(input.designByChainage)) {
-
-            input.designByChainage.forEach(
-
-                (quantity, index) => {
-
-                    if (index < CONFIG.CHAINAGE_COUNT) {
-
-                        design[index] =
-                            toNumber(quantity);
-
-                    }
-
-                }
-
-            );
-
-        }
-
-
-        if (Array.isArray(input.completedByChainage)) {
-
-            input.completedByChainage.forEach(
-
-                (value, index) => {
-
-                    if (index < CONFIG.CHAINAGE_COUNT) {
-
-                        completed[index] =
-                            isCompleted(value);
-
-                    }
-
-                }
-
-            );
-
-        }
-
-
-        // ORIGINAL INPUT FORMAT:
-        //
-        // {
-        //   quantities: [
-        //     {
-        //       chainage: 9840,
-        //       designQuantity: 100,
-        //       completed: true
-        //     }
-        //   ]
-        // }
-
-        if (Array.isArray(input.quantities)) {
-
-            input.quantities.forEach(item => {
-
-                const index = getChainageIndex(
-                    item.chainage
+            if (!supabase) {
+                throw new Error(
+                    'Supabase client not supplied.'
                 );
-
-                if (index !== -1) {
-
-                    design[index] = toNumber(
-                        item.designQuantity
-                    );
-
-                    completed[index] = isCompleted(
-                        item.completed
-                    );
-
-                }
-
-            });
-
-        }
-
-
-        return {
-
-            excelRow: input.excelRow ?? null,
-
-            activity: input.activity || 'Unspecified',
-
-            side: input.side || 'Unspecified',
-
-            design,
-
-            completed
-
-        };
-
-    }
-
-
-    // =====================================================
-    // CORE ENGINE
-    // =====================================================
-
-    function calculateRow(
-
-        designByChainage,
-
-        completedByChainage
-
-    ) {
-
-        const design = Array.isArray(
-            designByChainage
-        )
-            ? designByChainage
-            : [];
-
-        const completed = Array.isArray(
-            completedByChainage
-        )
-            ? completedByChainage
-            : [];
-
-
-        let totalDesign = 0;
-
-        let totalCompleted = 0;
-
-        let completedCount = 0;
-
-        const chainageResults = [];
-
-
-        for (
-
-            let i = 0;
-
-            i < CONFIG.CHAINAGE_COUNT;
-
-            i++
-
-        ) {
-
-            const quantity = toNumber(
-                design[i]
-            );
-
-            const done = isCompleted(
-                completed[i]
-            );
-
-
-            totalDesign += quantity;
-
-
-            if (done) {
-
-                totalCompleted += quantity;
-
-                completedCount++;
-
             }
 
+            if (!projectId) {
+                throw new Error(
+                    'Project ID is required.'
+                );
+            }
 
-            chainageResults.push({
+            this.projectId = projectId;
 
-                chainage: CHAINAGES[i],
+            const [
+                designResponse,
+                progressResponse,
+                activityResponse
+            ] = await Promise.all([
 
-                designQuantity: quantity,
+                supabase
+                    .from('ep_design_quantities')
+                    .select(
+                        'project_id,activity_code,side,chainage_m,design_quantity'
+                    )
+                    .eq('project_id', projectId),
 
-                completed: done,
+                supabase
+                    .from('ep_progress_status')
+                    .select(
+                        'project_id,activity_code,side,chainage_m,is_complete'
+                    )
+                    .eq('project_id', projectId),
 
-                completedQuantity:
+                supabase
+                    .from('ep_activities')
+                    .select(
+                        'activity_code,activity_name,unit,display_order'
+                    )
+                    .order('display_order')
 
-                    done ? quantity : 0,
+            ]);
 
-                outstandingQuantity:
+            if (designResponse.error) {
+                throw designResponse.error;
+            }
 
-                    done ? 0 : quantity
+            if (progressResponse.error) {
+                throw progressResponse.error;
+            }
+
+            if (activityResponse.error) {
+                throw activityResponse.error;
+            }
+
+            this.designRecords =
+                designResponse.data || [];
+
+            this.progressRecords =
+                progressResponse.data || [];
+
+            this.activities =
+                activityResponse.data || [];
+
+            return this.calculate();
+
+        },
+
+
+        // =========================================
+        // PREPARE CALCULATION DATA
+        // =========================================
+
+        calculate() {
+
+            const groups = {};
+
+            const activityMap = {};
+
+            this.activities.forEach(activity => {
+
+                activityMap[activity.activity_code] =
+                    activity;
 
             });
 
-        }
+
+            // GROUP DESIGN QUANTITIES
+
+            this.designRecords.forEach(record => {
+
+                const key = [
+
+                    record.activity_code,
+
+                    record.side
+
+                ].join('|');
 
 
-        // ORIGINAL EXCEL:
-        // MT = SUM(C6:MS6)
+                if (!groups[key]) {
 
-        const outstanding =
+                    groups[key] = {
 
-            totalDesign - totalCompleted;
+                        activityCode:
+                            record.activity_code,
 
+                        activity:
+                            activityMap[
+                                record.activity_code
+                            ]?.activity_name ||
+                            record.activity_code,
 
-        // ORIGINAL EXCEL:
-        // Progress = (MT - Outstanding) / MT * 100
+                        unit:
+                            activityMap[
+                                record.activity_code
+                            ]?.unit || '',
 
-        const percentage = totalDesign !== 0
+                        side: record.side,
 
-            ? (
+                        designByChainage:
+                            new Array(
+                                Engine.CONFIG.CHAINAGE_COUNT
+                            ).fill(0),
 
-                (totalDesign - outstanding) /
-                totalDesign
+                        completedByChainage:
+                            new Array(
+                                Engine.CONFIG.CHAINAGE_COUNT
+                            ).fill(false)
 
-            ) * 100
+                    };
 
-            : null;
-
-
-        // ORIGINAL EXCEL:
-        // COUNTIF(completed, TRUE) * 20
-
-        const distance =
-
-            completedCount *
-            CONFIG.INTERVAL;
-
-
-        return {
-
-            totalDesignQuantity: totalDesign,
-
-            completedQuantity: totalCompleted,
-
-            outstandingQuantity: outstanding,
-
-            completionPercentage: percentage,
-
-            progressPercent: percentage,
-
-            outstandingRatio:
-
-                percentage === null
-
-                    ? null
-
-                    : (100 - percentage) / 100,
-
-            completedChainageCount: completedCount,
-
-            distanceCovered: distance,
-
-            chainages: chainageResults
-
-        };
-
-    }
+                }
 
 
-    // =====================================================
-    // ORIGINAL ROW INTERFACE
-    // =====================================================
+                const index = Engine.CHAINAGES.indexOf(
+                    Number(record.chainage_m)
+                );
 
-    function calculateOriginalRow(row) {
+                if (index === -1) {
 
-        const normalised = normaliseRow(row);
+                    console.warn(
+                        'Invalid chainage:',
+                        record.chainage_m
+                    );
 
-        const result = calculateRow(
+                    return;
 
-            normalised.design,
-
-            normalised.completed
-
-        );
-
-        return {
-
-            activity: normalised.activity,
-
-            side: normalised.side,
-
-            excelRow: normalised.excelRow,
-
-            ...result
-
-        };
-
-    }
+                }
 
 
-    // =====================================================
-    // PROJECT CALCULATION
-    // =====================================================
+                groups[key].designByChainage[index] +=
 
-    function calculateEarthworks(rows) {
+                    Number(record.design_quantity) || 0;
 
-        if (!Array.isArray(rows)) {
-
-            throw new TypeError(
-                'Earthworks rows must be an array.'
-            );
-
-        }
+            });
 
 
-        const results = rows.map(input => {
+            // APPLY PROGRESS INDICATORS
 
-            const normalised = normaliseRow(input);
+            this.progressRecords.forEach(record => {
+
+                const key = [
+
+                    record.activity_code,
+
+                    record.side
+
+                ].join('|');
+
+
+                const group = groups[key];
+
+                if (!group) return;
+
+
+                const index = Engine.CHAINAGES.indexOf(
+                    Number(record.chainage_m)
+                );
+
+                if (index === -1) return;
+
+
+                group.completedByChainage[index] =
+
+                    record.is_complete === true;
+
+            });
+
+
+            const calculationRows = Object.values(groups);
+
+
+            // RUN ORIGINAL CALCULATION ENGINE
+
+            this.results =
+                Engine.calculateEarthworks(
+                    calculationRows
+                );
+
+
+            this.results.projectId =
+                this.projectId;
+
+            this.results.calculatedAt =
+                new Date().toISOString();
+
+
+            return this.results;
+
+        },
+
+
+        // =========================================
+        // PROJECT SUMMARY
+        // =========================================
+
+        getProjectSummary() {
+
+            if (!this.results) return null;
 
             return {
 
-                excelRow: normalised.excelRow,
+                projectId: this.projectId,
 
-                activity: normalised.activity,
+                designQuantity:
+                    this.results.totalDesignQuantity,
 
-                side: normalised.side,
+                completedQuantity:
+                    this.results.completedQuantity,
 
-                ...calculateRow(
+                outstandingQuantity:
+                    this.results.outstandingQuantity,
 
-                    normalised.design,
+                progress:
+                    this.results.overallProgressPercent,
 
-                    normalised.completed
+                outstandingPercentage:
+                    this.results.overallOutstandingPercent,
 
-                )
+                activities:
+                    this.results.rows.length
 
             };
 
-        });
+        },
 
 
-        // QUANTITY TOTALS
+        // =========================================
+        // ACTIVITY RESULTS
+        // =========================================
 
-        const totalDesign = results.reduce(
+        getActivityResults() {
 
-            (sum, row) =>
+            return this.results
+                ? this.results.rows
+                : [];
 
-                sum + row.totalDesignQuantity,
+        },
 
-            0
 
-        );
+        // =========================================
+        // SIDE RESULTS
+        // =========================================
 
+        getSideResults(side) {
 
-        const totalCompleted = results.reduce(
+            if (!this.results) return [];
 
-            (sum, row) =>
+            return this.results.rows.filter(
 
-                sum + row.completedQuantity,
+                row =>
 
-            0
+                    String(row.side).toLowerCase() ===
 
-        );
+                    String(side).toLowerCase()
 
+            );
 
-        const totalOutstanding =
+        },
 
-            totalDesign - totalCompleted;
 
+        // =========================================
+        // FORMAT NUMBERS
+        // =========================================
 
-        // ORIGINAL EXCEL PROJECT AVERAGING:
-        // AVERAGE(MV6:MV45)
+        format(value, decimals = 2) {
 
-        const overallProgress = excelAverage(
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return '-';
+            }
 
-            results.map(
+            return Number(value).toLocaleString(
+                'en-ZA',
+                {
+                    minimumFractionDigits: decimals,
+                    maximumFractionDigits: decimals
+                }
+            );
 
-                row => row.progressPercent
+        }
 
-            )
+    };
 
-        );
 
+    // =============================================
+    // GLOBAL ACCESS
+    // =============================================
 
-        // ORIGINAL EXCEL:
-        // AVERAGE(MX6:MX45) * 100
-
-        const averageOutstanding = excelAverage(
-
-            results.map(
-
-                row => row.outstandingRatio
-
-            )
-
-        );
-
-
-        // DISTANCE IS REPORTED PER ACTIVITY.
-        // Do not add activity distances and call that
-        // physical project road distance.
-
-        return {
-
-            chainageStart: CONFIG.START,
-
-            chainageEnd: CONFIG.END,
-
-            chainageInterval: CONFIG.INTERVAL,
-
-            chainageCount: CONFIG.CHAINAGE_COUNT,
-
-            totalDesignQuantity: totalDesign,
-
-            completedQuantity: totalCompleted,
-
-            outstandingQuantity: totalOutstanding,
-
-            overallProgressPercent: overallProgress,
-
-            overallOutstandingPercent:
-
-                averageOutstanding === null
-
-                    ? null
-
-                    : averageOutstanding * 100,
-
-            results: results,
-
-            rows: results
-
-        };
-
-    }
-
-
-    // =====================================================
-    // ORIGINAL PROJECT INTERFACE
-    // =====================================================
-
-    function calculateProject(rows) {
-
-        const result = calculateEarthworks(rows);
-
-        // Original engine's weighted quantity percentage.
-
-        return {
-
-            totalDesignQuantity:
-
-                result.totalDesignQuantity,
-
-            totalCompletedQuantity:
-
-                result.completedQuantity,
-
-            totalOutstandingQuantity:
-
-                result.outstandingQuantity,
-
-            completionPercentage:
-
-                result.totalDesignQuantity > 0
-
-                    ? (
-
-                        result.completedQuantity /
-
-                        result.totalDesignQuantity
-
-                    ) * 100
-
-                    : 0,
-
-            measurementRows:
-
-                result.rows.length,
-
-            results:
-
-                result.rows
-
-        };
-
-    }
-
-
-    // =====================================================
-    // SIDE CALCULATION
-    // =====================================================
-
-    function calculateSide(rows, side) {
-
-        const filtered = rows.filter(row =>
-
-            String(row.side || '').toLowerCase() ===
-
-            String(side).toLowerCase()
-
-        );
-
-        return calculateProject(filtered);
-
-    }
-
-
-    // =====================================================
-    // ACTIVITY CALCULATION
-    // =====================================================
-
-    function calculateActivity(rows, activity) {
-
-        const filtered = rows.filter(row =>
-
-            row.activity === activity
-
-        );
-
-        return calculateProject(filtered);
-
-    }
-
-
-    // =====================================================
-    // ACTIVITY RESULTS
-    // =====================================================
-
-    function getActivityResults(results) {
-
-        return results && results.rows
-
-            ? results.rows
-
-            : [];
-
-    }
-
-
-    // =====================================================
-    // EXPORT BOTH ENGINE INTERFACES
-    // =====================================================
-
-    const ENGINE = Object.freeze({
-
-        CONFIG,
-
-        INTERVAL: CONFIG.INTERVAL,
-
-        START: CONFIG.START,
-
-        END: CONFIG.END,
-
-        CHAINAGES,
-
-        calculateRow: calculateOriginalRow,
-
-        calculateProject,
-
-        calculateSide,
-
-        calculateActivity,
-
-        calculateEarthworks,
-
-        getActivityResults
-
-    });
-
-
-    // ORIGINAL NAME
-
-    root.TES_EARTHWORKS_ENGINE = ENGINE;
-
-
-    // NEW INTEGRATION NAME
-
-    root.TESEarthworksEngine = ENGINE;
-
-
-    // NODE COMPATIBILITY
-
-    if (
-
-        typeof module !== 'undefined' &&
-
-        module.exports
-
-    ) {
-
-        module.exports = ENGINE;
-
-    }
+    window.TESEarthworksIntegration =
+        Integration;
 
 
     console.log(
-        'TES Earthworks Pro Calculation Engine loaded.'
-    );
-
-    console.log(
-        'Chainages:',
-        CONFIG.CHAINAGE_COUNT
-    );
-
-    console.log(
-        'Original and integration interfaces available.'
+        'TES Earthworks Supabase Integration loaded.'
     );
 
 
-})(
-
-    typeof globalThis !== 'undefined'
-
-        ? globalThis
-
-        : window
-
-);
+})(window);
