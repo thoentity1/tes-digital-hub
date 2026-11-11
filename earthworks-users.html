@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>TES Earthworks Pro | User Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root {
+--bg:#091525;
+--panel:#14283e;
+--panel2:#1b354f;
+--teal:#27c4b0;
+--gold:#e5b95c;
+--text:#f2f6fa;
+--muted:#a9bbcb;
+--line:#34516b;
+--green:#40d69a;
+--red:#ff7777;
+}
+
+* {
+box-sizing:border-box;
+}
+
+body {
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:Arial,sans-serif;
+}
+
+header {
+background:#101f33;
+padding:20px;
+border-bottom:2px solid var(--teal);
+}
+
+.brand {
+font-size:20px;
+font-weight:bold;
+}
+
+.brand span {
+color:var(--teal);
+}
+
+.subtitle {
+color:var(--muted);
+font-size:12px;
+margin-top:6px;
+}
+
+.layout {
+display:flex;
+min-height:100vh;
+}
+
+.sidebar {
+width:225px;
+background:#101f33;
+padding:20px;
+flex-shrink:0;
+}
+
+.sidebar h3 {
+color:var(--teal);
+font-size:15px;
+}
+
+.sidebar a {
+display:block;
+padding:12px;
+margin:5px 0;
+color:var(--muted);
+text-decoration:none;
+border-radius:6px;
+font-size:13px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+background:#24506a;
+color:white;
+}
+
+main {
+flex:1;
+padding:25px;
+max-width:1500px;
+}
+
+.card {
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:11px;
+padding:20px;
+margin-bottom:20px;
+}
+
+h2 {
+color:var(--gold);
+font-size:18px;
+margin-top:0;
+}
+
+.grid {
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+.field label {
+display:block;
+font-size:12px;
+color:var(--muted);
+margin-bottom:7px;
+}
+
+input,select {
+width:100%;
+padding:12px;
+background:#091a2c;
+border:1px solid var(--line);
+border-radius:7px;
+color:white;
+font-size:14px;
+}
+
+button {
+padding:12px 18px;
+border:0;
+border-radius:7px;
+background:var(--teal);
+color:#06221e;
+font-weight:bold;
+cursor:pointer;
+margin:5px;
+}
+
+.secondary {
+background:#34516b;
+color:white;
+}
+
+.danger {
+background:#733c43;
+color:white;
+}
+
+.status {
+padding:12px;
+background:#173b38;
+color:#a9f5dc;
+border-radius:7px;
+margin-top:12px;
+font-size:13px;
+}
+
+.warning {
+background:#453719;
+color:#ffe0a0;
+}
+
+.metrics {
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+}
+
+.metric {
+background:var(--panel2);
+padding:16px;
+border-radius:8px;
+}
+
+.metric small {
+color:var(--muted);
+}
+
+.metric strong {
+display:block;
+color:var(--teal);
+font-size:24px;
+margin-top:8px;
+}
+
+.tablewrap {
+overflow-x:auto;
+}
+
+table {
+width:100%;
+border-collapse:collapse;
+min-width:700px;
+}
+
+th,td {
+padding:12px;
+border-bottom:1px solid var(--line);
+text-align:left;
+font-size:12px;
+}
+
+th {
+background:#183c55;
+color:var(--teal);
+}
+
+.badge {
+padding:5px 9px;
+border-radius:12px;
+background:#24506a;
+color:#a9f5dc;
+}
+
+footer {
+text-align:center;
+padding:25px;
+color:var(--muted);
+font-size:12px;
+}
+
+@media(max-width:800px) {
+
+.layout {
+display:block;
+}
+
+.sidebar {
+width:100%;
+}
+
+.grid {
+grid-template-columns:1fr;
+}
+
+.metrics {
+grid-template-columns:1fr;
+}
+
+main {
+padding:12px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="brand">
+THE ENTITY SOLUTIONS |
+<span>TES EARTHWORKS PRO</span>
+</div>
+
+<div class="subtitle">
+SYSTEM ADMINISTRATION | USER MANAGEMENT & ACCESS CONTROL
+</div>
+
+</header>
+
+
+<div class="layout">
+
+<aside class="sidebar">
+
+<h3>TES DIGITAL HUB</h3>
+
+<a href="dashboard.html">Digital Hub</a>
+
+<a href="earthworks-projects.html">Project Overview</a>
+
+<a href="design-quantities.html">Design Quantities</a>
+
+<a href="earthworks-chainages.html">Chainage Management</a>
+
+<a href="earthworks-progress.html">Progress Capture</a>
+
+<a href="earthworks-users.html" class="active">
+User Management
+</a>
+
+<a href="earthworks-analytics.html">Analytics</a>
+
+</aside>
+
+
+<main>
+
+
+<!-- ADMIN INFORMATION -->
+
+<section class="card">
+
+<h2>01. Administrator Access</h2>
+
+<div class="grid">
+
+<div class="field">
+
+<label>Logged-in Administrator</label>
+
+<input id="adminEmail" readonly>
+
+</div>
+
+<div class="field">
+
+<label>Administrator Role</label>
+
+<input id="adminRole" readonly>
+
+</div>
+
+</div>
+
+<div id="connection" class="status">
+Checking administrator access...
+</div>
+
+</section>
+
+
+<!-- USER SUMMARY -->
+
+<section class="card">
+
+<h2>02. User Management Dashboard</h2>
+
+<div class="metrics">
+
+<div class="metric">
+<small>Registered Users</small>
+<strong id="totalUsers">0</strong>
+</div>
+
+<div class="metric">
+<small>Active Assignments</small>
+<strong id="activeUsers">0</strong>
+</div>
+
+<div class="metric">
+<small>Projects</small>
+<strong id="totalProjects">0</strong>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- INVITE USER -->
+
+<section class="card">
+
+<h2>03. Invite New User</h2>
+
+<div class="grid">
+
+<div class="field">
+
+<label>User Email Address</label>
+
+<input
+type="email"
+id="newEmail"
+placeholder="user@example.com">
+
+</div>
+
+<div class="field">
+
+<label>Assigned Role</label>
+
+<select id="newRole">
+
+<option value="surveyor">Surveyor</option>
+
+<option value="management">Management</option>
+
+<option value="project_admin">Project Admin</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Assign Project</label>
+
+<select id="newProject">
+
+<option value="">Select project...</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="status warning">
+
+Super Admin privileges cannot be assigned through
+this invitation form. Only an authorised system
+administrator may grant that role.
+
+</div>
+
+<button onclick="inviteUser()">
+INVITE USER
+</button>
+
+<div id="inviteStatus" class="status">
+Ready to invite users.
+</div>
+
+</section>
+
+
+<!-- USER REGISTER -->
+
+<section class="card">
+
+<h2>04. Registered Users & Project Access</h2>
+
+<button onclick="loadUsers()">
+REFRESH USERS
+</button>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Email Address</th>
+
+<th>Role</th>
+
+<th>Project</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="userTable">
+
+<tr>
+<td colspan="5">Loading users...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- ACCESS RIGHTS -->
+
+<section class="card">
+
+<h2>05. System Access Rights</h2>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Function</th>
+
+<th>Super Admin</th>
+
+<th>Project Admin</th>
+
+<th>Surveyor</th>
+
+<th>Management</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Manage Users</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Create Projects</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Assign Project Users</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Manage Design Quantities</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Manage Chainages</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Capture Measurements</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Mark Work Completed</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Approve Measurements</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>✓</td>
+</tr>
+
+<tr>
+<td>View Reports</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>✓</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+</main>
+
+</div>
+
+
+<footer>
+
+THE ENTITY SOLUTIONS (PTY) LTD |
+TES DIGITAL HUB |
+TES EARTHWORKS PRO
+
+</footer>
+
+
+<script>
+
+// ======================================
+// SUPABASE CONFIGURATION
+// ======================================
+
+const SUPABASE_URL =
+"https://jgzvycawkkfdvdimdjat.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_Qee9wbZ8erSC2dDDkSo9vg_3uh_gbgO";
+
+const sb = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+let currentUser = null;
+
+
+// ======================================
+// INITIALISE
+// ======================================
+
+async function initialise() {
+
+try {
+
+const {data,error} = await sb.auth.getUser();
+
+if(error) throw error;
+
+if(!data.user) {
+
+location.href = "login.html";
+
+return;
+
+}
+
+currentUser = data.user;
+
+document.getElementById("adminEmail").value =
+currentUser.email;
+
+
+// This is display information only.
+// The server-side function must independently
+// verify the administrator's permissions.
+
+const role =
+currentUser.app_metadata?.role || "Not verified";
+
+document.getElementById("adminRole").value = role;
+
+
+// Load data through the protected Edge Function.
+
+await loadProjects();
+
+await loadUsers();
+
+document.getElementById("connection").textContent =
+"Signed in. Server-side administrator verification required.";
+
+} catch(error) {
+
+document.getElementById("connection").textContent =
+error.message;
+
+}
+
+}
+
+
+// ======================================
+// SECURE EDGE FUNCTION CALL
+// ======================================
+
+async function adminAction(action,payload={}) {
+
+const {data,error} = await sb.functions.invoke(
+"earthworks-user-admin",
+{
+body:{
+action:action,
+...payload
+}
+}
+);
+
+if(error) throw error;
+
+if(data?.error) throw new Error(data.error);
+
+return data;
+
+}
+
+
+// ======================================
+// LOAD PROJECTS
+// ======================================
+
+async function loadProjects() {
+
+const {data,error} = await sb
+.from("ep_projects")
+.select("id,project_code,project_name")
+.order("created_at",{ascending:false});
+
+if(error) throw error;
+
+const select =
+document.getElementById("newProject");
+
+select.innerHTML =
+'<option value="">Select project...</option>';
+
+(data||[]).forEach(project=>{
+
+const option = document.createElement("option");
+
+option.value = project.id;
+
+option.textContent =
+project.project_code+" - "+project.project_name;
+
+select.appendChild(option);
+
+});
+
+document.getElementById("totalProjects").textContent =
+(data||[]).length;
+
+}
+
+
+// ======================================
+// INVITE USER
+// ======================================
+
+async function inviteUser() {
+
+try {
+
+const email =
+document.getElementById("newEmail").value.trim();
+
+const role =
+document.getElementById("newRole").value;
+
+const projectId =
+document.getElementById("newProject").value;
+
+if(!email || !email.includes("@"))
+throw new Error("Enter a valid email address.");
+
+if(!projectId)
+throw new Error("Select a project.");
+
+const button = document.querySelector(
+'button[onclick="inviteUser()"]'
+);
+
+button.disabled = true;
+
+document.getElementById("inviteStatus").textContent =
+"Sending invitation...";
+
+const result = await adminAction("invite_user",{
+email:email,
+role:role,
+project_id:projectId
+});
+
+document.getElementById("inviteStatus").textContent =
+result.message || "Invitation processed successfully.";
+
+document.getElementById("newEmail").value = "";
+
+await loadUsers();
+
+} catch(error) {
+
+document.getElementById("inviteStatus").textContent =
+error.message;
+
+} finally {
+
+const button = document.querySelector(
+'button[onclick="inviteUser()"]'
+);
+
+button.disabled = false;
+
+}
+
+}
+
+
+// ======================================
+// LOAD USERS
+// ======================================
+
+async function loadUsers() {
+
+try {
+
+const result = await adminAction("list_users");
+
+const users = result.users || [];
+
+document.getElementById("totalUsers").textContent =
+users.length;
+
+document.getElementById("activeUsers").textContent =
+users.filter(u=>u.status==="active").length;
+
+const table =
+document.getElementById("userTable");
+
+table.innerHTML = "";
+
+users.forEach(user=>{
+
+const tr = document.createElement("tr");
+
+const email = document.createElement("td");
+email.textContent = user.email || "";
+
+const role = document.createElement("td");
+role.textContent = user.role || "";
+
+const project = document.createElement("td");
+project.textContent = user.project_name || "";
+
+const status = document.createElement("td");
+status.textContent = user.status || "Unknown";
+
+const action = document.createElement("td");
+
+const edit = document.createElement("button");
+
+edit.textContent = "Change Role";
+
+edit.className = "secondary";
+
+edit.onclick = ()=>changeRole(user);
+
+const deactivate = document.createElement("button");
+
+deactivate.textContent = "Deactivate";
+
+deactivate.className = "danger";
+
+deactivate.onclick = ()=>deactivateUser(user);
+
+action.append(edit,deactivate);
+
+tr.append(email,role,project,status,action);
+
+table.appendChild(tr);
+
+});
+
+if(!users.length) {
+
+table.innerHTML =
+'<tr><td colspan="5">No users found.</td></tr>';
+
+}
+
+} catch(error) {
+
+document.getElementById("userTable").innerHTML =
+'<tr><td colspan="5">'+
+error.message+
+'</td></tr>';
+
+}
+
+}
+
+
+// ======================================
+// CHANGE ROLE
+// ======================================
+
+async function changeRole(user) {
+
+const role = prompt(
+"Enter new role:\nsurveyor\nproject_admin\nmanagement",
+user.role
+);
+
+if(!role) return;
+
+const allowed = [
+"surveyor",
+"project_admin",
+"management"
+];
+
+if(!allowed.includes(role)) {
+
+alert("Invalid role.");
+
+return;
+
+}
+
+if(!confirm("Change the user's role?")) return;
+
+try {
+
+await adminAction("change_role",{
+user_id:user.user_id,
+project_id:user.project_id,
+role:role
+});
+
+alert("Role updated.");
+
+await loadUsers();
+
+} catch(error) {
+
+alert(error.message);
+
+}
+
+}
+
+
+// ======================================
+// DEACTIVATE USER
+// ======================================
+
+async function deactivateUser(user) {
+
+if(!confirm(
+"Deactivate this user's project access?"
+)) return;
+
+try {
+
+await adminAction("deactivate_user",{
+user_id:user.user_id,
+project_id:user.project_id
+});
+
+alert("Access deactivated.");
+
+await loadUsers();
+
+} catch(error) {
+
+alert(error.message);
+
+}
+
+}
+
+
+// ======================================
+// START
+// ======================================
+
+initialise();
+
+</script>
+
+</body>
+</html>
